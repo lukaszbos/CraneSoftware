@@ -10,16 +10,16 @@
 #include "StepperMotor28BYJ48.h"
 #include "Joystick.h"
 
-const int analogPin = A0;     // potentiometer wiper (middle terminal) connected to analog pin A0
+const byte analogPin = A0;     // potentiometer wiper (middle terminal) connected to analog pin A0
                        // outside leads to ground and +5V
 
 void setup() {
- Serial.begin(9600);
- setupStepper28BYJ48(); 
+	Serial.begin(9600);
+	setupStepper28BYJ48(); 
 }
 
 void loop() {
-  Serial.println(getVoltage(analogPin)); //  testing if joystick's potentiometer works  
-  delay(100);
+	Serial.println(getVoltage(analogPin)); //  testing if joystick's potentiometer works  
+	delay(100);
  
 }
