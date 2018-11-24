@@ -4,7 +4,7 @@
  */
 
 //returns value read from analog pin
-int getVoltage(int analogPin){
+int getVoltage(const byte analogPin){
   // read the input on analog pin 0:
   int sensorValue = analogRead(analogPin); // read the input pin
   return sensorValue; 
