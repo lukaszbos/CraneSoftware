@@ -6,6 +6,8 @@
  * 
  */
 
+ 
+
 #include <Arduino.h>
 #include "StepperMotor28BYJ48.h"
 #include "Joystick.h"
@@ -20,6 +22,7 @@ void setup() {
 
 void loop() {
 	Serial.println(getVoltage(analogPin)); //  testing if joystick's potentiometer works  
-	delay(100);
+  changeDirectionOfStepper28BYJ48(getVoltage(analogPin));
+  delay(2);
  
 }

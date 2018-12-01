@@ -2,12 +2,16 @@
  * This file contains joystick controller methods
  * 
  */
+ ////JOYSTICK CANT SEE  3 
+
+int sensorValue;
+int outputValue;
 
 //returns value read from analog pin
 int getVoltage(const byte analogPin){
-  // read the input on analog pin 0:
-  int sensorValue = analogRead(analogPin); // read the input pin
-  return sensorValue; 
+  sensorValue = analogRead(analogPin); // read the input on analog pin A0
+  outputValue = map(sensorValue, 0, 1023, -3, 4); // mapping sensor value to scale from -3 to 3
+  return outputValue; 
   
   // print out the value you read:
   //Serial.println(sensorValue);
