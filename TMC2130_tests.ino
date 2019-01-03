@@ -4,6 +4,8 @@
 #define STEP_PIN  A4 	//step
 #define CS_PIN    A3 	//chip select
 
+#define HALL_PIN  A0 //Hall-effect sensor pin
+
 /* You also need to connect the SPI pins as follows for programming the TMC2130. If you have several TMC2130, they all must use these same pins.
 SDI --> D11
 SDO --> D12
@@ -44,19 +46,29 @@ void setup() {
 
 	stepper.setAcceleration(500);
 	stepper.setMaxSpeed(2000);
-	stepper.setSpeed(1000);
+	stepper.setSpeed(0x100);
 }
 
 void loop() {
 	stepper.runSpeed();
 	if(Serial.available()){ //control something by typing into serial monitor. Just for testing.
 		char a=Serial.read();
-		if(a=='0') stepper.setSpeed(0);
+		static word spd=stepper.speed(); // save the last speed of the motor
+		if(a=='0') stepper.setSpeed(0); // stop motor
 		else{
-			stepper.setSpeed(1000);
 			if(a=='1') driver.shaft_dir(0);
-			else if(a=='2') driver.shaft_dir(1);
+			else if(a=='2') driver.shaft_dir(1); // reverses motor direction
+			else if(a=='+' && spd<0x800) spd<<=2; // double the speed
+			else if(a=='-' && spd>4) spd>>=2; // half speed
+			stepper.setSpeed(spd); // run motor at that speed
 		}
-		Serial.println(a);
+		Serial.println(spd);
+	}
+	// print Hall sensor readings to serial
+	static unsigned long banana=0;
+	if(millis()-banana>50){
+		banana=millis();
+		stepper.runSpeed();
+		Serial.println(analogRead(HALL_PIN));
 	}
 }
