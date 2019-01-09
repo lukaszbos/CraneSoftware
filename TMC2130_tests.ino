@@ -29,6 +29,17 @@ TMC2130Stepper driver = TMC2130Stepper(EN_PIN, DIR_PIN, STEP_PIN, CS_PIN);
 #include <AccelStepper.h> // https://www.airspayce.com/mikem/arduino/AccelStepper/
 AccelStepper stepper = AccelStepper(stepper.DRIVER, STEP_PIN, DIR_PIN);
 
+void settings(){ // this function changes some settings of TMC2130
+	driver.begin(); // Initiate pins and registeries
+	driver.setCurrent(300, 0.11, 0.2);    // Set stepper current to 600mA. The command is the same as command TMC2130.setCurrent(600, 0.11, 0.5);
+	driver.hold_delay(15);
+	driver.power_down_delay(64);
+	driver.stealthChop(1);      // Enable extremely quiet stepping
+	driver.stealth_autoscale(1);
+	driver.microsteps(0);
+	driver.interpolate(1);
+}
+
 void setup() {
 	SPI.begin();
 	Serial.begin(250000); // Set baud rate in serial monitor
@@ -36,18 +47,11 @@ void setup() {
 	Serial.println("Start...");
 	pinMode(CS_PIN, OUTPUT);
 	digitalWrite(CS_PIN, HIGH);
-	driver.begin();             // Initiate pins and registeries
-	driver.setCurrent(200, 0.11, 0.2);    // Set stepper current to 600mA. The command is the same as command TMC2130.setCurrent(600, 0.11, 0.5);
-	driver.hold_delay(15);
-	driver.power_down_delay(64);
-	driver.stealthChop(1);      // Enable extremely quiet stepping
-	driver.stealth_autoscale(1);
-	driver.microsteps(0);
-	driver.interpolate(1);
+	settings();
 
 	stepper.setAcceleration(500);
 	stepper.setMaxSpeed(2000);
-	stepper.setSpeed(0x100);
+	stepper.setSpeed(200);
 }
 
 void loop() {
@@ -67,9 +71,12 @@ void loop() {
 	}
 	// print Hall sensor readings to serial
 	static unsigned long banana=0;
-	if(millis()-banana>50){
+	if(millis()-banana>50){ // some library affects millis(), so its clock runs at wrong rate
 		banana=millis();
-		stepper.runSpeed();
-		Serial.println(analogRead(HALL_PIN));
+		Serial.println(analogRead(HALL_PIN)); // print hall sensor readings
+		if(driver.GSTAT()==1){ // if driver has detected error, it has automatically stopped
+			settings(); // reset the driver settings, so it can start spinning again
+			driver.shaft_dir(!driver.shaft_dir()); // and change motor direction
+		}
 	}
 }
