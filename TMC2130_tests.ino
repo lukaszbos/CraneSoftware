@@ -2,10 +2,10 @@
 // To reduce the number of pins needed, i have wired EN and DIR to GND.
 #define EN_PIN    0xFFFF  //enable (CFG6). I want driver always enabled, so connect EN --> GND 
 #define DIR_PIN   0xFFFF //direction can also be controlled through SPI, so connect DIR --> GND
-#define STEP_PIN  A4 	//step
-#define CS_PIN    A3 	//chip select
+#define STEP_PIN  3 	//step
+#define CS_PIN    2 	//chip select
 
-#define HALL_PIN  A0 //Hall-effect sensor pin
+#define HALL_PIN  A7 //Hall-effect sensor pin
 
 /* You also need to connect the SPI pins as follows for programming the TMC2130. If you have several TMC2130, they all must use these same pins.
 SDI --> D11
@@ -31,7 +31,7 @@ AccelStepper stepper = AccelStepper(stepper.DRIVER, STEP_PIN, DIR_PIN);
 
 void settings(){ // this function changes some settings of TMC2130
 	driver.begin(); // Initiate pins and registeries
-	driver.setCurrent(300, 0.11, 0.2);    // Set stepper current to 600mA. The command is the same as command TMC2130.setCurrent(600, 0.11, 0.5);
+	driver.setCurrent(200, 0.11, 0.2);    // Set stepper current to 600mA. The command is the same as command TMC2130.setCurrent(600, 0.11, 0.5);
 	driver.hold_delay(15);
 	driver.power_down_delay(64);
 	driver.stealthChop(1);      // Enable extremely quiet stepping
