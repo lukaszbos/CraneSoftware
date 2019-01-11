@@ -6,6 +6,7 @@
 #define CS_PIN    2 	//chip select
 
 #define HALL_PIN  A7 //Hall-effect sensor pin
+#define JOYSTICK_PIN A0
 
 /* You also need to connect the SPI pins as follows for programming the TMC2130. If you have several TMC2130, they all must use these same pins.
 SDI --> D11
@@ -31,7 +32,7 @@ AccelStepper stepper = AccelStepper(stepper.DRIVER, STEP_PIN, DIR_PIN);
 
 void settings(){ // this function changes some settings of TMC2130
 	driver.begin(); // Initiate pins and registeries
-	driver.setCurrent(200, 0.11, 0.2);    // Set stepper current to 600mA. The command is the same as command TMC2130.setCurrent(600, 0.11, 0.5);
+	driver.setCurrent(400, 0.11, 0.2);    // Set stepper current to 600mA. The command is the same as command TMC2130.setCurrent(600, 0.11, 0.5);
 	driver.hold_delay(15);
 	driver.power_down_delay(64);
 	driver.stealthChop(1);      // Enable extremely quiet stepping
@@ -51,7 +52,7 @@ void setup() {
 
 	stepper.setAcceleration(500);
 	stepper.setMaxSpeed(2000);
-	stepper.setSpeed(200);
+	stepper.setSpeed(500);
 }
 
 void loop() {
@@ -69,14 +70,38 @@ void loop() {
 		}
 		Serial.println(spd);
 	}
+	stepper.runSpeed();
+	// read joystick to control speed
+	//stepper.setSpeed(map(analogRead(JOYSTICK_PIN),0,1023,-800,800));
+	int pot = analogRead(JOYSTICK_PIN);
+	int realSpeed;
+	if (pot<400){
+		driver.shaft_dir(0);
+		realSpeed=map(pot,400,0,3,1500);
+		stepper.setSpeed(realSpeed);
+	}
+	else if (pot>600){
+		driver.shaft_dir(1);
+		realSpeed=map(pot,600,1023,3,1500);
+		stepper.setSpeed(realSpeed);
+	}
+	else{
+		realSpeed=0;
+		stepper.setSpeed(realSpeed);
+	}
+	stepper.runSpeed();
 	// print Hall sensor readings to serial
 	static unsigned long banana=0;
 	if(millis()-banana>50){ // some library affects millis(), so its clock runs at wrong rate
 		banana=millis();
-		Serial.println(analogRead(HALL_PIN)); // print hall sensor readings
+		Serial.print(analogRead(HALL_PIN)); // print hall sensor readings
 		if(driver.GSTAT()==1){ // if driver has detected error, it has automatically stopped
 			settings(); // reset the driver settings, so it can start spinning again
 			driver.shaft_dir(!driver.shaft_dir()); // and change motor direction
 		}
+		Serial.print(" ");
+		Serial.print(pot);
+		Serial.print(" ");
+		Serial.println(realSpeed);
 	}
 }
