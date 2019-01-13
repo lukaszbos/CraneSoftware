@@ -77,12 +77,12 @@ void loop() {
 	int realSpeed;
 	if (pot<400){
 		driver.shaft_dir(0);
-		realSpeed=map(pot,400,0,3,1500);
+		realSpeed=map(pot,400,0,3,2000);
 		stepper.setSpeed(realSpeed);
 	}
 	else if (pot>600){
 		driver.shaft_dir(1);
-		realSpeed=map(pot,600,1023,3,1500);
+		realSpeed=map(pot,600,1023,3,2000);
 		stepper.setSpeed(realSpeed);
 	}
 	else{
@@ -94,14 +94,20 @@ void loop() {
 	static unsigned long banana=0;
 	if(millis()-banana>50){ // some library affects millis(), so its clock runs at wrong rate
 		banana=millis();
+		stepper.runSpeed();
 		Serial.print(analogRead(HALL_PIN)); // print hall sensor readings
+		stepper.runSpeed();
+		Serial.print(" ");
+		stepper.runSpeed();
+		Serial.print(pot);
+		stepper.runSpeed();
+		Serial.print(" ");
+		stepper.runSpeed();
+		Serial.println(realSpeed);
+		stepper.runSpeed();
 		if(driver.GSTAT()==1){ // if driver has detected error, it has automatically stopped
 			settings(); // reset the driver settings, so it can start spinning again
 			driver.shaft_dir(!driver.shaft_dir()); // and change motor direction
 		}
-		Serial.print(" ");
-		Serial.print(pot);
-		Serial.print(" ");
-		Serial.println(realSpeed);
 	}
 }
