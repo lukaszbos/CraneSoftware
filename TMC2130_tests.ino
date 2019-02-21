@@ -2,8 +2,8 @@
 // To reduce the number of pins needed, i have wired EN and DIR to GND.
 #define EN_PIN    0xFFFF  //enable (CFG6). I want driver always enabled, so connect EN --> GND 
 #define DIR_PIN   0xFFFF //direction can also be controlled through SPI, so connect DIR --> GND
-#define STEP_PIN  3 	//step
-#define CS_PIN    2 	//chip select
+#define STEP_PIN  2 	//step
+#define CS_PIN    3 	//chip select
 
 #define HALL_PIN  A7 //Hall-effect sensor pin
 #define JOYSTICK_PIN A0
