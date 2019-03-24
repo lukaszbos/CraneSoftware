@@ -3,6 +3,9 @@
 .piolibdeps
 .clang_complete
 .gcc-flags.json
+*/__pycache__
+
+
 
 # I Have found nice .gitignore template for JetBrains IDEs usage. 
 # Since I knew Łukasz is also using PyCharm and probably CLion I thought it could happen to be helpful. 
