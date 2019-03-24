@@ -2,15 +2,19 @@
 
 echo "Script started"
 
-mkfifo pipe
+#mkfifo pipe
 
 #arg
 
-./yoloScript.sh < pipe | (python3 pad.py) > pipe
+#./yoloScript.sh < pipe | (python3 pad.py) > pipe
 
-rm pipe
+#rm pipe
 
 #> test.txt
+
+python3 ../padfiles/pad.py
+
+clear
 
 #pads=(python3 pad.py)
 
