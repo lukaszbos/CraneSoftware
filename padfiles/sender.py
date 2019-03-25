@@ -1,4 +1,6 @@
 # Class used to send data from pad.py to AC software
+import sys
+import pygame
 
 
 class Sender:
@@ -19,6 +21,8 @@ class Sender:
         #print(self.joystickNumber)
         print(self.voltage)
 
+    def getButtonName(self):
+        self.get_name
 
 
 # sender = Sender(voltage=0)

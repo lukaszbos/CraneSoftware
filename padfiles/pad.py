@@ -1,7 +1,9 @@
 import pygame
 import sender
 import main
-
+import time
+import sys
+from time import sleep
 # http://www.pygame.org/docs/ref/joystick.html
 
 # https://www.codeproject.com/Articles/26949/Xbox-360-Controller-Input-in-C-with-XInput
@@ -35,12 +37,15 @@ while done == False:
         if event.type == pygame.QUIT:  # If user clicked close
             done = True  # Flag that we are done so we exit this loop
 
+        #Empty method checking for Back button (super useless rn)
+        if event.type == pygame.JOYBUTTONDOWN & pygame.key.get_mods() == 6:
+            done = True
         # Possible joystick actions: JOYAXISMOTION JOYBALLMOTION JOYBUTTONDOWN JOYBUTTONUP JOYHATMOTION
         if event.type == pygame.JOYBUTTONDOWN:
             print("Joystick button pressed.")
         if event.type == pygame.JOYBUTTONUP:
             print("Joystick button released.")
-
+        # sys.stdout.flush()
     # DRAWING STEP
     # First, clear the screen to white. Don't put other drawing commands
     # above this, or they will be erased with this command.
@@ -87,6 +92,9 @@ while done == False:
         for i in range(buttons):
             button = joystick.get_button(i)
             textPrint.print(screen, "Button {:>2} value: {}".format(i, button))
+            # if event.type == pygame.JOYBUTTONDOWN:
+            #     sleep(0.05)
+            #     print("Pressed" + sender.getButtonName(button) + " button");
         textPrint.unindent()
 
         # Hat switch. All or nothing for direction, not like joysticks.
@@ -109,6 +117,8 @@ while done == False:
 
     # Limit to 20 frames per second
     clock.tick(20)
+
+    sys.stdout.flush()
 
 # Close the window and quit.
 # If you forget this line, the program will 'hang'
