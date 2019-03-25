@@ -1,6 +1,6 @@
 #!/bin/bash
 
-printf ">>> Script started <<<"
+printf ">>> Script started <<< \n\n"
 
 # g++ -o testStreamLoader testStreamLoader.cpp
 
@@ -18,31 +18,36 @@ fileCheck() {
 }
 
 get_starter() {
-  if [[ $1 == "*.*" ]]; then
-    a=$1
-    b=${a#*.}
-    if [[ $b == "sh" ]]; then
-      printf ./
-    fi
+  a=$1
+  if grep -q "." "$a"; then
+  b=${a##*.}
+  # echo $b
     if [[ $b == "py" ]]; then
-      printf "python3 "
+      echo "python3 "
     fi
-  fi
-  if [[ $1 != "*.*" ]]; then
+    if [[ $b == "sh" ]]; then
+      printf "./"
+    fi
+    if [[ $b == "java" ]]; then
+      printf "java "
+    fi
+  else
     printf ./
   fi
 }
 
 if [[ $# -lt 2 ]]; then
-  printf "Not enough arguments. Script is runnig default programs"
+  printf "Not enough arguments. Script is runnig default programs \n"
   sleep 5s
-  python3 ../padfiles/pad.py | ./testStreamLoader
+  python3 padfiles/pad.py | ./linuxScripts/testStreamLoader
 fi
 if [[ $# -ge 2 ]]; then
   (fileCheck $file1)
   (fileCheck $file2)
   starter_1=$(get_starter $file1)
   starter_2=$(get_starter $file2)
+
+  echo ${file1#*.}
 
   echo $starter_1 $starter_2
   $starter_1$file1 | $starter_2$file2
