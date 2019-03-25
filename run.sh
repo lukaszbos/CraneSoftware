@@ -37,9 +37,9 @@ get_starter() {
 }
 
 if [[ $# -lt 2 ]]; then
-  printf "Not enough arguments. Script is runnig default programs \n"
-  sleep 5s
-  python3 padfiles/pad.py | ./linuxScripts/testStreamLoader
+  printf "Not enough arguments. Correct syntax is: \n   ./run.sh <output_file> <input_file>"
+  sleep 1s
+  # python3 padfiles/pad.py | ./linuxScripts/testStreamLoader
 fi
 if [[ $# -ge 2 ]]; then
   (fileCheck $file1)
