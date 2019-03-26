@@ -28,7 +28,7 @@ get_starter() {
     if [[ $b == "sh" ]]; then
       printf "./"
     fi
-    if [[ $b == "java" ]]; then
+    if [[ $b == "jar" ]]; then
       printf "java "
     fi
   else
