@@ -90,7 +90,7 @@
         .idea/caches/build_file_checksums.ser
 *.pyc
 
-padfiles/__pycache__/
+*/__pycache__/*
 
 *.o
 

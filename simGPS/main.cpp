@@ -121,6 +121,7 @@ int main(int argc, char **argv) {
 
     std::cout << activeCranes.size();
 
+//    std::cout << "TEST";
 
     return 0;
 }
