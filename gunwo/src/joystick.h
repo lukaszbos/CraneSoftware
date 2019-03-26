@@ -1,11 +1,17 @@
-#include "Joystick.h"
+/*
+ * This file contains joystick controller methods
+ *
+ */
+ ////JOYSTICK CANT SEE  3
+#include <Arduino.h>
 
+int sensorValue;
+int outputValue;
 
 //returns value read from analog pin
 int getGear(const int analogPin){
   sensorValue = analogRead(analogPin); // read the input on analog pin A0
-  outputValue = map(sensorValue,  0, 900, MIN_GEAR, MAX_GEAR); // mapping sensor value to scale from -3 to 3
-                                                              // skalling from 0 to 900 not 1023 becouse of the problems with 0 Gear
+  outputValue = map(sensorValue,  0, 1000, -3, 3); // mapping sensor value to scale from -3 to 3
   return outputValue;
 
   // print out the value you read:
