@@ -29,7 +29,7 @@ get_starter() {
       printf "./"
     fi
     if [[ $b == "jar" ]]; then
-      printf "java "
+      printf "java -jar  "
     fi
   else
     printf ./

@@ -91,3 +91,7 @@
 *.pyc
 
 padfiles/__pycache__/
+
+*.o
+
+linuxScripts/testStreamLoader
