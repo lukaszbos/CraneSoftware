@@ -95,3 +95,5 @@
 *.o
 
 linuxScripts/testStreamLoader
+
+gps-sim-v2/venv/
