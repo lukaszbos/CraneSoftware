@@ -2,6 +2,11 @@
 
 update on branches
 
+Usefull stuff (download is probably necessary):
+    geographic lib for python, quite crucial IMO:: https://geographiclib.sourceforge.io/1.49/python/code.html 
+
+
+
 
 Hey Mateusz here. 
 In the begining, sorry for my english ^^
