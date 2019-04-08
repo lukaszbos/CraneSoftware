@@ -1,3 +1,7 @@
+from math import cos, sin, pi
+
+PI = pi
+
 class point:
     def __init__(self, x=0, y=0, index=0):
         self._x = x
@@ -42,4 +46,9 @@ class hook(point):
         return self._r
     def getTheta(self):
         return self._theta
+    # def passRadials(self, z, r, theta):
+    def convertRadial(self, crane):
+        print(crane.getX(), crane.getY())
 
+        self._x = crane.getX() + self._r * cos(self._theta)
+        self._y = crane.getY() + self._r * sin(self._theta)
