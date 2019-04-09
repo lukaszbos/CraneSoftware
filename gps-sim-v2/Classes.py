@@ -1,5 +1,9 @@
 from math import cos, sin, pi
 
+import geographiclib as geographiclib
+
+from geographiclib.geodesic import Geodesic
+
 PI = pi
 
 class point:

@@ -5,10 +5,7 @@
 # TODO: then try to get ethernet on python working.
 
 
-
 import Classes
-
-
 
 testCrane = Classes.crane()
 testHook = Classes.hook()
@@ -19,8 +16,8 @@ testCrane.setY(10)
 
 testHook.setZ(90)
 testHook.setR(50)
-testHook.setTheta(Classes.PI/8)
+testHook.setTheta(Classes.PI / 8)
 
 testHook.convertRadial(testCrane)
 
-print(testHook.getX(),testHook.getY(),testHook.getZ())
+print(testHook.getX(), testHook.getY(), testHook.getZ())

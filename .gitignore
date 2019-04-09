@@ -99,3 +99,5 @@ linuxScripts/testStreamLoader
 gps-sim-v2/venv/
 
 simGPS/cmake-build-debug/simGPS
+
+GibCrane/venv/
