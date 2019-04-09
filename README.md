@@ -5,7 +5,7 @@ update on branches
 Usefull stuff (download is probably necessary):
     geographic lib for python, quite crucial IMO:: https://geographiclib.sourceforge.io/1.49/python/code.html 
 
-
+    project of UDP multithread Server client:: https://gist.github.com/arthurafarias/7258a2b83433dfda013f1954aaecd50a
 
 
 Hey Mateusz here. 
