@@ -1,7 +1,7 @@
 "# CraneSoftware" 
 
 update on branches
-
+Hi. I created jib branch.
 
 Hey Mateusz here. 
 In the begining, sorry for my english ^^
