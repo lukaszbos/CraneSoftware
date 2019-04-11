@@ -195,18 +195,19 @@ void setup() {
 
 void loop() {
 	static char s0=0, s1=0, s2=0, goal0=0, goal1=0, goal2=0;
-	static bool dir[3]={0,1,0}; // slew, hook, trolley direction
+	static bool dir[3]={1,0,1}; // slew, trolley, hook direction
 	static unsigned long now, then=0;
 	static unsigned long fast[3]={400000,2000000,2000000}; // motor max speeds
+	static unsigned long acl=10; // acceleration setting
 	now=millis();
-	if(now-then>10){ //accelerate slowly
+	if(now-then>acl){ //accelerate slowly
 		then=now;
 		
 		if(s0<goal0) s0++; // slew
 		else if(s0>goal0) s0--;
 		bool newDir=s0<0?0:1;
 		if (newDir!=dir[0]){
-			slew.shaft_dir(newDir);
+			slew.shaft_dir(!newDir);
 			dir[0]=newDir;
 		}
 		setSpeed(0,s0==0?0:fast[0]/abs(s0));
@@ -215,7 +216,7 @@ void loop() {
 		else if(s1>goal1) s1--;
 		newDir=s1<0?0:1;
 		if (newDir!=dir[1]){
-			trolley.shaft_dir(!newDir);
+			trolley.shaft_dir(newDir);
 			dir[1]=newDir;
 		}
 		setSpeed(1,s1==0?0:fast[1]/abs(s1));
@@ -224,7 +225,7 @@ void loop() {
 		else if(s2>goal2) s2--;
 		newDir=s2<0?0:1;
 		if (newDir!=dir[2]){
-			hook.shaft_dir(newDir);
+			hook.shaft_dir(!newDir);
 			dir[2]=newDir;
 		}
 		if(newDir==1 && digitalRead(A3)==1){ // slack detection
@@ -253,14 +254,22 @@ void loop() {
 			++job;
 		}
 		else if(job==4){ // translate settings byte
-			if(wax & 1){
+			if(wax & 1){ // silent mode
 				slew.stealth_max_speed(10);
 				trolley.stealth_max_speed(10);
 				hook.stealth_max_speed(10);
-			}else{
+				fast[0]=2000000;
+				fast[1]=8000000;
+				fast[2]=15000000;
+				acl=2;
+			}else{ // high speed mode
 				slew.stealth_max_speed(10000);
 				trolley.stealth_max_speed(10000);
 				hook.stealth_max_speed(10000);
+				fast[0]=400000;
+				fast[1]=2000000;
+				fast[2]=2000000;
+				acl=10;
 			}
 			++job;
 		}

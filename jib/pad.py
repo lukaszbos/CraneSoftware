@@ -112,7 +112,7 @@ while done==False:
 				if pad.get_button(2):
 					wax=0
 					flag=1
-				slew0=deadzone(pad.get_axis(0)) # DualShock4 doesn't have built in deadzones, so we do that here in software.
+				slew0=int((pad.get_axis(4)-pad.get_axis(5))*63) # DualShock4 doesn't have built in deadzones, so we do that here in software.
 				trolley0=deadzone(pad.get_axis(1))
 				hook0=deadzone(pad.get_axis(3))
 			else: # USB wired Spartan has built in deadzones. A bit easier to code here, but not as precise control as DualShock4.
