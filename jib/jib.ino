@@ -44,9 +44,9 @@
 // This code uses libraries. These can be easily installed through Arduino IDE library manager by pressing CTRL + SHIFT + I
 #include <TMC2130Stepper.h> // https://github.com/teemuatlut/TMC2130Stepper
 // choose chip select pins for each stepper driver
-TMC2130Stepper slew = TMC2130Stepper(7);
-TMC2130Stepper trolley = TMC2130Stepper(8);
-TMC2130Stepper hook = TMC2130Stepper(9);
+TMC2130Stepper slew = TMC2130Stepper(A0);
+TMC2130Stepper trolley = TMC2130Stepper(A1);
+TMC2130Stepper hook = TMC2130Stepper(A2);
 
 void settings(){ // this function changes some settings of TMC2130
 	// slewing driver settings
