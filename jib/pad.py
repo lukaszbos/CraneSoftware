@@ -1,4 +1,4 @@
-# Hello, Joel here. I found this code from web and edited it to work with both wireless Sony DualShock 4 and Spartan USB wired gamepad that i bought here https://www.prisma.fi/fi/prisma/peliohjain-ps3-pc-spartan-langallinen   DualShock4 connects to my windows 10 laptop easily through windows bluetooth settings. The setup only needs to be done once for each DualShock4. It requires a laptop with new enough bluetooth, or a bluetooth USB dongle. My old bluetooth laptop doesn't work with DualShock4. Spartan just plugs into USB port and windows 10 soon automatically installs drivers for it. After that this code can be run. This code detects if the pad is Spartan or DualShock4, then reads 3 joystick axis positions from the pad, and sends them to arduino through serial (USB wire). This keeps repeating forever.
+# Hello, Joel here. I found this code from web and edited it to work with both wireless Sony DualShock 4 and Spartan USB wired gamepad that i bought here https://www.prisma.fi/fi/prisma/peliohjain-ps3-pc-spartan-langallinen   DualShock4 connects to my windows 10 laptop easily through windows bluetooth settings. The setup only needs to be done once for each DualShock4. Spartan just plugs into USB port and windows 10 soon automatically installs drivers for it. After that this code can be run. This code detects if the pad is Spartan or DualShock4, then reads 3 joystick axis positions from the pad, and sends them to arduino through serial (USB wire). This keeps repeating forever.
 
 # libraries you may need to install with pip
 import pygame # https://www.pygame.org/docs/ref/joystick.html I took this code from here.
@@ -7,12 +7,19 @@ import serial.tools.list_ports
 
 # comes with Python 3.7.2
 import struct # https://docs.python.org/2/library/struct.html
+import threading
 
 # auto selects arduino COM port
 for dog in serial.tools.list_ports.comports(): # list all dogs
 	print(dog)
 dog = serial.tools.list_ports.comports()[0].device # just get the first dog
-ser = serial.Serial(dog,250000) # port, Arduino Serial baud rate
+ser = serial.Serial(dog,250000) # port, baud rate
+
+def monitor(): # prints data that arduino sends us back
+	while True:
+		print(int.from_bytes(ser.readline().rstrip(), byteorder='big', signed=True))
+
+threading.Thread(target=monitor).start()
 
 # Define some colors
 BLACK		= (	 0,	 0,	 0)
@@ -130,9 +137,6 @@ while done==False:
 		if flag:
 			ser.write(bytes(struct.pack('>bb',-127,wax))) # maybe send also settings
 			flag=0
-
-		# print data that arduino sends us back
-		#print(int.from_bytes(ser.readline().rstrip(), byteorder='big', signed=True))
 		
 		# ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
 		

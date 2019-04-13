@@ -196,10 +196,11 @@ void setup() {
 void loop() {
 	static char s0=0, s1=0, s2=0, goal0=0, goal1=0, goal2=0;
 	static bool dir[3]={1,0,1}; // slew, trolley, hook direction
-	static unsigned long now, then=0;
+	static unsigned long then=0;
 	static unsigned long fast[3]={400000,2000000,2000000}; // motor max speeds
 	static unsigned long acl=10; // acceleration setting
-	now=millis();
+	const unsigned long now=millis();
+	
 	if(now-then>acl){ //accelerate slowly
 		then=now;
 		
@@ -235,11 +236,11 @@ void loop() {
 		}
 		else setSpeed(2,s2==0?0:fast[2]/abs(s2));
 	}
+	
 	if(Serial.available()){ // receive speed commands from Python code
 		static byte job=255;
 		char wax=Serial.read();
 		if(wax==127) job=0; // speed packet start character is 127
-		//Serial.println((slew.DRV_STATUS() & 0x3FFUL) , DEC);
 		else if(wax==-127) job=4; // -127 indicates that next byte will be settings
 		else if(job<3){ // or else it must be a speed command -126 to 126
 			if(job==0){
@@ -276,9 +277,10 @@ void loop() {
 	}
 	
 	// print Hall sensor readings to serial
-	/*static unsigned long owl=0;
-	if(millis()-owl>50){ // some library affected millis(), so its clock ran at wrong rate
-		owl=millis();
-		Serial.print(analogRead(HALL_PIN)); // print hall sensor readings
-	}*/
+	static unsigned long owl=0;
+	if(now-owl>1000){
+		owl=now;
+		//Serial.print(analogRead(HALL_PIN)); // print hall sensor readings
+		Serial.println((slew.DRV_STATUS() & 0x3FFUL) , DEC); // stallGuard reading
+	}
 }
