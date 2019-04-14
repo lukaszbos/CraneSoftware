@@ -291,7 +291,7 @@ void loop() {
 	
 	// prints various numbers to serial
 	static unsigned long owl=0;
-	if(now-owl>50){
+	if(now-owl>200){
 		owl=now;
 		//Serial.print(analogRead(HALL_PIN)); // print hall sensor readings
 		long positron[3];
