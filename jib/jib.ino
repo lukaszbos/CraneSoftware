@@ -93,15 +93,29 @@ volatile unsigned long
 	kid[3]={0xFFFF00,0xFFFF00,0xFFFF00}, // CPU cycles to wait between steps for each motor
 	boy[3]={0xFFFF00,0xFFFF00,0xFFFF00}; // CPU cycles left until the motor needs to be stepped again
 volatile bool motOn[3]={0,0,0}; // which motors are spinning
+volatile long pos[3]={0,0,0}; // motor step positions
+volatile bool dir[3]={0,0,0}; // slew, trolley, hook direction
 
 // Interrupt Service Routine that automatically keeps stepping motors
 ISR(TIMER1_CAPT_vect){ // http://www.gammon.com.au/interrupts
 	static bool man[3]={0}; // which motors to step next
 	
-	// toggles step pin(s) https://www.arduino.cc/en/Reference/PortManipulation
-	if(motOn[0] && man[0]) PORTD ^= 1<<4; //slew
-	if(motOn[1] && man[1]) PORTD ^= 1<<5; //trolley
-	if(motOn[2] && man[2]) PORTD ^= 1<<6; //hook
+	// toggles step pin(s)
+	if(motOn[0] && man[0]){ //slew
+		if(dir[0]) ++pos[0];
+		else --pos[0];
+		PORTD ^= 1<<4; // https://www.arduino.cc/en/Reference/PortManipulation
+	}
+	if(motOn[1] && man[1]){ //trolley
+		if(dir[1]) ++pos[1];
+		else --pos[1];
+		PORTD ^= 1<<5;
+	}
+	if(motOn[2] && man[2]){ //hook
+		if(dir[2]) ++pos[2];
+		else --pos[2];
+		PORTD ^= 1<<6;
+	}
 
 	// if new speed is higher than before
  	if(kid[0]<boy[0]) boy[0]=kid[0];
@@ -195,10 +209,9 @@ void setup() {
 
 void loop() {
 	static char s0=0, s1=0, s2=0, goal0=0, goal1=0, goal2=0;
-	static bool dir[3]={1,0,1}; // slew, trolley, hook direction
-	static unsigned long then=0;
 	static unsigned long fast[3]={400000,2000000,2000000}; // motor max speeds
 	static unsigned long acl=10; // acceleration setting
+	static unsigned long then=0;
 	const unsigned long now=millis();
 	
 	if(now-then>acl){ //accelerate slowly
@@ -206,9 +219,9 @@ void loop() {
 		
 		if(s0<goal0) s0++; // slew
 		else if(s0>goal0) s0--;
-		bool newDir=s0<0?0:1;
+		bool newDir=s0>0?0:1;
 		if (newDir!=dir[0]){
-			slew.shaft_dir(!newDir);
+			slew.shaft_dir(newDir);
 			dir[0]=newDir;
 		}
 		setSpeed(0,s0==0?0:fast[0]/abs(s0));
@@ -224,12 +237,12 @@ void loop() {
 
 		if(s2<goal2) s2++; // hook
 		else if(s2>goal2) s2--;
-		newDir=s2<0?0:1;
+		newDir=s2>0?0:1;
 		if (newDir!=dir[2]){
-			hook.shaft_dir(!newDir);
+			hook.shaft_dir(newDir);
 			dir[2]=newDir;
 		}
-		if(newDir==1 && digitalRead(A3)==1){ // slack detection
+		if(newDir==0 && digitalRead(A3)==1){ // slack detection
 			s2=0;
 			goal2=0;
 			setSpeed(2,0);
@@ -276,11 +289,21 @@ void loop() {
 		}
 	}
 	
-	// print Hall sensor readings to serial
+	// prints various numbers to serial
 	static unsigned long owl=0;
-	if(now-owl>1000){
+	if(now-owl>50){
 		owl=now;
 		//Serial.print(analogRead(HALL_PIN)); // print hall sensor readings
+		long positron[3];
+		for(byte i=0; i<3; i++){ // copy motor positions to buffer
+			cli();
+			positron[i]=pos[i];
+			sei();
+		}
+		for(byte i=0; i<3; i++){ // print motor positions
+			Serial.print(positron[i]);
+			Serial.print(", ");
+		}
 		Serial.println((slew.DRV_STATUS() & 0x3FFUL) , DEC); // stallGuard reading
 	}
 }

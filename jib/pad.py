@@ -17,7 +17,7 @@ ser = serial.Serial(dog,250000) # port, baud rate
 
 def monitor(): # prints data that arduino sends us back
 	while True:
-		print(int.from_bytes(ser.readline().rstrip(), byteorder='big', signed=True))
+		print(ser.readline().rstrip().decode('utf-8'))
 
 threading.Thread(target=monitor).start()
 
