@@ -1,15 +1,12 @@
 // This code is supposed to read commands from serial and control 3 steppers.
 // This works at least with atmega 328p microcontroller (Arduino Uno or Nano)
 /* todo:
- * change acceleration limit to constant acceleration?
- * slow speed precise mode that uses stealthChop only
- * high speed mode that uses spreadCycle
- * adjust also setCurrent, power_down_delay, microsteps etc.
- * add step counting
+ * real acceleration setting instead of acl
+ * joystick smoothing? jerk limit? increase acceleration resolution?
+ * adjust setCurrent, power_down_delay, microsteps etc.
  * make stallGuard work as a limit switch
  * use stallGuard value to limit speed to prevent motors stalling
  * slew homing with hall sensor
- * slack detector to stop hook motor before rope gets loose
  * combine with ethernet code
  * make trolley slow down before edges
  * add neoPixel leds for cool light effects
@@ -19,9 +16,6 @@
 
 // a motor can never spin too fast, right?
 #pragma GCC optimize ("-O2") // https://www.instructables.com/id/Arduino-IDE-16x-compiler-optimisations-faster-code/
-
-// Arduino Nano pin connections 
-//#define HALL_PIN  A7 // Hall-effect sensor pin
 
 // TMC2130 pin connections
 	/* You need to connect the SPI pins as follows for programming the TMC2130. If you have several TMC2130, they all must use these same pins.
@@ -203,7 +197,6 @@ void setup() {
 	TCCR1A=B00000000; //p134
 	TIMSK1=B00100000; //p139
 	fox(1000);
-	//Serial.println();
 	pinMode(A3,INPUT_PULLUP); // slack detector
 }
 
@@ -256,18 +249,12 @@ void loop() {
 		if(wax==127) job=0; // speed packet start character is 127
 		else if(wax==-127) job=4; // -127 indicates that next byte will be settings
 		else if(job<3){ // or else it must be a speed command -126 to 126
-			if(job==0){
-				goal0=wax;
-			}
-			if(job==1){
-				goal1=wax;
-			}
-			if(job==2){
-				goal2=wax;
-			}
+			if(job==0) goal0=wax;
+			if(job==1) goal1=wax;
+			if(job==2) goal2=wax;
 			++job;
 		}
-		else if(job==4){ // translate settings byte
+		else if(job==4){ // decode settings byte
 			if(wax & 1){ // silent mode
 				slew.stealth_max_speed(10);
 				trolley.stealth_max_speed(10);
@@ -275,7 +262,7 @@ void loop() {
 				fast[0]=2000000;
 				fast[1]=8000000;
 				fast[2]=15000000;
-				acl=2;
+				acl=2; // todo switch from this hack to a true acceleration setting
 			}else{ // high speed mode
 				slew.stealth_max_speed(10000);
 				trolley.stealth_max_speed(10000);
@@ -289,11 +276,10 @@ void loop() {
 		}
 	}
 	
-	// prints various numbers to serial
 	static unsigned long owl=0;
-	if(now-owl>200){
+	if(now-owl>200){ // prints various numbers to serial
 		owl=now;
-		//Serial.print(analogRead(HALL_PIN)); // print hall sensor readings
+		//Serial.print(analogRead(A7)); // print hall sensor readings
 		long positron[3];
 		for(byte i=0; i<3; i++){ // copy motor positions to buffer
 			cli();
