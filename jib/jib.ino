@@ -304,6 +304,11 @@ void loop() {
 			Serial.print(positron[i]);
 			Serial.print(", ");
 		}
-		Serial.println((slew.DRV_STATUS() & 0x3FFUL) , DEC); // stallGuard reading
+		Serial.print("  ");
+		Serial.print((slew.DRV_STATUS() & 0x3FFUL) , DEC); // stallGuard reading
+		Serial.print(", ");
+		Serial.print((trolley.DRV_STATUS() & 0x3FFUL) , DEC);
+		Serial.print(", ");
+		Serial.println((hook.DRV_STATUS() & 0x3FFUL) , DEC);
 	}
 }
