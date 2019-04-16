@@ -68,6 +68,9 @@ void settings(){ // this function changes some settings of TMC2130
 	trolley.interpolate(1);
 	trolley.double_edge_step(1);
 	trolley.chopper_mode(0);
+	trolley.coolstep_min_speed(200);
+	trolley.diag1_stall(1);
+	trolley.sg_stall_value(3);
 
 	// hoisting driver settings
 	hook.begin();
@@ -89,6 +92,7 @@ volatile unsigned long
 volatile bool motOn[3]={0,0,0}; // which motors are spinning
 volatile long pos[3]={0,0,0}; // motor step positions
 volatile bool dir[3]={0,0,0}; // slew, trolley, hook direction
+volatile long sun=2E9, god=-2E9;
 
 // Interrupt Service Routine that automatically keeps stepping motors
 ISR(TIMER1_CAPT_vect){ // http://www.gammon.com.au/interrupts
@@ -101,9 +105,23 @@ ISR(TIMER1_CAPT_vect){ // http://www.gammon.com.au/interrupts
 		PORTD ^= 1<<4; // https://www.arduino.cc/en/Reference/PortManipulation
 	}
 	if(motOn[1] && man[1]){ //trolley
-		if(dir[1]) ++pos[1];
-		else --pos[1];
-		PORTD ^= 1<<5;
+		if(digitalRead(8)){
+			if(dir[1]){
+				if(pos[1]<sun){
+					++pos[1];
+					PORTD ^= 1<<5;
+				}
+			}
+			else if(pos[1]>god){
+				--pos[1];
+				PORTD ^= 1<<5;
+			}
+			
+		}else{
+			setSpeed(0,0);
+			if (dir[1]) sun=pos[1];
+			else god=pos[1];
+		}
 	}
 	if(motOn[2] && man[2]){ //hook
 		if(dir[2]) ++pos[2];
@@ -198,6 +216,7 @@ void setup() {
 	TIMSK1=B00100000; //p139
 	fox(1000);
 	pinMode(A3,INPUT_PULLUP); // slack detector
+	pinMode(8,INPUT_PULLUP); // diag1 trolley
 }
 
 void loop() {
@@ -295,6 +314,10 @@ void loop() {
 		Serial.print(", ");
 		Serial.print((trolley.DRV_STATUS() & 0x3FFUL) , DEC);
 		Serial.print(", ");
-		Serial.println((hook.DRV_STATUS() & 0x3FFUL) , DEC);
+		Serial.print((hook.DRV_STATUS() & 0x3FFUL) , DEC);
+		if(digitalRead(8)==0){
+			Serial.print(", trolley");
+		}
+		Serial.println();
 	}
 }
