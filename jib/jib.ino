@@ -210,13 +210,13 @@ inline void fox(unsigned long cycles){
 void setup() {
 	DDRD |= 0b01110000; // step pins outputs
 	Serial.begin(250000); // Set baud rate in serial monitor
-	settings();
 	// let's enable timer1 to time the step pulses. See p113 here https://www.sparkfun.com/datasheets/Components/SMD/ATMega328.pdf
 	TCCR1A=B00000000; //p134
 	TIMSK1=B00100000; //p139
 	fox(1000);
 	pinMode(A3,INPUT_PULLUP); // slack detector
 	pinMode(8,INPUT_PULLUP); // diag1 trolley
+	//pinMode(A7,INPUT); // some random line here or i get compiler error
 }
 
 void loop() {
@@ -317,6 +317,17 @@ void loop() {
 		Serial.print((hook.DRV_STATUS() & 0x3FFUL) , DEC);
 		if(digitalRead(8)==0){
 			Serial.print(", trolley");
+		}
+		Serial.print(",   ");
+		const float Vin=analogRead(A7)*0.03812; // input voltage
+		Serial.print(Vin,1);
+		static bool enabled=0;
+		if(enabled){
+			if(Vin<5) enabled=0;
+		}
+		else if(Vin>6){ // auto re-enable drivers after power off
+			settings(); // this function blocks for half a second
+			enabled=1;
 		}
 		Serial.println();
 	}
