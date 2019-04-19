@@ -70,7 +70,7 @@ void settings(){ // this function changes some settings of TMC2130
 	trolley.chopper_mode(0);
 	trolley.coolstep_min_speed(200);
 	trolley.diag1_stall(1);
-	trolley.sg_stall_value(3);
+	trolley.sg_stall_value(15);
 
 	// hoisting driver settings
 	hook.begin();
@@ -92,7 +92,7 @@ volatile unsigned long
 volatile bool motOn[3]={0,0,0}; // which motors are spinning
 volatile long pos[3]={0,0,0}; // motor step positions
 volatile bool dir[3]={0,0,0}; // slew, trolley, hook direction
-volatile long sun=2E9, god=-2E9;
+volatile long posMax=2E9, posMin=-2E9;
 
 // Interrupt Service Routine that automatically keeps stepping motors
 ISR(TIMER1_CAPT_vect){ // http://www.gammon.com.au/interrupts
@@ -107,20 +107,19 @@ ISR(TIMER1_CAPT_vect){ // http://www.gammon.com.au/interrupts
 	if(motOn[1] && man[1]){ //trolley
 		if(digitalRead(8)){
 			if(dir[1]){
-				if(pos[1]<sun){
+				if(pos[1]<posMax){
 					++pos[1];
 					PORTD ^= 1<<5;
 				}
 			}
-			else if(pos[1]>god){
+			else if(pos[1]>posMin){
 				--pos[1];
 				PORTD ^= 1<<5;
 			}
-			
 		}else{
 			setSpeed(0,0);
-			if (dir[1]) sun=pos[1];
-			else god=pos[1];
+			if (dir[1]) posMax=pos[1];
+			else posMin=pos[1];
 		}
 	}
 	if(motOn[2] && man[2]){ //hook
@@ -220,7 +219,7 @@ void setup() {
 }
 
 void loop() {
-	static char s0=0, s1=0, s2=0, goal0=0, goal1=0, goal2=0;
+	static char s0=0, speed1=0, s2=0, goal0=0, goal1=0, goal2=0;
 	static unsigned long fast[3]={400000,2000000,2000000}; // motor max speeds
 	static unsigned long acl=10; // acceleration setting
 	static unsigned long then=0;
@@ -238,14 +237,24 @@ void loop() {
 		}
 		setSpeed(0,s0==0?0:fast[0]/abs(s0));
 
-		if(s1<goal1) s1++; // trolley
-		else if(s1>goal1) s1--;
-		newDir=s1<0?0:1;
+		cli(); // trolley
+		const long pos_=pos[1];
+		sei();
+		if(speed1<goal1){
+			if(pos_<posMax) speed1++;
+			//else speed1=0;
+		}
+		else if(speed1>goal1){
+			if(pos_>posMin) speed1--;
+			//else speed1=0;
+		}
+		if(pos_>=posMax && speed1>0 || pos_<=posMin && speed1<0) speed1=0;
+		newDir=speed1<0?0:1;
 		if (newDir!=dir[1]){
 			trolley.shaft_dir(newDir);
 			dir[1]=newDir;
 		}
-		setSpeed(1,s1==0?0:fast[1]/abs(s1));
+		setSpeed(1,speed1==0?0:fast[1]/abs(speed1));
 
 		if(s2<goal2) s2++; // hook
 		else if(s2>goal2) s2--;
@@ -329,6 +338,8 @@ void loop() {
 			settings(); // this function blocks for half a second
 			enabled=1;
 		}
+		Serial.print(", ");
+		Serial.print(speed1,DEC);
 		Serial.println();
 	}
 }
