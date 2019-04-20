@@ -8,74 +8,79 @@ from geographiclib.geodesic import Geodesic
 PI = pi
 
 
-class point:
-    def __init__(self, x=0, y=0, index=0):
-        self._x = x
-        self._y = y
-        self._index = index
+class Crane:
+    def __init__(self, **kwargs):
+        # self._x = x
+        # self._y = y
+        # self._index = index
+        for x, y, index in kwargs.items():
+            self._x = x
+            self._y = y
+            self._index = index
 
     # def __init__(self, x, y, index):
     #     self._x = x
-    #     self._y = y
     #     self._index = index
 
-    def setX(self, x):
+    #     self._y = y
+    def SetX(self, x):
         self._x = x
 
-    def setY(self, y):
-        self._y = y
-
-    def setIndex(self, index):
-        self._index = index
-
-    def getX(self):
+    def GetX(self):
         return self._x
 
-    def getY(self):
+    def SetY(self, y):
+        self._y = y
+
+    def GetY(self):
         return self._y
 
-    def getIndex(self):
+    def SetIndex(self, index):
+        self._index = index
+
+    def GetIndex(self):
         return self._index
 
 
-class crane(point):
-    def __init__(self):
-        super().__init__()
+# class Crane(point):
+#     def __init__(self):
+#         super().__init__()
 
 
-class hook(point):
+class Hook(Crane):
     pass
 
-    def __init__(self, z=0, r=0, theta=0):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(x=0, y=0, index=0)
+        for z, r, theta in kwargs.items():
+            self._z = z
+            self._r = r
+            self._theta = theta
+
+    def SetZ(self, z):
         self._z = z
+
+    def SetR(self, r):
         self._r = r
+
+    def SetTheta(self, theta):
         self._theta = theta
 
-    def setZ(self, z):
-        self._z = z
-
-    def setR(self, r):
-        self._r = r
-
-    def setTheta(self, theta):
-        self._theta = theta
-
-    def getZ(self):
+    def GetZ(self):
         return self._z
 
-    def getR(self):
+    def GetR(self):
         return self._r
 
-    def getTheta(self):
+    def GetTheta(self):
         return self._theta
 
     # def passRadials(self, z, r, theta):
-    def convertRadial(self, crane):
-        print(crane.getX(), crane.getY())
+    def convertRadial(self, Crane):
+        print(Crane.GetX(), Crane.GetY())
 
-        self._x = crane.getX() + self._r * cos(self._theta)
-        self._y = crane.getY() + self._r * sin(self._theta)
+        self._x = Crane.GetX() + self._r * cos(self._theta)
+        self._y = Crane.GetY() + self._r * sin(self._theta)
 
 
 class table:
