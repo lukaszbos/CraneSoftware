@@ -12,6 +12,7 @@
  * add neoPixel leds for cool light effects
  * enable coolStep for power savings and less heating
  * overflow alarm for timer1 to test if code works
+ * smooth transition from slow mode to fast mode
 */
 
 // a motor can never spin too fast, right?
@@ -93,6 +94,7 @@ volatile bool motOn[3]={0,0,0}; // which motors are spinning
 volatile long pos[3]={0,0,0}; // motor step positions
 volatile bool dir[3]={0,0,0}; // slew, trolley, hook direction
 volatile long posMax=2E9, posMin=-2E9;
+volatile byte homing=0;
 
 // Interrupt Service Routine that automatically keeps stepping motors
 ISR(TIMER1_CAPT_vect){ // http://www.gammon.com.au/interrupts
@@ -105,7 +107,21 @@ ISR(TIMER1_CAPT_vect){ // http://www.gammon.com.au/interrupts
 		PORTD ^= 1<<4; // https://www.arduino.cc/en/Reference/PortManipulation
 	}
 	if(motOn[1] && man[1]){ //trolley
-		if(digitalRead(8)){
+		if(homing>0){ // homing mode
+			if(digitalRead(8)){
+				if(dir[1]) ++pos[1];
+				else --pos[1];
+				PORTD ^= 1<<5;
+			}
+			else{ // stall detected during homing
+				motOn[1]=0;
+				kid[1]=0xFFFF00;
+				if (dir[1]) posMax=pos[1];
+				else posMin=pos[1];
+				homing++;
+			}
+		}
+		else{ // normal mode
 			if(dir[1]){
 				if(pos[1]<posMax){
 					++pos[1];
@@ -116,10 +132,6 @@ ISR(TIMER1_CAPT_vect){ // http://www.gammon.com.au/interrupts
 				--pos[1];
 				PORTD ^= 1<<5;
 			}
-		}else{
-			setSpeed(0,0);
-			if (dir[1]) posMax=pos[1];
-			else posMin=pos[1];
 		}
 	}
 	if(motOn[2] && man[2]){ //hook
@@ -206,6 +218,29 @@ inline void fox(unsigned long cycles){
 	//TCNT1 = 0; // reset counter. p115
 }
 
+unsigned long fast[3]={400000,2000000,2000000}; // motor max speeds
+unsigned long acl=10; // acceleration setting
+
+void silentMode(){
+	slew.stealth_max_speed(10);
+	trolley.stealth_max_speed(10);
+	hook.stealth_max_speed(10);
+	fast[0]=2000000;
+	fast[1]=8000000;
+	fast[2]=15000000;
+	acl=2; // todo switch from this hack to a true acceleration setting
+}
+
+void fastMode(){
+	slew.stealth_max_speed(10000);
+	trolley.stealth_max_speed(10000);
+	hook.stealth_max_speed(10000);
+	fast[0]=400000;
+	fast[1]=2000000;
+	fast[2]=2000000;
+	acl=10;
+}
+
 void setup() {
 	DDRD |= 0b01110000; // step pins outputs
 	Serial.begin(250000); // Set baud rate in serial monitor
@@ -220,8 +255,6 @@ void setup() {
 
 void loop() {
 	static char s0=0, speed1=0, s2=0, goal0=0, goal1=0, goal2=0;
-	static unsigned long fast[3]={400000,2000000,2000000}; // motor max speeds
-	static unsigned long acl=10; // acceleration setting
 	static unsigned long then=0;
 	const unsigned long now=millis();
 	
@@ -263,7 +296,7 @@ void loop() {
 			hook.shaft_dir(newDir);
 			dir[2]=newDir;
 		}
-		if(newDir==0 && digitalRead(A3)==1){ // slack detection
+		if(newDir==0 && digitalRead(A3)==0){ // slack detection
 			s2=0;
 			goal2=0;
 			setSpeed(2,0);
@@ -271,10 +304,10 @@ void loop() {
 		else setSpeed(2,s2==0?0:fast[2]/abs(s2));
 	}
 	
-	if(Serial.available()){ // receive speed commands from Python code
+	if(Serial.available()){ // receive commands from Python code
 		static byte job=255;
 		char wax=Serial.read();
-		if(wax==127) job=0; // speed packet start character is 127
+		if(wax==127 && homing==0) job=0; // speed packet start character is 127
 		else if(wax==-127) job=4; // -127 indicates that next byte will be settings
 		else if(job<3){ // or else it must be a speed command -126 to 126
 			if(job==0) goal0=wax;
@@ -283,24 +316,35 @@ void loop() {
 			++job;
 		}
 		else if(job==4){ // decode settings byte
-			if(wax & 1){ // silent mode
-				slew.stealth_max_speed(10);
-				trolley.stealth_max_speed(10);
-				hook.stealth_max_speed(10);
-				fast[0]=2000000;
-				fast[1]=8000000;
-				fast[2]=15000000;
-				acl=2; // todo switch from this hack to a true acceleration setting
-			}else{ // high speed mode
-				slew.stealth_max_speed(10000);
-				trolley.stealth_max_speed(10000);
-				hook.stealth_max_speed(10000);
-				fast[0]=400000;
-				fast[1]=2000000;
-				fast[2]=2000000;
-				acl=10;
+			if(wax & 2) homing=1;
+			else{
+				if(wax & 1){ // silent mode
+					Serial.println("Silent");
+					silentMode();
+				}else{ // high speed mode
+					Serial.println("Fast");
+					fastMode();
+				}
 			}
 			++job;
+		}
+	}
+
+	if(homing>0){ // homing function
+		if(homing==1){ // start homing
+			Serial.println("Homing");
+			fastMode();
+			goal1=50;
+			homing=2;
+		}
+		else if(homing==3){ // change direction
+			Serial.println("Edge detected");
+			goal1=-50;
+			homing=4;
+		}
+		else if(homing==5){
+			Serial.println("Homing finished");
+			homing=0;
 		}
 	}
 	
@@ -339,7 +383,7 @@ void loop() {
 			enabled=1;
 		}
 		Serial.print(", ");
-		Serial.print(speed1,DEC);
+		Serial.print(homing,DEC);
 		Serial.println();
 	}
 }

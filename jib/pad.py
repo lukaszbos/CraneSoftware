@@ -61,6 +61,14 @@ ser=None
 cat=None
 say=False
 old=0
+wax=0
+oldSilent=0
+newSilent=0
+oldFast=0
+newFast=0
+oldHome=0
+newHome=0
+
 # -------- Main Program Loop -----------
 while done==False:
 	if ser is None: # auto select arduino COM port
@@ -103,8 +111,7 @@ while done==False:
 	slew=0
 	trolley=0
 	hook=0
-	wax=0
-	flag=0
+	send=0
 	
 	# For each joystick:
 	for i in range(joystick_count):
@@ -131,16 +138,27 @@ while done==False:
 		textPrint.unindent()
 		
 		if pad.get_name() == 'Wireless Controller': # bluetooth DualShock4
-			if pad.get_button(1): # button pressed, we are sending settings flag later
-				wax=1
-				flag=1
-			if pad.get_button(2):
-				wax=0
-				flag=1
-			slew0=int((pad.get_axis(4)-pad.get_axis(5))*63) # DualShock4 doesn't have built in deadzones, so we do that here in software.
-			trolley0=deadzone(pad.get_axis(1))
+			newSilent=pad.get_button(1) # silent mode
+			if newSilent>oldSilent:
+				wax |= 1
+				send=1
+			oldSilent=newSilent
+			newFast=pad.get_button(2) # fast mode
+			if newFast>oldFast:
+				wax &= ~1
+				send=1
+			oldFast=newFast
+			newHome=pad.get_button(9) # home
+			if newHome>oldHome:
+				wax |= 2
+				send=1
+			else: # don't home again
+				wax &= ~2
+			oldHome=newHome
+			slew0=int((pad.get_axis(4)-pad.get_axis(5))*63)
+			trolley0=deadzone(pad.get_axis(1)) # DualShock4 doesn't have built in deadzones, so we do that here in software.
 			hook0=deadzone(pad.get_axis(3))
-		else: # USB wired Spartan has built in deadzones. A bit easier to code here, but not as precise control as DualShock4.
+		else: # Spartan Gear Oplon has built in deadzones
 			slew0=int(pad.get_axis(0)*126)
 			trolley0=int(pad.get_axis(1)*126)
 			hook0=int(pad.get_axis(3)*126)
@@ -159,13 +177,13 @@ while done==False:
 			cat=None
 			say=False
 		else:
-			if flag:
+			if send:
 				try:
-					ser.write(bytes(struct.pack('>bb',-127,wax))) # maybe send also settings
+					ser.write(bytes(struct.pack('>bb',-127,wax))) # sometimes send also settings
 				except:
 					pass
 				else:
-					flag=0
+					send=0
 	
 	# ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
 	
@@ -173,7 +191,7 @@ while done==False:
 	pygame.display.flip()
 	
 	# Limit to 20 frames per second
-	clock.tick(60)
+	clock.tick(20)
 		
 # Close the window and quit.
 # If you forget this line, the program will 'hang'
