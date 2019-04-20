@@ -43,6 +43,8 @@ class CraneClient(Thread):
         _running = False
 
 
+
+
 if __name__ == "__main__":
     with open('threadLogs.log', 'w'):
         pass
