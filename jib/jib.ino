@@ -15,6 +15,7 @@
 	 * use stallGuard value to limit speed to prevent motors stalling
  * add neoPixel leds for cool light effects
  * overflow alarm for timer1 to test if code works
+ * only print debug info when something changed
 */
 
 // a motor can never spin too fast, right?
@@ -57,3 +58,4 @@ volatile long
 volatile byte homing=0;
 unsigned long fast[3]={400000,2000000,2000000}; // motor max speeds
 unsigned long acl=10; // acceleration setting
+char s0=0, speed1=0, s2=0, goal0=0, goal1=0, goal2=0;
