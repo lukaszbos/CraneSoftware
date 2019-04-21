@@ -31,14 +31,14 @@ class CraneClient(Thread):
         # self.q = queue.LifoQueue()
         # queueList.append(self.q)
 
-
+    tempCounter = 0
     _running = False
 
-    def infoString(self):
-        return f'Hook_{self._crane.GetIndex()} coordinates are: ' \
-            f'X={self._hook.GetX()} ' \
-            f'Y={self._hook.GetY()} ' \
-            f'Z={self._hook.GetZ()} '
+    def infoString(self, rot_count):
+        return f"Hook_{self._crane.GetIndex()} coordinates are: " \
+            f"X={self._hook.GetX()} " \
+            f"Y={self._hook.GetY()} " \
+            f"Z={self._hook.GetZ()} current rotation: {rot_count} degrees"
 
     def run(self) -> None:
         logging.info('Starting')
@@ -46,16 +46,23 @@ class CraneClient(Thread):
         while _running:
             self._hook.convertRadial(self._crane)
             self._hook.SetTheta(self._hook.GetTheta() + self._inc)
-            #
-            # with lockList[self.index - 1]:
-            #     queueList[self.index - 1].put(self.infoString())
 
-            print(f'{time.time()} Hook_{self._crane.GetIndex()} '
-                  f'coordinates are: X={self._hook.GetX()} '
-                  f'Y={self._hook.GetY()} '
-                  f'Z={self._hook.GetZ()} ')
-            self._condition.notifyAll()
-            time.sleep(self._delay)
+            with lockList[self.index - 1]:
+                # if queueList[self.index -1].full():
+                #     queueList[self.index -1].clear()
+                self.tempCounter += self._inc
+                queueList[self.index - 1].put(self.infoString(self.tempCounter))
+
+                # print(f'{time.time()} {self.infoString()}')
+
+
+                # print(f'{time.time()} Hook_{self._crane.GetIndex()} '
+                #       f'coordinates are: X={self._hook.GetX()} '
+                #       f'Y={self._hook.GetY()} '
+                #       f'Z={self._hook.GetZ()} ')
+
+                # self._condition.notifyAll()
+                time.sleep(self._delay)
 
         logging.info('ending')
 
@@ -74,19 +81,21 @@ def AcWorker(clients, condition: Condition):
     infoString = ''
     while running:
         for client in clients:
-            with condition:
-                condition.wait(0.1)
+            # with condition:
+            #     condition.wait(0.1)
+            #     print(queueList[client.index - 1].get())
+
+            with lockList[client.index - 1]:
                 print(queueList[client.index - 1].get())
+                queueList[client.index -1].task_done()
 
-        #     with lockList[client.index - 1]:
-        #         print(queueList[client.index - 1].get())
-        # time.sleep(1.5)
-
+        time.sleep(1)
+#
 clientList = []
 lockList = []
 queueList = []
 
-c = Condition()
+c = Condition(Lock())
 
 
 testLock_1 = Lock()
@@ -117,10 +126,10 @@ if __name__ == "__main__":
         pass
 
     crane1 = CraneClient('Crane', Crane(x=20, y=20, index=1),
-                         Hook(z=100, r=40, theta=0), 2 * PI / 360, 1, e)
+                         Hook(z=100, r=40, theta=0), inc=2 * PI / 360, delay=0.1, cond=c)
 
     crane2 = CraneClient('Crane', Crane(x=180, y=180, index=2),
-                         Hook(z=150, r=80, theta=0), -2 * PI / 360, 2, e)
+                         Hook(z=150, r=80, theta=0), inc=-2 * PI / 360, delay=0.1, cond=c)
 
     clientList.append(crane1)
     clientList.append(crane2)
@@ -131,6 +140,13 @@ if __name__ == "__main__":
     AcThread = Thread(target=AcWorker, name='AcThread', args=(clientList, c,))
     AcThread.start()
 
+    # var = input()
+    #
+    # if var == 'kill':
+    #     for x in clientList:
+    #         x.killThread()
+
+        # AcThread.
 
     # testTable = GpsObjects.table()
     # testCrane = GpsObjects.Crane()

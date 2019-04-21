@@ -1,9 +1,9 @@
 from math import *
-import pygeodesy
-import geographiclib as geographiclib
-import scipy
+# import pygeodesy
+# import geographiclib as geographiclib
+# import scipy
 
-from geographiclib.geodesic import Geodesic
+# from geographiclib.geodesic import Geodesic
 
 PI = pi
 
