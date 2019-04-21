@@ -15,7 +15,6 @@
 	 * use stallGuard value to limit speed to prevent motors stalling
  * add neoPixel leds for cool light effects
  * overflow alarm for timer1 to test if code works
- * only print debug info when something changed
 */
 
 // a motor can never spin too fast, right?
