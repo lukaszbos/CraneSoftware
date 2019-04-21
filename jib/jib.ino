@@ -1,18 +1,20 @@
 // This code is supposed to read commands from serial and control 3 steppers.
 // This works at least with atmega 328p microcontroller (Arduino Uno or Nano)
 /* todo:
+ * slew homing with hall sensor
+ * smooth transition from slow mode to fast mode
+ * combine with ethernet code
  * real acceleration setting instead of acl
  * joystick smoothing? jerk limit? increase acceleration resolution?
- * adjust setCurrent, power_down_delay, microsteps etc.
- * make stallGuard work as a limit switch
- * use stallGuard value to limit speed to prevent motors stalling
- * slew homing with hall sensor
- * combine with ethernet code
  * make trolley slow down before edges
+ * adjust sg_stall_value based on input voltage
+ * POWER & TORQUE:
+	 * adjust setCurrent, power_down_delay, microsteps etc.
+	 * enable coolStep for power savings and less heating
+	 * high torque mode for heavy lifting (and homing?), low torque for power savings
+	 * use stallGuard value to limit speed to prevent motors stalling
  * add neoPixel leds for cool light effects
- * enable coolStep for power savings and less heating
  * overflow alarm for timer1 to test if code works
- * smooth transition from slow mode to fast mode
 */
 
 // a motor can never spin too fast, right?
@@ -48,9 +50,10 @@ volatile unsigned long
 	kid[3]={0xFFFF00,0xFFFF00,0xFFFF00}, // CPU cycles to wait between steps for each motor
 	boy[3]={0xFFFF00,0xFFFF00,0xFFFF00}; // CPU cycles left until the motor needs to be stepped again
 volatile bool motOn[3]={0,0,0}; // which motors are spinning
-volatile long pos[3]={0,0,0}; // motor step positions
 volatile bool dir[3]={0,0,0}; // slew, trolley, hook direction
-volatile long posMax=2E9, posMin=-2E9;
+volatile long
+	pos[3]={0,0,0}, // motor step positions
+	posMax=2E9, posMin=-2E9;
 volatile byte homing=0;
 unsigned long fast[3]={400000,2000000,2000000}; // motor max speeds
 unsigned long acl=10; // acceleration setting

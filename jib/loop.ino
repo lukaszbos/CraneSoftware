@@ -73,17 +73,24 @@ void loop() {
 		if(homing==1){ // start homing
 			Serial.println("Homing");
 			fastMode();
-			posMax=2E9;
-			goal1=50;
+			posMin=-2E9;
+			goal1=-50;
 			homing=2;
 		}
 		else if(homing==3){ // change direction
 			Serial.println("Edge detected");
-			posMin=-2E9;
-			goal1=-50;
+			cli();
+			posMin=0;
+			pos[1]=0;
+			sei();
+			posMax=2E9;
+			goal1=50;
 			homing=4;
 		}
 		else if(homing==5){
+			cli();
+			posMax=pos[1];
+			sei();
 			Serial.println("Homing finished");
 			homing=0;
 		}
@@ -109,8 +116,8 @@ void loop() {
 		Serial.print((trolley.DRV_STATUS() & 0x3FFUL) , DEC);
 		Serial.print(", ");
 		Serial.print((hook.DRV_STATUS() & 0x3FFUL) , DEC);
-		if(digitalRead(8)==0){
-			Serial.print(", trolley");
+		if(PINB & 1==0){
+			Serial.print(", trolley stalled");
 		}
 		Serial.print(",   ");
 		const float Vin=analogRead(A7)*0.03812; // input voltage
