@@ -55,6 +55,6 @@ volatile long
 	pos[3]={0,0,0}, // motor step positions
 	posMax=2E9, posMin=-2E9;
 volatile byte homing=0;
-unsigned long fast[3]={400000,2000000,2000000}; // motor max speeds
+unsigned long fast[3]; // motor max speeds
 unsigned long acl=10; // acceleration setting
 char s0=0, speed1=0, s2=0, goal0=0, goal1=0, goal2=0;

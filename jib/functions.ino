@@ -6,7 +6,6 @@ void settings(){ // this function changes some settings of TMC2130
 	slew.hold_delay(15); // 0-15 how gradually it reduces to hold current. 0=fast change. 15=slow change.
 	slew.stealthChop(1);      // Enable extremely quiet stepping
 	slew.stealth_autoscale(1);
-	slew.stealth_max_speed(10000); // switch stealthChop off if motor spins fast enough (meaning if time between two steps is less than this)
 	slew.microsteps(0); // we dont want any
 	slew.interpolate(1); // automatic 256 x microstepping
 	slew.double_edge_step(1); // step on both rising and falling edges
@@ -19,7 +18,6 @@ void settings(){ // this function changes some settings of TMC2130
 	trolley.hold_delay(15);
 	trolley.stealthChop(1);
 	trolley.stealth_autoscale(1);
-	trolley.stealth_max_speed(10000);
 	trolley.microsteps(0);
 	trolley.interpolate(1);
 	trolley.double_edge_step(1);
@@ -35,11 +33,30 @@ void settings(){ // this function changes some settings of TMC2130
 	hook.hold_delay(15);
 	hook.stealthChop(1);
 	hook.stealth_autoscale(1);
-	hook.stealth_max_speed(10000); // big motor isn't as quick
 	hook.microsteps(0);
 	hook.interpolate(1);
 	hook.double_edge_step(1);
 	hook.chopper_mode(0);
+}
+
+void silentMode(){
+	slew.stealth_max_speed(10); // switch stealthChop off if motor spins fast enough (meaning if time between two steps is less than this)
+	trolley.stealth_max_speed(10);
+	hook.stealth_max_speed(10);
+	fast[0]=2000000;
+	fast[1]=8000000;
+	fast[2]=15000000;
+	acl=2; // todo switch from this hack to a true acceleration setting
+}
+
+void fastMode(){
+	slew.stealth_max_speed(10000);
+	trolley.stealth_max_speed(10000);
+	hook.stealth_max_speed(10000);
+	fast[0]=400000;
+	fast[1]=2000000;
+	fast[2]=2000000;
+	acl=10;
 }
 
 // changes motor speed
@@ -89,26 +106,6 @@ inline void fox(unsigned long cycles){
 	//TCNT1 = 0; // reset counter. p115
 }
 
-void silentMode(){
-	slew.stealth_max_speed(10);
-	trolley.stealth_max_speed(10);
-	hook.stealth_max_speed(10);
-	fast[0]=2000000;
-	fast[1]=8000000;
-	fast[2]=15000000;
-	acl=2; // todo switch from this hack to a true acceleration setting
-}
-
-void fastMode(){
-	slew.stealth_max_speed(10000);
-	trolley.stealth_max_speed(10000);
-	hook.stealth_max_speed(10000);
-	fast[0]=400000;
-	fast[1]=2000000;
-	fast[2]=2000000;
-	acl=10;
-}
-
 void setup() {
 	DDRD |= 0b01110000; // step pins outputs
 	Serial.begin(250000); // Set baud rate in serial monitor
@@ -118,5 +115,5 @@ void setup() {
 	fox(1000);
 	pinMode(A3,INPUT_PULLUP); // slack detector
 	pinMode(8,INPUT_PULLUP); // diag1 trolley
-	//pinMode(A7,INPUT); // some random line here or i get compiler error
+	fastMode();
 }
