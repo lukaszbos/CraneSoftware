@@ -50,10 +50,11 @@ pygame.joystick.init() # Initialize the joysticks
 textPrint = TextPrint() # Get ready to print
 
 def deadzone(wolf): # calculates deadzones for DualShock4
-	if wolf>=0.1:
-		return int((wolf-0.1)/0.9*125+1) # 1 to 126
-	elif wolf<=-0.1:
-		return int((wolf+0.1)/0.9*125-1) # -1 to -126
+	zone=0.1
+	if wolf>=zone:
+		return int((wolf-zone)/(1-zone)*125.01+1) # 1 to 126
+	elif wolf<=-zone:
+		return int((wolf+zone)/(1-zone)*125-1) # -1 to -126
 	else: # we are in deadzone
 		return int(0) # means don't move
 
@@ -155,7 +156,7 @@ while done==False:
 			else: # don't home again
 				wax &= ~2
 			oldHome=newHome
-			slew0=int((pad.get_axis(4)-pad.get_axis(5))*63)
+			slew0=int((pad.get_axis(4)-pad.get_axis(5))*63.01)
 			trolley0=deadzone(pad.get_axis(1)) # DualShock4 doesn't have built in deadzones, so we do that here in software.
 			hook0=deadzone(pad.get_axis(3))
 		else: # Spartan Gear Oplon has built in deadzones

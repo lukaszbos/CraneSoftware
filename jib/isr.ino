@@ -3,14 +3,16 @@ ISR(TIMER1_CAPT_vect) // http://www.gammon.com.au/interrupts
 {
 	static bool man[3]={0}; // which motors to step next
 	
-	// toggles step pin(s)
-	if(motOn[0] && man[0]) //slew
+	// slew
+	if(motOn[0] && man[0]) 
 	{
 		if(dir[0]) ++pos[0];
 		else --pos[0];
 		PORTD ^= 1<<4; // https://www.arduino.cc/en/Reference/PortManipulation
 	}
-	if(motOn[1] && man[1]) //trolley
+	
+	// trolley
+	if(motOn[1] && man[1])
 	{
 		if(homing>0) // homing mode
 		{
@@ -44,11 +46,40 @@ ISR(TIMER1_CAPT_vect) // http://www.gammon.com.au/interrupts
 			}
 		}
 	}
-	if(motOn[2] && man[2]) //hook
+
+	// hook
+	if(motOn[2] && man[2])
 	{
-		if(dir[2]) ++pos[2];
-		else --pos[2];
-		PORTD ^= 1<<6;
+		if(homing>0) // homing mode
+		{
+			if(PINB & 2)
+			{
+				++pos[2];
+				PORTD ^= 1<<6;
+			}
+			else // stall detected
+			{
+				motOn[2]=0;
+				kid[2]=0xFFFF00;
+				homing++;
+			}
+		}
+		else // normal mode
+		{
+			if(dir[2])
+			{
+				if(pos[2]<posTop)
+				{
+					++pos[2];
+					PORTD ^= 1<<6;
+				}
+			}
+			else
+			{
+				--pos[2];
+				PORTD ^= 1<<6;
+			}
+		}
 	}
 
 	// if new speed is higher than before
@@ -86,4 +117,10 @@ ISR(TIMER1_CAPT_vect) // http://www.gammon.com.au/interrupts
 	if(boy[2]==0) boy[2]=kid[2];
 	
 	fox(small); // set timer to wait for next motor step
+}
+
+volatile byte rat=0;
+ISR(TIMER1_OVF_vect)
+{
+	++rat;
 }

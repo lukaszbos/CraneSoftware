@@ -1,7 +1,9 @@
 void settings(){ // this function changes some settings of TMC2130
 	// slewing driver settings
 	slew.begin(); // Initiate pins and registeries
-	slew.setCurrent(400, 0.11, 0.2); // coil current (mA), current sense resistor (0.11 ohm on silentStepSticks), hold current relative to run current (0.0-1.0)
+	slew.high_sense_R(1); // reference voltage for coil current sense resistors  1 = 0.18V       0 = 0.32V
+	slew.hold_current(0); // 0-31 standstill current per motor coil
+	slew.run_current(2); // 0-31,     0 = 30 mA per coil,    31 = 980 mA per coil
 	slew.power_down_delay(30); // how long to wait after movement stops before reducing to hold current 0-255 = 0-4 seconds
 	slew.hold_delay(3); // 0-15 how gradually it reduces to hold current. 0=fast change. 15=slow change.
 	slew.stealthChop(1);      // Enable extremely quiet stepping
@@ -13,7 +15,9 @@ void settings(){ // this function changes some settings of TMC2130
 
 	// trolleying driver settings
 	trolley.begin();
-	trolley.setCurrent(400, 0.11, 0.2);
+	trolley.high_sense_R(1);
+	trolley.hold_current(0);
+	trolley.run_current(2);
 	trolley.power_down_delay(30);
 	trolley.hold_delay(3);
 	trolley.stealthChop(1);
@@ -28,7 +32,9 @@ void settings(){ // this function changes some settings of TMC2130
 
 	// hoisting driver settings
 	hook.begin();
-	hook.setCurrent(700, 0.11, 0.2);
+	hook.high_sense_R(1);
+	hook.hold_current(0); // todo optimize this for minimum current consumption while still holding maximum load
+	hook.run_current(5);
 	hook.power_down_delay(30);
 	hook.hold_delay(3);
 	hook.stealthChop(1);
@@ -37,6 +43,9 @@ void settings(){ // this function changes some settings of TMC2130
 	hook.interpolate(1);
 	hook.double_edge_step(1);
 	hook.chopper_mode(0);
+	hook.coolstep_min_speed(200);
+	hook.diag1_stall(1);
+	hook.sg_stall_value(15); // todo adjust this to match NEMA23 1.5A motor
 }
 
 void silentMode(){
@@ -79,27 +88,27 @@ void setSpeed(byte motor, unsigned long newKid){
 
 // function to set timer1 period. Stolen from https://www.pjrc.com/teensy/td_libs_TimerOne.html
 inline void fox(unsigned long cycles){
-	if(cycles<500) cycles=500; // minimum cycles, cuz ISR takes some time too
+	if(cycles<600) cycles=600; // minimum cycles, cuz ISR takes some time too
 	byte clockSelectBits;
 	word period;
-	if (cycles < 0x10000UL) {
+	if (cycles < 0x10000) {
 		clockSelectBits = _BV(CS10);
 		period = cycles;
 	} else
-	if (cycles < 0x10000UL * 8) {
+	if (cycles < 0x10000 * 8) {
 		clockSelectBits = _BV(CS11);
 		period = cycles / 8;
 	} else
-	if (cycles < 0x10000UL * 64) {
+	if (cycles < 0x10000 * 64) {
 		clockSelectBits = _BV(CS11) | _BV(CS10);
 		period = cycles / 64;
 	} else
-	if (cycles < 0x10000UL * 256) {
+	if (cycles < 0x10000 * 256) {
 		clockSelectBits = _BV(CS12);
 		period = cycles / 256;
 	} else {
 		clockSelectBits = _BV(CS12);
-		period = 0xFFFFUL;
+		period = 0xFFFF;
 	}
 	ICR1 = period;
 	TCCR1B = _BV(WGM13) | _BV(WGM12) | clockSelectBits; // mode 12. p136
@@ -111,9 +120,10 @@ void setup() {
 	Serial.begin(250000); // Set baud rate in serial monitor
 	// let's enable timer1 to time the step pulses. See p113 here https://www.sparkfun.com/datasheets/Components/SMD/ATMega328.pdf
 	TCCR1A=B00000000; //p134
-	TIMSK1=B00100000; //p139
+	TIMSK1=B00100001; //p139
 	fox(1000);
 	pinMode(A3,INPUT_PULLUP); // slack detector
 	pinMode(8,INPUT_PULLUP); // diag1 trolley
+	pinMode(9,INPUT_PULLUP); // diag1 hook
 	fastMode();
 }

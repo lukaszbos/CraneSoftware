@@ -1,8 +1,9 @@
 // This code is supposed to read commands from serial and control 3 steppers.
 // This works at least with atmega 328p microcontroller (Arduino Uno or Nano)
 /* todo:
- * slew homing with hall sensor
+ * slew homing with hall sensor (can be simultaneous with trolley homing)
  * smooth transition from slow mode to fast mode
+ * user shouldnt be able to switch to silent mode during homing
  * combine with ethernet code
  * real acceleration setting instead of acl
  * joystick smoothing? jerk limit? increase acceleration resolution?
@@ -15,7 +16,7 @@
 	 * high torque mode for heavy lifting (and homing?), low torque for power savings
 	 * use stallGuard value to limit speed to prevent motors stalling
  * add neoPixel leds for cool light effects
- * overflow alarm for timer1 to test if code works
+ * isr is not sending step pulses perfectly evenly when spinning many motors at same time
 */
 
 // a motor can never spin too fast, right?
@@ -54,8 +55,10 @@ volatile bool motOn[3]={0,0,0}; // which motors are spinning
 volatile bool dir[3]={0,0,0}; // slew, trolley, hook direction
 volatile long
 	pos[3]={0,0,0}, // motor step positions
-	posMax=2E9, posMin=-2E9;
+	posMax=2E9, posMin=-2E9,
+	posTop=2E9;
 volatile byte homing=0;
 unsigned long fast[3]; // motor max speeds
 unsigned long acl=10; // acceleration setting
-char s0=0, speed1=0, s2=0, goal0=0, goal1=0, goal2=0;
+char goal0=0, goal1=0, goal2=0;
+char spd[3]={0,0,0};

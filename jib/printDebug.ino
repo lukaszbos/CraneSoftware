@@ -16,9 +16,9 @@ void printDebug()
 	}
 	
 	const int
-		stallGuardSlew = slew.DRV_STATUS() & 0x3FFUL, // todo remove UL?
-		stallGuardTrolley = trolley.DRV_STATUS() & 0x3FFUL,
-		stallGuardHook = hook.DRV_STATUS() & 0x3FFUL;
+		stallGuardSlew = slew.DRV_STATUS() & 0x3FF,
+		stallGuardTrolley = trolley.DRV_STATUS() & 0x3FF,
+		stallGuardHook = hook.DRV_STATUS() & 0x3FF;
 		
 	const float Vin=analogRead(A7)*0.03812; // input voltage
 	static float VinOld=0;
@@ -27,10 +27,12 @@ void printDebug()
 		VinOld=Vin;
 	}
 
-	static char speed1Old=0;
-	if(speed1 != speed1Old){
-		say=1;
-		speed1Old=speed1;
+	static char spdOld[3]={0,0,0};
+	for(byte i=0; i<3; i++){
+		if(spd[i] != spdOld[i]){
+			say=1;
+			spdOld[i]=spd[i];
+		}
 	}
 
 	static byte homingOld=0;
@@ -38,25 +40,37 @@ void printDebug()
 		say=1;
 		homingOld=homing;
 	}
+
+	if(rat>0) say=1;
 	
 	if(say){
 		for(byte i=0; i<3; i++){ // print motor positions
 			Serial.print(positron[i]);
-			Serial.print(", ");
+			Serial.print(",");
+		}
+		Serial.print("  ");
+		for(byte i=0; i<3; i++){ // print motor speeds
+			Serial.print(spd[i],DEC);
+			Serial.print(",");
 		}
 		Serial.print("  ");
 		Serial.print(stallGuardSlew, DEC);
-		Serial.print(", ");
+		Serial.print(",");
 		Serial.print(stallGuardTrolley, DEC);
-		Serial.print(", ");
+		Serial.print(",");
 		Serial.print(stallGuardHook, DEC);
-		if(PINB & 1==0) Serial.print(", trolley stalled");
-		Serial.print(",   ");
+		Serial.print(",  ");
+		if(PINB & 1==0) Serial.print("trolley stalled, ");
+		if(PINB & 2==0) Serial.print("hook stalled, ");
 		Serial.print(Vin,1);
 		Serial.print(", ");
-		Serial.print(speed1,DEC);
-		Serial.print(", ");
 		Serial.print(homingOld,DEC);
+		if(rat>0){
+			Serial.print(", timer1 overflow ");
+			Serial.print(rat);
+			Serial.print(" times");
+			rat=0;
+		}
 		Serial.println();
 	}
 
