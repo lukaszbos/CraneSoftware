@@ -6,7 +6,8 @@
  * combine with ethernet code
  * real acceleration setting instead of acl
  * joystick smoothing? jerk limit? increase acceleration resolution?
- * make trolley slow down before edges
+ * make hook stop before it hits trolley to keep string loose for better trolley homing
+ * make trolley slow down before edges to limit sway
  * adjust sg_stall_value based on input voltage
  * POWER & TORQUE:
 	 * adjust setCurrent, power_down_delay, microsteps etc.

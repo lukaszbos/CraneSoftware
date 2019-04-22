@@ -56,11 +56,11 @@ void loop() {
 		else if(job==4){ // decode settings byte
 			if(wax & 2) homing=1;
 			else{
-				if(wax & 1){ // silent mode
-					Serial.println("Silent");
+				if(wax & 1){
+					Serial.println("Silent mode");
 					silentMode();
-				}else{ // high speed mode
-					Serial.println("Fast");
+				}else{
+					Serial.println("Fast mode");
 					fastMode();
 				}
 			}
@@ -80,7 +80,7 @@ void loop() {
 			Serial.println("Edge detected");
 			cli();
 			posMin=0;
-			pos[1]=0;
+			pos[1]=-20; // stop before edge
 			sei();
 			posMax=2E9;
 			goal1=50;
@@ -88,7 +88,7 @@ void loop() {
 		}
 		else if(homing==5){
 			cli();
-			posMax=pos[1];
+			posMax=pos[1]-20;
 			sei();
 			Serial.println("Homing finished");
 			homing=0;

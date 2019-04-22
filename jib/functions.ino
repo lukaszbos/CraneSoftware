@@ -2,8 +2,8 @@ void settings(){ // this function changes some settings of TMC2130
 	// slewing driver settings
 	slew.begin(); // Initiate pins and registeries
 	slew.setCurrent(400, 0.11, 0.2); // coil current (mA), current sense resistor (0.11 ohm on silentStepSticks), hold current relative to run current (0.0-1.0)
-	slew.power_down_delay(64); // how long to wait after movement stops before reducing to hold current 0-255 = 0-4 seconds
-	slew.hold_delay(15); // 0-15 how gradually it reduces to hold current. 0=fast change. 15=slow change.
+	slew.power_down_delay(30); // how long to wait after movement stops before reducing to hold current 0-255 = 0-4 seconds
+	slew.hold_delay(3); // 0-15 how gradually it reduces to hold current. 0=fast change. 15=slow change.
 	slew.stealthChop(1);      // Enable extremely quiet stepping
 	slew.stealth_autoscale(1);
 	slew.microsteps(0); // we dont want any
@@ -14,8 +14,8 @@ void settings(){ // this function changes some settings of TMC2130
 	// trolleying driver settings
 	trolley.begin();
 	trolley.setCurrent(400, 0.11, 0.2);
-	trolley.power_down_delay(64);
-	trolley.hold_delay(15);
+	trolley.power_down_delay(30);
+	trolley.hold_delay(3);
 	trolley.stealthChop(1);
 	trolley.stealth_autoscale(1);
 	trolley.microsteps(0);
@@ -29,8 +29,8 @@ void settings(){ // this function changes some settings of TMC2130
 	// hoisting driver settings
 	hook.begin();
 	hook.setCurrent(700, 0.11, 0.2);
-	hook.power_down_delay(64);
-	hook.hold_delay(15);
+	hook.power_down_delay(30);
+	hook.hold_delay(3);
 	hook.stealthChop(1);
 	hook.stealth_autoscale(1);
 	hook.microsteps(0);
