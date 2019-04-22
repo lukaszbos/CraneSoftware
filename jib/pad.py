@@ -69,6 +69,9 @@ oldFast=0
 newFast=0
 oldHome=0
 newHome=0
+slewOld=0
+trolleyOld=0
+hookOld=0
 
 # -------- Main Program Loop -----------
 while done==False:
@@ -171,20 +174,26 @@ while done==False:
 			hook=hook0
 		
 	if ser != None:
-		try:
-			ser.write(bytes(struct.pack('>bbbb',127,slew,trolley,hook))) # send 4 bytes to Arduino. The first one, 127, is packet start byte. After that comes three joystick positions as a number between -126 to 126.
-		except:
-			ser=None
-			cat=None
-			say=False
-		else:
-			if send:
-				try:
-					ser.write(bytes(struct.pack('>bb',-127,wax))) # sometimes send also settings
-				except:
-					pass
-				else:
-					send=0
+		if slew!=slewOld or trolley!=trolleyOld or hook!=hookOld:
+			try:
+				ser.write(bytes(struct.pack('>bbbb',127,slew,trolley,hook))) # send 4 bytes to Arduino. The first one, 127, is packet start byte. After that comes three joystick positions as a number between -126 to 126.
+			except:
+				ser=None
+				cat=None
+				say=False
+			else:
+				slewOld=slew
+				trolleyOld=trolley
+				hookOld=hook
+		if send:
+			try:
+				ser.write(bytes(struct.pack('>bb',-127,wax))) # sometimes send also settings
+			except:
+				ser=None
+				cat=None
+				say=False
+			else:
+				send=0
 	
 	# ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
 	

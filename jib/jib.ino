@@ -4,6 +4,7 @@
  * slew homing with hall sensor (can be simultaneous with trolley homing)
  * smooth transition from slow mode to fast mode
  * user shouldnt be able to switch to silent mode during homing
+ * stop motors if no message is received for a while
  * combine with ethernet code
  * real acceleration setting instead of acl
  * joystick smoothing? jerk limit? increase acceleration resolution?
