@@ -106,6 +106,7 @@ void loop() {
 			posTop=0;
 			sei();
 			Serial.println("Homing trolley");
+			trolley.run_current(12);
 			posMin=-2E9;
 			goal1=-50;
 			homing=4;
@@ -125,6 +126,7 @@ void loop() {
 			cli();
 			posMax=pos[1]-20;
 			sei();
+			trolley.run_current(4);
 			Serial.println("Homing finished");
 			homing=0;
 		}

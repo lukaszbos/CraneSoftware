@@ -3,7 +3,7 @@ void settings(){ // this function changes some settings of TMC2130
 	slew.begin(); // Initiate pins and registeries
 	slew.high_sense_R(1); // reference voltage for coil current sense resistors  1 = 0.18V       0 = 0.32V
 	slew.hold_current(0); // 0-31 standstill current per motor coil
-	slew.run_current(2); // 0-31,     0 = 30 mA per coil,    31 = 980 mA per coil
+	slew.run_current(4); // 0-31,     0 = 30 mA per coil,    31 = 980 mA per coil
 	slew.power_down_delay(30); // how long to wait after movement stops before reducing to hold current 0-255 = 0-4 seconds
 	slew.hold_delay(3); // 0-15 how gradually it reduces to hold current. 0=fast change. 15=slow change.
 	slew.stealthChop(1);      // Enable extremely quiet stepping
@@ -17,7 +17,7 @@ void settings(){ // this function changes some settings of TMC2130
 	trolley.begin();
 	trolley.high_sense_R(1);
 	trolley.hold_current(0);
-	trolley.run_current(2);
+	trolley.run_current(4);
 	trolley.power_down_delay(30);
 	trolley.hold_delay(3);
 	trolley.stealthChop(1);
