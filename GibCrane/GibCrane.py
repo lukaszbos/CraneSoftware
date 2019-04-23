@@ -1,19 +1,36 @@
+import pygame
+
 from GpsObjects import *
 from threading import *
+from controller import Controller
 import time
 import logging
 import queue
+
+'''
+    File name: GibCrane.py
+    Author: Mateusz Jaszek
+    mail: matijasz8@gmai.com
+    python version: 3.6
+    
+    This is main Crane control file. It's main task is operation,
+    and synchronization of all threads 
+    
+'''
+
+# TODO Necessary integration of pad control program with threads
+
 
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s: %(asctime)s %(threadName)-10s %(message)s',
                     datefmt='%m/%d/%Y  %I:%M:%S %p')
 
+"""     logger below will write logs out to file
 
-# logger below will write logs out to file
-
-# logging.basicConfig(level=logging.INFO, filename='threadLogs.log',
-#                     format='%(levelname)s: %(asctime)s %(threadName)-10s %(message)s',
-#                     datefmt='%m/%d/%Y  %I:%M:%S %p')
+logging.basicConfig(level=logging.INFO, filename='threadLogs.log',
+                    format='%(levelname)s: %(asctime)s %(threadName)-10s %(message)s',
+                    datefmt='%m/%d/%Y  %I:%M:%S %p')
+"""
 
 
 class CraneClient(Thread):
@@ -26,6 +43,7 @@ class CraneClient(Thread):
         self._delay = delay
         self.index = crane.GetIndex()
         self._condition = cond
+
         # self.lock = Lock()
         # lockList.append(self.lock)
         # self.q = queue.LifoQueue()
@@ -55,13 +73,16 @@ class CraneClient(Thread):
 
                 # print(f'{time.time()} {self.infoString()}')
 
-
+                """  Console notifications
                 # print(f'{time.time()} Hook_{self._crane.GetIndex()} '
                 #       f'coordinates are: X={self._hook.GetX()} '
                 #       f'Y={self._hook.GetY()} '
                 #       f'Z={self._hook.GetZ()} ')
+                """
 
+                # TODO make conditions work better, or, basically work at all
                 # self._condition.notifyAll()
+
                 time.sleep(self._delay)
 
         logging.info('ending')
@@ -87,16 +108,35 @@ def AcWorker(clients, condition: Condition):
 
             with lockList[client.index - 1]:
                 print(queueList[client.index - 1].get())
-                queueList[client.index -1].task_done()
+                queueList[client.index - 1].task_done()
 
         time.sleep(1)
-#
+
+
+def PadWorker():
+    logging.info('Starting')
+    running = True
+    controller = Controller()
+    myControllers = []
+    for i in range(3):
+        myControllers.append(controller)
+
+    pygame.init()
+    while running:
+        print('working')
+        for i in range(len(myControllers)):
+            print(f'Pad_{i + 1} values: '
+                  f'{myControllers[i].printAxis()}')
+        time.sleep(1)
+
+
+
+
 clientList = []
 lockList = []
 queueList = []
 
 c = Condition(Lock())
-
 
 testLock_1 = Lock()
 testLock_2 = Lock()
@@ -107,19 +147,6 @@ testQueue_1 = queue.LifoQueue()
 testQueue_2 = queue.LifoQueue()
 queueList.append(testQueue_1)
 queueList.append(testQueue_2)
-#
-# queueList[0].put
-#
-# def fill_queue(qL, i, hook):
-#     qL[i-1].put(hook)
-#     return qL
-
-# class AcClient(Thread):
-#     def __init__(self):
-#         Thread.__init__(self)
-#     runnig = True
-#     def run(self):
-#         for i in range()
 
 if __name__ == "__main__":
     with open('threadLogs.log', 'w'):
@@ -137,6 +164,9 @@ if __name__ == "__main__":
     crane1.start()
     crane2.start()
 
+    # PadThread = Thread(target=PadWorker(), name='PadThread',)
+    # PadThread.start()
+
     AcThread = Thread(target=AcWorker, name='AcThread', args=(clientList, c,))
     AcThread.start()
 
@@ -146,7 +176,7 @@ if __name__ == "__main__":
     #     for x in clientList:
     #         x.killThread()
 
-        # AcThread.
+    # AcThread.
 
     # testTable = GpsObjects.table()
     # testCrane = GpsObjects.Crane()
