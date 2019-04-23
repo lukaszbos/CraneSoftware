@@ -61,8 +61,8 @@ void loop() {
 		if(wax==127 && homing==0) job=0; // speed packet start character is 127
 		else if(wax==-127) job=4; // -127 indicates that next byte will be settings
 		else if(job<3){ // or else it must be a speed command -126 to 126
-			if(job==0) goal0=wax;
-			if(job==1) goal1=wax;
+			if(job==0) goal0=wax; else
+			if(job==1) goal1=wax; else
 			if(job==2) goal2=wax;
 			++job;
 		}

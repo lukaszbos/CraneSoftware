@@ -174,7 +174,7 @@ while done==False:
 			hook=hook0
 		
 	if ser != None:
-		if slew!=slewOld or trolley!=trolleyOld or hook!=hookOld:
+		if slew!=slewOld or trolley!=trolleyOld or hook!=hookOld or True:
 			try:
 				ser.write(bytes(struct.pack('>bbbb',127,slew,trolley,hook))) # send 4 bytes to Arduino. The first one, 127, is packet start byte. After that comes three joystick positions as a number between -126 to 126.
 			except:
