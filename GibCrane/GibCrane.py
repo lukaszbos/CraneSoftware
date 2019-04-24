@@ -2,7 +2,7 @@ import pygame
 
 import socket
 
-from pip._vendor.distlib.compat import raw_input
+# from pip._vendor.distlib.compat import raw_input
 
 from GpsObjects import *
 from threading import *
