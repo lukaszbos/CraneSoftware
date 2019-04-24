@@ -76,12 +76,17 @@ class CraneClient(Thread):
 
         while _running:
 
-            data = connection.recv(64)
-            print(f'Server recived data:{data}')
-            MESSAGE = raw_input("Enter response:")
-            if MESSAGE == 'exit':
+            try:
+                data = connection.recv(1024)
+                print(f'Server recived data: {data}')
+                # MESSAGE = raw_input("Enter response:")
+                # if MESSAGE == 'exit':
+                #     break
+                # connection.send(MESSAGE)
+            except:
+                print("connection lost")
+                self.killThread()
                 break
-            connection.send(MESSAGE)
 
             self._hook.convertRadial(self._crane)
             self._hook.SetTheta(self._hook.GetTheta() + self._inc)
@@ -110,6 +115,9 @@ class CraneClient(Thread):
     # def getQ(self):
     #     with self.lock:
     #         return self.q
+
+    def isrunning(self):
+        return self._running
 
     @staticmethod
     def killThread():
@@ -197,17 +205,28 @@ if __name__ == "__main__":
     port = 10000
     sock.bind(('', port))
 
+    i = 0
+
     while True:
+        for client in clientList:
+            if client.isrunning():
+                pass
+            else:
+                clientList.remove(client)
+
         sock.listen(1)
+
         print('Server is waiting')
         (connection, (ip, port)) = sock.accept()
         try:
             print('client connected')
-            crane1 = CraneClient('Crane', Crane(x=20, y=20, index=1),
+            crane1 = CraneClient('Crane', Crane(x=20, y=20, index=i),
                                  Hook(z=100, r=40, theta=0),
                                  inc=2 * PI / 360, delay=0.1, cond=c, ip=ip, port=port)
+            crane1.isDaemon()
             crane1.start()
             clientList.append(crane1)
+            i += 1
         except:
             print("something went horribly wrong")
 
