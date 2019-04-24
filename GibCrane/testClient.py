@@ -5,16 +5,17 @@ import sys
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # give server address (ip, port) suggested port from 10000 to 65535
-server_address = ('169.254.72.142', 10000)
+server_address = ('192.168.0.101', 10000)
 print('connecting to %s port %s' % server_address)
 
 # connect socket to the server
 sock.connect(server_address)
+print('connected to %s port %s' % server_address)
 
 try:
 
     # prepare message
-    message = 'The message is getting here. It will be sent to the server'
+    message = "kurwqa"
     print('sending "%s"' % message)
 
     # sending encoded messege
