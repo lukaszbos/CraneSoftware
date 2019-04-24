@@ -87,7 +87,7 @@ class CraneClient(Thread):
                 print("connection lost")
                 self.killThread()
                 break
-
+ 
             self._hook.convertRadial(self._crane)
             self._hook.SetTheta(self._hook.GetTheta() + self._inc)
 
