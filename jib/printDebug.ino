@@ -22,7 +22,7 @@ void printDebug()
 		
 	const float Vin=analogRead(A7)*0.03812; // input voltage
 	static float VinOld=0;
-	if(Vin < VinOld-2|| Vin > VinOld+2){ // hysteresis to not print voltage ripple
+	if(Vin < VinOld-0.3 || Vin > VinOld+0.3){ // hysteresis to not print voltage ripple. 0.3 works with 1 µF and 68 kΩ
 		say=1;
 		VinOld=Vin;
 	}
