@@ -60,15 +60,28 @@ def AcWorker(clients, condition: Condition):
     logging.info(' Starting')
     running = True
     while running:
+        inputList = []
         for cl in range(len(clients)):
             # with condition:
             #     condition.wait(0.1)
             #     print(queueList[client.index - 1].get())
 
             with lockList[cl]:
-                print(queueList[cl].get())
-                queueList[cl].task_done()
-        time.sleep(1 )
+                receivedMessage=queueList[cl].get()
+                for m in receivedMessage:
+                    inputList.append(m)
+                # print(queueList[cl].get())
+                # queueList[cl].task_done()
+        print(len(inputList))
+        # for input in inputList:
+        #     print(input)
+
+        inputList.reverse()
+
+        for i in range(2):
+            clientList[i].setOutput(inputList[i])
+
+        time.sleep(1/10)
 
 
 if __name__ == "__main__":

@@ -1,10 +1,11 @@
 class Controller:
 
-    def __init__(self):
+    def __init__(self, index):
         self.axisVertical = 0
         self.axisHorizontal = 0
         self.axisHook = 0
         self.button = 0
+        self.index = index
 
     def update(self, numberOfAxe, voltage):
         if numberOfAxe == 1:
@@ -26,3 +27,6 @@ class Controller:
         sprintButton = 5
         if buttonClicked == sprintButton:
             self.button = buttonValue
+
+    def getIndex(self):
+        return self.index

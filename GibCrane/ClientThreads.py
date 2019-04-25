@@ -24,7 +24,8 @@ class CraneClient(Thread):
         self._port = port
         self.queue = queue
         self.lock = lock
-        self.name = name
+        self.name = f'{name}_{crane.GetIndex() + 1}'
+
         print("new crane connected")
 
         # self.lock = Lock()
@@ -34,6 +35,15 @@ class CraneClient(Thread):
 
     tempCounter = 0
     _running = False
+    outputLock = Lock()
+    outputMessage = ''
+
+    def setOutput(self, msg):
+        with self.outputLock:
+            self.outputMessage = msg
+    def getOutput(self):
+        with self.outputLock:
+            return self.outputMessage
 
     def infoString(self, rot_count):
         return f"Hook_{self._crane.GetIndex()} coordinates are: " \
@@ -46,6 +56,7 @@ class CraneClient(Thread):
         logging.info('Starting')
 
         while _running:
+            messageList = []
             ''' connection handling
             try:
                 data = connection.recv(1024)
@@ -67,8 +78,10 @@ class CraneClient(Thread):
                 # if queueList[self.index -1].full():
                 #     queueList[self.index -1].clear()
                 self.tempCounter += self._inc
-                self.queue.put(self.infoString(self.tempCounter))
+                messageList.append(self.infoString(self.tempCounter))
+                self.queue.put(messageList)
 
+            print(f'\n\n{self.name}\n{self.getOutput()}')
             # finally:
             #     print(f'Data not forwarded')
 
@@ -88,15 +101,13 @@ class CraneClient(Thread):
 
     logging.info('ending')
 
+    # def getQ(self):
+    #     with self.lock:
+    #         return self.q
 
-# def getQ(self):
-#     with self.lock:
-#         return self.q
+    def isrunning(self):
+        return self._running
 
-def isrunning(self):
-    return self._running
-
-
-@staticmethod
-def killThread():
-    _running = False
+    @staticmethod
+    def killThread():
+        _running = False

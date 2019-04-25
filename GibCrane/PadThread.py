@@ -21,7 +21,7 @@ class PadClient(Thread):
         self.queue = queue
         self.name = name
         self.index = index
-        self.pad = controller.Controller()
+        # self.pad = controller.Controller()
         self.myControllers = []
         print('Pad Thread has started')
 
@@ -31,26 +31,26 @@ class PadClient(Thread):
 
         logging.info('Starting')
         self._running = True
-        for i in range(3):
-            self.myControllers.append(self.pad)
+        for i in range(2):
+            self.myControllers.append(controller.Controller(i))
 
 
         tempCounter = 0
         pygame.init()
         while self._running:
-            fullInfo = ''
+            messageList = []
             self.padHandler()
 
             p: controller.Controller
-            tmpInfo = ''
+            # tmpInfo = ''
             for pad in self.myControllers:
                 # try:
                 # with self.lock:
                 # tempCounter += self._inc
-                # pad.printValues()
-                tmpInfo += pad.printValues()
+                messageList.append(pad.printValues())
+                # tmpInfo += pad.printValues()
 
-            self.queue.put(tmpInfo)
+            self.queue.put(messageList)
             # finally:
             #     print(f'Data not forwarded')
         pygame.quit()
