@@ -7,11 +7,11 @@ class Controller:
         self.button = 0
 
     def update(self, numberOfAxe, voltage):
-        if numberOfAxe == 0:
-            self.axisHorizontal = voltage
         if numberOfAxe == 1:
+            self.axisHorizontal = voltage
+        if numberOfAxe == 0:
             self.axisVertical = voltage
-        if numberOfAxe == 2:
+        if numberOfAxe == 4:
             self.axisHook = voltage
 
     def printAxis(self):
