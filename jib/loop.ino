@@ -105,10 +105,11 @@ void loop() {
 			pos[2]=0;
 			posTop=0;
 			sei();
-			Serial.println("Homing trolley");
+			Serial.println("Homing trolley and slew");
 			trolley.run_current(12);
 			posMin=-2E9;
 			goal1=-50;
+			goal0=-50;
 			homing=4;
 		}
 		else if(homing==5){
