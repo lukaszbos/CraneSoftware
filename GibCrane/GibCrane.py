@@ -1,7 +1,10 @@
+from builtins import print
+
 import pygame
 
 import socket
-
+import ipaddress
+import sys
 # from pip._vendor.distlib.compat import raw_input
 
 from GpsObjects import *
@@ -43,7 +46,7 @@ logging.basicConfig(level=logging.INFO, filename='threadLogs.log',
 
 
 class CraneClient(Thread):
-    def __init__(self, name, crane: Crane, hook: Hook, inc, delay, cond: Condition, ip, port):
+    def __init__(self, name, crane: Crane, hook: Hook, inc, delay, cond: Condition, ip, port, queue):
         Thread.__init__(self, name=f'{name}_{crane.GetIndex()}')
         self._crane = crane
         self._hook = hook
@@ -54,6 +57,7 @@ class CraneClient(Thread):
         self._condition = cond
         self._ip = ip
         self._port = port
+        self.queue = queue
         print("new crane connected")
 
         # self.lock = Lock()
@@ -75,7 +79,7 @@ class CraneClient(Thread):
         logging.info('Starting')
 
         while _running:
-
+            ''' connection handling
             try:
                 data = connection.recv(1024)
                 print(f'Server recived data: {data}')
@@ -87,7 +91,7 @@ class CraneClient(Thread):
                 print("connection lost")
                 self.killThread()
                 break
- 
+            '''
             self._hook.convertRadial(self._crane)
             self._hook.SetTheta(self._hook.GetTheta() + self._inc)
 
@@ -95,8 +99,8 @@ class CraneClient(Thread):
                 # if queueList[self.index -1].full():
                 #     queueList[self.index -1].clear()
                 self.tempCounter += self._inc
-                queueList[self.index - 1].put(self.infoString(self.tempCounter))
-
+                self.queue.put(self.infoString(self.tempCounter))
+                # queueList[self.index - 1]
                 # print(f'{time.time()} {self.infoString()}')
 
                 """  Console notifications  """
@@ -202,11 +206,12 @@ if __name__ == "__main__":
     # server_address = ('localhost', 10000)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = socket.gethostname()
-    port = 10000
+    port = 8888
     sock.bind(('', port))
-
+    print(socket.gethostname())
     i = 0
 
+    '''
     while True:
         for client in clientList:
             if client.isrunning():
@@ -229,14 +234,21 @@ if __name__ == "__main__":
             i += 1
         except:
             print("something went horribly wrong")
+    '''
 
-'''
-    # crane2 = CraneClient('Crane', Crane(x=180, y=180, index=2),
-    #                      Hook(z=150, r=80, theta=0), inc=-2 * PI / 360, delay=1 / 50, cond=c)
+    # tmpIP = "nah"
+    tmpip = 'nah'
+    tmpPort = 'nah'
+    crane1 = CraneClient('Crane', Crane(x=20, y=20, index=1),
+                         Hook(z=100, r=40, theta=0),
+                         inc=2 * PI / 360, delay=0.1, cond=c, ip=tmpip, port=tmpPort, queue=queueList[0])
 
+    crane2 = CraneClient('Crane', Crane(x=180, y=180, index=2),
+                         Hook(z=150, r=80, theta=0), inc=-2 * PI / 360, delay=1 / 50, cond=c, ip=tmpip, port=tmpPort,
+                         queue=queueList[1])
 
+    clientList.append(crane1)
     clientList.append(crane2)
-
     # crane1.start()
     # crane2.start()
 
@@ -248,8 +260,8 @@ if __name__ == "__main__":
         t.start()
 
     AcThread = Thread(target=AcWorker, name='AcThread', args=(clientList, c,))
-    # AcThread.start()
-'''
+    AcThread.start()
+
 # var = input()
 #
 # if var == 'kill':
