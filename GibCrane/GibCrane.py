@@ -1,12 +1,7 @@
 from builtins import print
-
-import pygame
-
 import socket
-import ipaddress
-import sys
-# from pip._vendor.distlib.compat import raw_input
 from ClientThreads import *
+from PadThread import *
 
 '''
     File name: GibCrane.py
@@ -37,45 +32,44 @@ logging.basicConfig(level=logging.INFO, filename='threadLogs.log',
                     datefmt='%m/%d/%Y  %I:%M:%S %p')
 """
 
+clientList = []
 
+# TODO fix client list, acThread sould check whether client is crane od pad
+
+lockList = []
+queueList = []
+c = Condition(Lock())
+
+craneLock_1 = Lock()
+
+craneLock_2 = Lock()
+padLock = Lock()
+lockList.append(craneLock_1)
+lockList.append(craneLock_2)
+lockList.append(padLock)
+craneQueue_1 = queue.LifoQueue()
+
+craneQueue_2 = queue.LifoQueue()
+padQueue = queue.LifoQueue()
+queueList.append(craneQueue_1)
+queueList.append(craneQueue_2)
+queueList.append(padQueue)
 
 
 def AcWorker(clients, condition: Condition):
     logging.info(' Starting')
     running = True
     while running:
-        for client in clients:
+        for cl in range(len(clients)):
             # with condition:
             #     condition.wait(0.1)
             #     print(queueList[client.index - 1].get())
 
-            with lockList[client.index - 1]:
-                print(queueList[client.index - 1].get())
-                queueList[client.index - 1].task_done()
-        time.sleep(1 / 5)
+            with lockList[cl]:
+                print(queueList[cl].get())
+                queueList[cl].task_done()
+        time.sleep(1 )
 
-
-# TODO fix client list, acThread sould check whether client is crane od pad
-
-clientList = []
-lockList = []
-queueList = []
-
-c = Condition(Lock())
-
-craneLock_1 = Lock()
-craneLock_2 = Lock()
-padLock = Lock()
-lockList.append(craneLock_1)
-lockList.append(craneLock_2)
-lockList.append(padLock)
-
-craneQueue_1 = queue.LifoQueue()
-craneQueue_2 = queue.LifoQueue()
-padQueue = queue.LifoQueue()
-queueList.append(craneQueue_1)
-queueList.append(craneQueue_2)
-queueList.append(padQueue)
 
 if __name__ == "__main__":
     with open('threadLogs.log', 'w'):
@@ -89,40 +83,15 @@ if __name__ == "__main__":
     print(socket.gethostname())
     i = 0
 
-    '''
-    while True:
-        for client in clientList:
-            if client.isrunning():
-                pass
-            else:
-                clientList.remove(client)
-
-        sock.listen(1)
-
-        print('Server is waiting')
-        (connection, (ip, port)) = sock.accept()
-        try:
-            print('client connected')
-            crane1 = CraneClient('Crane', Crane(x=20, y=20, index=i),
-                                 Hook(z=100, r=40, theta=0),
-                                 inc=2 * PI / 360, delay=0.1, cond=c, ip=ip, port=port)
-            crane1.isDaemon()
-            crane1.start()
-            clientList.append(crane1)
-            i += 1
-        except:
-            print("something went horribly wrong")
-    '''
-
     # tmpIP = "nah"
     tmpip = 'nah'
     tmpPort = 'nah'
-    crane1 = CraneClient('Crane', Crane(x=20, y=20, index=1),
+    crane1 = CraneClient('Crane', Crane(x=20, y=20, index=0),
                          Hook(z=100, r=40, theta=0),
                          inc=2 * PI / 360, delay=0.1, cond=c, ip=tmpip, port=tmpPort,
                          queue=queueList[0], lock=lockList[0])
 
-    crane2 = CraneClient('Crane', Crane(x=180, y=180, index=2),
+    crane2 = CraneClient('Crane', Crane(x=180, y=180, index=1),
                          Hook(z=150, r=80, theta=0),
                          inc=-2 * PI / 360, delay=1 / 50, cond=c, ip=tmpip, port=tmpPort,
                          queue=queueList[1], lock=lockList[1])
@@ -132,16 +101,46 @@ if __name__ == "__main__":
     # crane1.start()
     # crane2.start()
 
-    PadThread = Thread(target=PadWorker, name='PadThread', args=(3,))
+    # PadThread = Thread(target=PadWorker, name='PadThread', args=(3,))
     # clientList.append(PadThread)
-
+    PadThread = PadClient(name='PadThread', index=2, queue=queueList[2], lock=lockList[2])
+    clientList.append(PadThread)
     # PadThread.start()
+
+    AcThread = Thread(target=AcWorker, name='AcThread', args=(clientList, c,))
+    # clientList.append(AcThread)
+
     for t in clientList:
         t.start()
 
-    AcThread = Thread(target=AcWorker, name='AcThread', args=(clientList, c,))
     AcThread.start()
 
+    '''
+        while True:
+            for client in clientList:
+                if client.isrunning():
+                    pass
+                else:
+                    clientList.remove(client)
+
+            sock.listen(1)
+
+            print('Server is waiting')
+            (connection, (ip, port)) = sock.accept()
+            try:
+                print('client connected')
+                crane1 = CraneClient('Crane', Crane(x=20, y=20, index=i),
+                                     Hook(z=100, r=40, theta=0),
+                                     inc=2 * PI / 360, delay=0.1, cond=c, ip=ip, port=port)
+                crane1.isDaemon()
+                crane1.start()
+                clientList.append(crane1)
+                i += 1
+            except:
+                print("something went horribly wrong")
+        '''
+
+    # t.join()
 # var = input()
 #
 # if var == 'kill':

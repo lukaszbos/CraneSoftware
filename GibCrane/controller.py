@@ -7,19 +7,20 @@ class Controller:
         self.button = 0
 
     def update(self, numberOfAxe, voltage):
-        if numberOfAxe == 0:
-            self.axisHorizontal = voltage
         if numberOfAxe == 1:
+            self.axisHorizontal = voltage
+        if numberOfAxe == 0:
             self.axisVertical = voltage
-        if numberOfAxe == 2:
+        if numberOfAxe == 4:
             self.axisHook = voltage
 
-    def printAxis(self):
-        print("Horizontal ", self.axisVertical)
-        print("Vertical ", self.axisHorizontal)
-        print("Hook ", self.axisHook)
-        print("Sprint Button ", self.button)
-        print("")
+    def printValues(self):
+        # print("Horizontal ", self.axisVertical)
+        # print("Vertical ", self.axisHorizontal)
+        # print("Hook ", self.axisHook)
+        # print("Sprint Button ", self.button)
+        # print("")
+        return f'Horizontal {self.axisVertical} \nVertical {self.axisHorizontal} \nHook {self.axisHook} \nSprint Button {self.button}'
 
     def updateButton(self, buttonClicked, buttonValue):
         sprintButton = 5
