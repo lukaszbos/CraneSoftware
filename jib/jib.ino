@@ -17,7 +17,8 @@
 	 * high torque mode for heavy lifting (and homing?), low torque for power savings
 	 * use stallGuard value to limit speed to prevent motors stalling
  * add neoPixel leds for cool light effects
- * isr is not sending step pulses perfectly evenly when spinning many motors at same time
+ * ISR is not sending step pulses perfectly evenly when spinning many motors at same time
+ * dont use blocking analogRead(A6) inside ISR, instead read it from registers in non blocking way
 */
 
 // a motor can never spin too fast, right?
@@ -58,7 +59,7 @@ volatile long
 	pos[3]={0,0,0}, // motor step positions
 	posMax=2E9, posMin=-2E9,
 	posTop=2E9;
-volatile byte homing=0;
+volatile byte homing=0, homeSlew=0, homeTrolley=0;
 unsigned long fast[3]; // motor max speeds
 unsigned long acl=10; // acceleration setting
 char goal0=0, goal1=0, goal2=0;

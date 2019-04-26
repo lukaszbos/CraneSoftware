@@ -4,8 +4,21 @@ ISR(TIMER1_CAPT_vect) // http://www.gammon.com.au/interrupts
 	static bool man[3]={0}; // which motors to step next
 	
 	// slew
-	if(motOn[0] && man[0]) 
+	if(motOn[0] && man[0])
 	{
+		if(homeSlew>0) // homing mode
+		{
+			const int box = analogRead(A6);
+			if(homeSlew==1 && box>923)
+			{
+				homeSlew=2;
+			}
+			else if(homeSlew==2 && box<512)
+			{
+				homeSlew=3;
+				pos[0]=0;
+			}
+		}
 		if(dir[0]) ++pos[0];
 		else --pos[0];
 		PORTD ^= 1<<4; // https://www.arduino.cc/en/Reference/PortManipulation
@@ -14,7 +27,7 @@ ISR(TIMER1_CAPT_vect) // http://www.gammon.com.au/interrupts
 	// trolley
 	if(motOn[1] && man[1])
 	{
-		if(homing>0) // homing mode
+		if(homeTrolley>0) // homing mode
 		{
 			if(PINB & 1) // trolley stallGuard diag1 high
 			{
@@ -26,7 +39,7 @@ ISR(TIMER1_CAPT_vect) // http://www.gammon.com.au/interrupts
 			{
 				motOn[1]=0;
 				kid[1]=0xFFFF00;
-				homing++;
+				++homeTrolley;
 			}
 		}
 		else // normal mode

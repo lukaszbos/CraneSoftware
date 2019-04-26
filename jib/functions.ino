@@ -3,7 +3,7 @@ void settings(){ // this function changes some settings of TMC2130
 	slew.begin(); // Initiate pins and registeries
 	slew.high_sense_R(1); // reference voltage for coil current sense resistors  1 = 0.18V       0 = 0.32V
 	slew.hold_current(0); // 0-31 standstill current per motor coil
-	slew.run_current(4); // 0-31,     0 = 30 mA per coil,    31 = 980 mA per coil
+	slew.run_current(8); // 0-31,     0 = 30 mA per coil,    31 = 980 mA per coil
 	slew.power_down_delay(30); // how long to wait after movement stops before reducing to hold current 0-255 = 0-4 seconds
 	slew.hold_delay(3); // 0-15 how gradually it reduces to hold current. 0=fast change. 15=slow change.
 	slew.stealthChop(1);      // Enable extremely quiet stepping
@@ -17,7 +17,7 @@ void settings(){ // this function changes some settings of TMC2130
 	trolley.begin();
 	trolley.high_sense_R(1);
 	trolley.hold_current(0);
-	trolley.run_current(4);
+	trolley.run_current(8);
 	trolley.power_down_delay(30);
 	trolley.hold_delay(3);
 	trolley.stealthChop(1);
@@ -28,13 +28,13 @@ void settings(){ // this function changes some settings of TMC2130
 	trolley.chopper_mode(0);
 	trolley.coolstep_min_speed(200);
 	trolley.diag1_stall(1);
-	trolley.sg_stall_value(15);
+	trolley.sg_stall_value(10);
 
 	// hoisting driver settings
 	hook.begin();
 	hook.high_sense_R(1);
 	hook.hold_current(0); // todo optimize this for minimum current consumption while still holding maximum load
-	hook.run_current(5);
+	hook.run_current(8);
 	hook.power_down_delay(30);
 	hook.hold_delay(3);
 	hook.stealthChop(1);
@@ -43,7 +43,7 @@ void settings(){ // this function changes some settings of TMC2130
 	hook.interpolate(1);
 	hook.double_edge_step(1);
 	hook.chopper_mode(0);
-	hook.coolstep_min_speed(200);
+	hook.coolstep_min_speed(200); // todo find min value for this
 	hook.diag1_stall(1);
 	hook.sg_stall_value(15); // todo adjust this to match NEMA23 1.5A motor
 }
@@ -88,7 +88,10 @@ void setSpeed(byte motor, unsigned long newKid){
 
 // function to set timer1 period. Stolen from https://www.pjrc.com/teensy/td_libs_TimerOne.html
 inline void fox(unsigned long cycles){
-	if(cycles<600) cycles=600; // minimum cycles, cuz ISR takes some time too
+	if(homeSlew>0){
+		if(cycles<2400) cycles=2400; //cos analogRead(A6) is slow
+	}
+	else if(cycles<700) cycles=700; // minimum cycles, cuz ISR takes some time too
 	byte clockSelectBits;
 	word period;
 	if (cycles < 0x10000) {

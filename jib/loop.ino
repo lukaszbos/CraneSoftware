@@ -67,71 +67,28 @@ void loop() {
 			++job;
 		}
 		else if(job==4){ // decode settings byte
-			if(wax & 2) homing=1;
-			else{
-				if(wax & 1){
-					Serial.println("Silent mode");
-					silentMode();
-				}else{
-					Serial.println("Fast mode");
-					fastMode();
+			if(wax & 4){ // stop motors now
+				goal0=0; goal1=0; goal2=0;
+				spd[0]=0; spd[1]=0; spd[2]=0;
+				setSpeed(0,0); setSpeed(1,0); setSpeed(2,0);
+				homing=0; homeTrolley=0; homeSlew=0;
+				posMax=2E9; posMin=-2E9; posTop=2E9;
+			}else{
+				if(wax & 2) homing=1;
+				else{
+					if(wax & 1){
+						Serial.println("Silent mode");
+						silentMode();
+					}else{
+						Serial.println("Fast mode");
+						fastMode();
+					}
 				}
 			}
 			++job;
 		}
 	}
-
-	if(homing>0){ // homing function
-		if(homing==1){ // start homing
-			Serial.println("Homing hook");
-			posTop=2E9;
-			fastMode();
-			goal0=0;
-			goal1=0;
-			goal2=-50;
-			homing=2;
-		}
-		else if(homing==3){
-			goal2=0;
-			Serial.println("Reversing hook a bit");
-			hook.shaft_dir(!dir[2]);
-			PORTD ^= 1<<6;
-			for(byte i=0; i<3; i++){
-				delay(10);
-				PORTD ^= 1<<6;
-			}
-			hook.shaft_dir(dir[2]);
-			cli();
-			pos[2]=0;
-			posTop=0;
-			sei();
-			Serial.println("Homing trolley and slew");
-			trolley.run_current(12);
-			posMin=-2E9;
-			goal1=-50;
-			goal0=-50;
-			homing=4;
-		}
-		else if(homing==5){
-			Serial.println("Edge detected");
-			cli();
-			posMin=0;
-			pos[1]=-20; // stop before edge
-			sei();
-			posMax=2E9;
-			goal1=50; // change direction
-			homing=6;
-		}
-		else if(homing==7){
-			goal1=0;
-			cli();
-			posMax=pos[1]-20;
-			sei();
-			trolley.run_current(4);
-			Serial.println("Homing finished");
-			homing=0;
-		}
-	}
+	if(homing>0) home();
 	
 	static unsigned long owl=0;
 	if(now-owl>200){ // prints various numbers to serial

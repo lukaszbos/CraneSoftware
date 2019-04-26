@@ -43,7 +43,7 @@ void printDebug()
 
 	if(rat>0) say=1;
 	
-	if(say or 1){
+	if(say){
 		for(byte i=0; i<3; i++){ // print motor positions
 			Serial.print(positron[i]);
 			Serial.print(",");
