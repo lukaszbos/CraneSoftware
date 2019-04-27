@@ -1,7 +1,5 @@
 # Hello, Joel here. Before running this code, connect one or more gamepads to the computer. This code detects which of the pads are Spartan Gear Oplon and which are Sony DualShock4 and reads 3 joysticks from each pad. The code then notices if a joystick on any of the connected pads is being turned by someone and sends that joystick position to arduino through serial (USB wire). This keeps repeating forever.
 
-# todo add a switch to choose joystick mapping between pro and noob modes
-
 # libraries you may need to install with pip
 import pygame # https://www.pygame.org/docs/ref/joystick.html I took this code from here.
 import serial # https://playground.arduino.cc/interfacing/python
@@ -74,6 +72,8 @@ newHome=0
 slewOld=0
 trolleyOld=0
 hookOld=0
+mode=False
+armed=False
 
 # -------- Main Program Loop -----------
 while done==False:
@@ -154,13 +154,19 @@ while done==False:
 				wax &= ~1
 				send=1
 			oldFast=newFast
-			newHome=pad.get_button(9) # home
+			newHome=pad.get_button(8) # home
 			if newHome>oldHome:
 				wax |= 2
 				send=1
 			else: # don't home again
 				wax &= ~2
 			oldHome=newHome
+			if pad.get_button(9): # switch joystick modes
+				if armed:
+					mode = not mode
+					armed=False
+			else:
+				armed=True
 			if pad.get_button(13): # stop motors button
 				wax |= 4
 				send=1
@@ -169,9 +175,13 @@ while done==False:
 				hook0=0
 			else:
 				wax &= ~4
-				slew0=int((pad.get_axis(4)-pad.get_axis(5))*63.01)
 				trolley0=deadzone(pad.get_axis(1)) # DualShock4 doesn't have built in deadzones, so we do that here in software.
-				hook0=deadzone(pad.get_axis(3))
+				if mode:
+					slew0=deadzone(pad.get_axis(0))
+					hook0=-deadzone(pad.get_axis(3))
+				else:
+					slew0=int((pad.get_axis(4)-pad.get_axis(5))*63.01)
+					hook0=deadzone(pad.get_axis(3))
 		else: # Spartan Gear Oplon has built in deadzones
 			slew0=int(pad.get_axis(0)*126)
 			trolley0=int(pad.get_axis(1)*126)
