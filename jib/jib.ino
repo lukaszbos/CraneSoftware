@@ -1,7 +1,6 @@
 // This code is supposed to read commands from serial and control 3 steppers.
 // This works at least with atmega 328p microcontroller (Arduino Uno or Nano)
 /* todo:
- * slew homing with hall sensor (can be simultaneous with trolley homing)
  * smooth transition from slow mode to fast mode
  * user shouldnt be able to switch to silent mode during homing
  * stop motors if no message is received for a while

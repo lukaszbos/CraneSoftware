@@ -6,13 +6,13 @@ void home(){
 		fastMode();
 		goal0=0;
 		goal1=0;
-		goal2=50;
+		goal2=-50;
 		homing=2;
 	}
 	else if(homing==2){
-		if(spd[2]>=50){
+		if(spd[2]<=-50){
 			Serial.println("Raising hook");
-			goal2=-50;
+			goal2=50;
 			homing=3;
 		}
 	}
@@ -34,7 +34,7 @@ void home(){
 		posMin=-2E9;
 		homing=5;
 		homeSlew=1;
-		goal0=-10;
+		goal0=10;
 		homeTrolley=1;
 		goal1=-50;
 	}
@@ -46,7 +46,7 @@ void home(){
 			pos[1]=-20; // stop before edge
 			sei();
 			posMax=2E9;
-			goal1=50; // change direction
+			goal1=-50; // change direction
 			homeTrolley=3;
 		}
 		else if(homeTrolley==4){

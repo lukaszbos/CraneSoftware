@@ -177,15 +177,15 @@ while done==False:
 				wax &= ~4
 				trolley0=deadzone(pad.get_axis(1)) # DualShock4 doesn't have built in deadzones, so we do that here in software.
 				if mode:
-					slew0=deadzone(pad.get_axis(0))
-					hook0=-deadzone(pad.get_axis(3))
-				else:
-					slew0=int((pad.get_axis(4)-pad.get_axis(5))*63.01)
+					slew0=-deadzone(pad.get_axis(0))
 					hook0=deadzone(pad.get_axis(3))
+				else:
+					slew0=int((pad.get_axis(5)-pad.get_axis(4))*63.01)
+					hook0=-deadzone(pad.get_axis(3))
 		else: # Spartan Gear Oplon has built in deadzones
-			slew0=int(pad.get_axis(0)*126)
+			slew0=-int(pad.get_axis(0)*126)
 			trolley0=int(pad.get_axis(1)*126)
-			hook0=int(pad.get_axis(3)*126)
+			hook0=-int(pad.get_axis(3)*126)
 		if slew0!=0:
 			slew=slew0
 		if trolley0!=0:

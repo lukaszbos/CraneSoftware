@@ -9,8 +9,8 @@ void loop() {
 		if(spd[0]<goal0) spd[0]++; else
 		if(spd[0]>goal0) spd[0]--;
 		static bool newDir0=0;
-		if(spd[0]>0) newDir0=0; else
-		if(spd[0]<0) newDir0=1;
+		if(spd[0]>0) newDir0=1; else
+		if(spd[0]<0) newDir0=0;
 		if (newDir0!=dir[0]){
 			slew.shaft_dir(newDir0);
 			dir[0]=newDir0;
@@ -41,8 +41,8 @@ void loop() {
 		sei();
 		if(posHook>=posTop && spd[2]<0) spd[2]=0;
 		static bool newDir2=0;
-		if(spd[2]>0) newDir2=0; else
-		if(spd[2]<0) newDir2=1;
+		if(spd[2]>0) newDir2=1; else
+		if(spd[2]<0) newDir2=0;
 		if (newDir2!=dir[2]){
 			hook.shaft_dir(newDir2);
 			dir[2]=newDir2;
