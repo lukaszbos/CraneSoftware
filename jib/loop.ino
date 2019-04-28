@@ -54,8 +54,10 @@ void loop() {
 		}
 		else setSpeed(2,spd[2]==0?0:fast[2]/abs(spd[2]));
 	}
-	
+
+	static unsigned long timeReceived = 0;
 	if(Serial.available()){ // receive commands from Python code
+		timeReceived = now;
 		static byte job=255;
 		char wax=Serial.read();
 		if(wax==127 && homing==0) job=0; // speed packet start character is 127
@@ -88,6 +90,11 @@ void loop() {
 			++job;
 		}
 	}
+
+	if (now - timeReceived > 1000){
+		goal0=0; goal1=0; goal2=0;
+	}
+	
 	if(homing>0) home();
 	
 	static unsigned long owl=0;

@@ -63,12 +63,12 @@ cat=None
 say=False
 old=0
 wax=0
-oldSilent=0
-newSilent=0
-oldFast=0
-newFast=0
-oldHome=0
-newHome=0
+oldSilent=[0,0,0,0,0,0,0,0]
+newSilent=[0,0,0,0,0,0,0,0]
+oldFast=[0,0,0,0,0,0,0,0]
+newFast=[0,0,0,0,0,0,0,0]
+oldHome=[0,0,0,0,0,0,0,0]
+newHome=[0,0,0,0,0,0,0,0]
 slewOld=0
 trolleyOld=0
 hookOld=0
@@ -137,30 +137,30 @@ while done==False:
 		textPrint.print(screen, "Number of axes: {}".format(axes) )
 		textPrint.indent()
 		
-		for i in range( axes ):
-			axis = pad.get_axis( i )
-			textPrint.print(screen, "Axis {} value: {:>6.3f}".format(i, axis) )
+		for j in range( axes ):
+			axis = pad.get_axis( j )
+			textPrint.print(screen, "Axis {} value: {:>6.3f}".format(j, axis) )
 		textPrint.unindent()
 		textPrint.unindent()
 		
 		if pad.get_name() == 'Wireless Controller': # bluetooth DualShock4
-			newSilent=pad.get_button(1) # silent mode
-			if newSilent>oldSilent:
+			newSilent[i]=pad.get_button(1) # silent mode
+			if newSilent[i]>oldSilent[i]:
 				wax |= 1
 				send=1
-			oldSilent=newSilent
-			newFast=pad.get_button(2) # fast mode
-			if newFast>oldFast:
+			oldSilent[i]=newSilent[i]
+			newFast[i]=pad.get_button(2) # fast mode
+			if newFast[i]>oldFast[i]:
 				wax &= ~1
 				send=1
-			oldFast=newFast
-			newHome=pad.get_button(8) # home
-			if newHome>oldHome:
+			oldFast[i]=newFast[i]
+			newHome[i]=pad.get_button(8) # home
+			if newHome[i]>oldHome[i]:
 				wax |= 2
 				send=1
 			else: # don't home again
 				wax &= ~2
-			oldHome=newHome
+			oldHome[i]=newHome[i]
 			if pad.get_button(9): # switch joystick modes
 				if armed:
 					mode = not mode
@@ -194,7 +194,7 @@ while done==False:
 			hook=hook0
 		
 	if ser != None:
-		if slew!=slewOld or trolley!=trolleyOld or hook!=hookOld:
+		if slew!=slewOld or trolley!=trolleyOld or hook!=hookOld or 1:
 			try:
 				ser.write(bytes(struct.pack('>bbbb',127,slew,trolley,hook))) # send 4 bytes to Arduino. The first one, 127, is packet start byte. After that comes three joystick positions as a number between -126 to 126.
 			except:
