@@ -162,11 +162,11 @@ while done==False:
 				wax &= ~2
 			oldHome[i]=newHome[i]
 			if pad.get_button(9): # switch joystick modes
-				if armed:
+				if armed[i]:
 					mode = not mode
-					armed=False
+					armed[i]=False
 			else:
-				armed=True
+				armed[i]=True
 			if pad.get_button(13): # stop motors button
 				wax |= 4
 				send=1
