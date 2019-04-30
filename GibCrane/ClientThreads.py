@@ -11,6 +11,7 @@ logging.basicConfig(level=logging.INFO,
 
 
 class CraneClient(Thread):
+
     def __init__(self, name, crane: Crane, hook: Hook, inc, delay, cond: Condition, ip, port, queue, lock):
         Thread.__init__(self, name=f'{name}_{crane.GetIndex() + 1}')
         self._crane = crane
@@ -36,7 +37,7 @@ class CraneClient(Thread):
     tempCounter = 0
     _running = False
     outputLock = Lock()
-    outputMessage = ''
+    outputMessage = []
 
     def setOutput(self, msg):
         with self.outputLock:
@@ -44,6 +45,10 @@ class CraneClient(Thread):
     def getOutput(self):
         with self.outputLock:
             return self.outputMessage
+    def print_output(self):
+        for i in self.outputMessage:
+            if len(self.outputMessage) != 0:
+                print(f'{i} \n')
 
     def infoString(self, rot_count):
         return f"Hook_{self._crane.GetIndex()} coordinates are: " \
@@ -81,7 +86,10 @@ class CraneClient(Thread):
                 messageList.append(self.infoString(self.tempCounter))
                 self.queue.put(messageList)
 
-            print(f'\n\n{self.name}\n{self.getOutput()}')
+            print(f'\n\n{self.name}\n{self.print_output()}')
+
+            # print
+
             # finally:
             #     print(f'Data not forwarded')
 

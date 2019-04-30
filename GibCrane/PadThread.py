@@ -1,3 +1,5 @@
+from typing import List, Any
+
 from GpsObjects import *
 from threading import *
 import time
@@ -34,6 +36,14 @@ class PadClient(Thread):
         for i in range(2):
             self.myControllers.append(controller.Controller(i))
 
+        '''
+        Value Matrix scheme:
+             | var0 | var1 | var2 | var3
+        pad0 | int  | int  | int  | int
+        pad1 | int  | int  | int  | int
+        pad2 | int  | int  | int  | int
+        pad3 | int  | int  | int  | int
+        '''
 
         tempCounter = 0
         pygame.init()
@@ -41,16 +51,20 @@ class PadClient(Thread):
             messageList = []
             self.padHandler()
 
+            valueMatrix: List[List[int]] = [[], []]
+
             p: controller.Controller
             # tmpInfo = ''
             for pad in self.myControllers:
                 # try:
                 # with self.lock:
+                valueMatrix[pad.index] = pad.getValueList()
                 # tempCounter += self._inc
-                messageList.append(pad.printValues())
+                # messageList.append(pad.printValues())
                 # tmpInfo += pad.printValues()
 
-            self.queue.put(messageList)
+            self.queue.put(valueMatrix)
+            # self.queue.put(messageList)
             # finally:
             #     print(f'Data not forwarded')
         pygame.quit()

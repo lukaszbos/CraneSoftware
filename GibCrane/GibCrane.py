@@ -1,5 +1,8 @@
 from builtins import print
 import socket
+from queue import LifoQueue
+from typing import Any
+
 from ClientThreads import *
 from PadThread import *
 
@@ -56,32 +59,43 @@ queueList.append(craneQueue_2)
 queueList.append(padQueue)
 
 
+# TODO get a hang of types
+
 def AcWorker(clients, condition: Condition):
     logging.info(' Starting')
     running = True
     while running:
         inputList = []
-        for cl in range(len(clients)):
+        pad_commands = [[], []]
+        receivedMessage = []
+        for cl in clients:
             # with condition:
             #     condition.wait(0.1)
             #     print(queueList[client.index - 1].get())
-
-            with lockList[cl]:
-                receivedMessage=queueList[cl].get()
-                for m in receivedMessage:
-                    inputList.append(m)
+            if isinstance(cl, PadClient):
+                with lockList[cl.index]:
+                    pad_commands = queueList[cl.index].get()
+                    # for m in receivedMessage:
+                    #     inputList.append(m)
+                # print("pad")
+            elif isinstance(cl, CraneClient):
+                with lockList[cl.index]:
+                    receivedMessage = queueList[cl.index].get()
+                    # for m in receivedMessage:
+                    #     inputList.append(m)
+                # print('crane')
                 # print(queueList[cl].get())
                 # queueList[cl].task_done()
         print(len(inputList))
         # for input in inputList:
         #     print(input)
 
-        inputList.reverse()
+        # inputList.reverse()
 
-        for i in range(2):
-            clientList[i].setOutput(inputList[i])
+        for i in range(len(pad_commands)):
+            clientList[i].setOutput(pad_commands[i])
 
-        time.sleep(1/10)
+        time.sleep(1 / 10)
 
 
 if __name__ == "__main__":

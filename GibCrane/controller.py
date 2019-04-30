@@ -6,14 +6,21 @@ class Controller:
         self.axisHook = 0
         self.button = 0
         self.index = index
+        self.valueList = [self.axisHorizontal, self.axisVertical, self.axisHook, self.button]
 
     def update(self, numberOfAxe, voltage):
         if numberOfAxe == 1:
             self.axisHorizontal = voltage
+            self.valueList[0] = voltage
         if numberOfAxe == 0:
             self.axisVertical = voltage
+            self.valueList[1] = voltage
         if numberOfAxe == 4:
             self.axisHook = voltage
+            self.valueList[2] = voltage
+
+    def getValueList(self):     #lock should be added here
+        return self.valueList
 
     def printValues(self):
         # print("Horizontal ", self.axisVertical)
@@ -27,6 +34,7 @@ class Controller:
         sprintButton = 5
         if buttonClicked == sprintButton:
             self.button = buttonValue
+            self.valueList[3] = buttonValue
 
     def getIndex(self):
         return self.index
