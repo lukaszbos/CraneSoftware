@@ -73,7 +73,9 @@ slewOld=0
 trolleyOld=0
 hookOld=0
 mode=False
-armed=False
+armed=[False,False,False,False,False,False,False,False]
+
+
 
 # -------- Main Program Loop -----------
 while done==False:
