@@ -59,9 +59,13 @@ def deadzone(wolf): # calculates deadzones for DualShock4
 		return int(0) # means don't move
 
 ser=None
+ser2=None
 cat=None
+cat2=None
 say=False
+say2=False
 old=0
+old2=0
 wax=0
 oldSilent=[0,0,0,0,0,0,0,0]
 newSilent=[0,0,0,0,0,0,0,0]
@@ -79,25 +83,6 @@ armed=[False,False,False,False,False,False,False,False]
 
 # -------- Main Program Loop -----------
 while done==False:
-	if ser is None: # auto select arduino COM port
-		if cat is None:
-			now=time.time()
-			if now-old > 1 : # reduces CPU usage
-				old=now
-				for dog in serial.tools.list_ports.comports():
-					print(dog)
-					cat=dog.device
-				if say is False:
-					say=True
-					if cat is None:
-						print('Plug Arduino USB cable.')
-		else:
-			try:
-				ser = serial.Serial(cat,250000) # port, baud rate
-			except:
-				pass
-			else:
-				threading.Thread(target=monitor, args=(ser,)).start()
 
 	# EVENT PROCESSING STEP
 	for event in pygame.event.get(): # User did something
@@ -194,8 +179,29 @@ while done==False:
 			trolley=trolley0
 		if hook0!=0:
 			hook=hook0
-		
-	if ser != None:
+	
+	if ser is None: # auto select arduino COM port
+		if cat is None:
+			now=time.time()
+			if now-old > 1 : # reduces CPU usage
+				old=now
+				for dog in serial.tools.list_ports.comports():
+					print(dog)
+					cat=dog.device
+					break
+				if say is False:
+					say=True
+					if cat is None:
+						print('Plug Arduino USB cable.')
+		else:
+			try:
+				ser = serial.Serial(cat,250000) # port, baud rate
+			except:
+				pass
+			else:
+				threading.Thread(target=monitor, args=(ser,)).start()
+	
+	else:
 		if slew!=slewOld or trolley!=trolleyOld or hook!=hookOld or 1:
 			try:
 				ser.write(bytes(struct.pack('>bbbb',127,slew,trolley,hook))) # send 4 bytes to Arduino. The first one, 127, is packet start byte. After that comes three joystick positions as a number between -126 to 126.
@@ -214,6 +220,48 @@ while done==False:
 				ser=None
 				cat=None
 				say=False
+			else:
+				send=0
+				
+	if ser2 is None: # auto select second COM port
+		if cat2 is None:
+			now=time.time()
+			if now-old2 > 1 : # reduces CPU usage
+				old2=now
+				for dog in serial.tools.list_ports.comports():
+					print(dog)
+					cat2=dog.device
+				if say2 is False:
+					say2=True
+					if cat2 is None:
+						print('Plug second USB cable.')
+		else:
+			try:
+				ser2 = serial.Serial(cat2,250000) # port, baud rate
+			except:
+				pass
+			else:
+				threading.Thread(target=monitor, args=(ser,)).start()
+	
+	else:
+		if slew!=slewOld or trolley!=trolleyOld or hook!=hookOld or 1:
+			try:
+				ser2.write(bytes(struct.pack('>bbbb',127,slew,trolley,hook))) # send 4 bytes to Arduino. The first one, 127, is packet start byte. After that comes three joystick positions as a number between -126 to 126.
+			except:
+				ser2=None
+				cat2=None
+				say2=False
+			else:
+				slewOld=slew
+				trolleyOld=trolley
+				hookOld=hook
+		if send:
+			try:
+				ser2.write(bytes(struct.pack('>bb',-127,wax))) # sometimes send also settings
+			except:
+				ser2=None
+				cat2=None
+				say2=False
 			else:
 				send=0
 	

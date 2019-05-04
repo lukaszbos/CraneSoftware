@@ -34,7 +34,7 @@ void settings(){ // this function changes some settings of TMC2130
 	hook.begin();
 	hook.high_sense_R(1);
 	hook.hold_current(0); // todo optimize this for minimum current consumption while still holding maximum load
-	hook.run_current(8);
+	hook.run_current(20);
 	hook.power_down_delay(30);
 	hook.hold_delay(3);
 	hook.stealthChop(1);
