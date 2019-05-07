@@ -4,6 +4,8 @@ from controller import Controller
 import time
 import logging
 import queue
+import socket
+
 
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s: %(asctime)s %(threadName)-10s %(message)s',
@@ -12,7 +14,7 @@ logging.basicConfig(level=logging.INFO,
 
 class CraneClient(Thread):
 
-    def __init__(self, name, crane: Crane, hook: Hook, inc, delay, cond: Condition, ip, port, queue, lock):
+    def __init__(self, name, crane: Crane, hook: Hook, inc, delay, cond: Condition, ip, port, queue, lock, connection):
         Thread.__init__(self, name=f'{name}_{crane.GetIndex() + 1}')
         self._crane = crane
         self._hook = hook
@@ -26,6 +28,7 @@ class CraneClient(Thread):
         self.queue = queue
         self.lock = lock
         self.name = f'{name}_{crane.GetIndex() + 1}'
+        self.conn = connection
 
         print("new crane connected")
 
@@ -46,9 +49,12 @@ class CraneClient(Thread):
         with self.outputLock:
             return self.outputMessage
     def print_output(self):
+        message = ''
         for i in self.outputMessage:
             if len(self.outputMessage) != 0:
-                print(f'{i} \n')
+                message += f"{i} "
+        return message
+
 
     def infoString(self, rot_count):
         return f"Hook_{self._crane.GetIndex()} coordinates are: " \
@@ -62,19 +68,20 @@ class CraneClient(Thread):
 
         while _running:
             messageList = []
-            ''' connection handling
+            ''' connection handling '''
             try:
-                data = connection.recv(1024)
+                data = self.conn.recv(1024)
                 print(f'Server recived data: {data}')
-                # MESSAGE = raw_input("Enter response:")
-                # if MESSAGE == 'exit':
-                #     break
-                # connection.send(MESSAGE)
+                # MESSAGE = input("Enter response:")
+                MESSAGE = self.print_output()
+                if MESSAGE == 'exit':
+                    break
+                self.conn.send(MESSAGE)
             except:
                 print("connection lost")
                 self.killThread()
                 break
-            '''
+
             self._hook.convertRadial(self._crane)
             self._hook.SetTheta(self._hook.GetTheta() + self._inc)
 
@@ -86,7 +93,7 @@ class CraneClient(Thread):
                 messageList.append(self.infoString(self.tempCounter))
                 self.queue.put(messageList)
 
-            print(f'\n\n{self.name}\n{self.print_output()}')
+            print(f'\n{self.name}\n{self.print_output()}')
 
             # print
 

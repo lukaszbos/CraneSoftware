@@ -59,6 +59,7 @@ class PadClient(Thread):
                 # try:
                 # with self.lock:
                 valueMatrix[pad.index] = pad.getValueList()
+                # print(f'{pad.index} \n {pad.printValues()}')
                 # tempCounter += self._inc
                 # messageList.append(pad.printValues())
                 # tmpInfo += pad.printValues()
@@ -97,11 +98,13 @@ class PadClient(Thread):
             if event.type == pygame.QUIT:  # If user clicked close
                 done = True  # Flag that we are done so we exit this loop
 
+            #   These are not necessary
+
             # Possible joystick actions: JOYAXISMOTION JOYBALLMOTION JOYBUTTONDOWN JOYBUTTONUP JOYHATMOTION
-            if event.type == pygame.JOYBUTTONDOWN:
-                print("Joystick button pressed.")
-            if event.type == pygame.JOYBUTTONUP:
-                print("Joystick button released.")
+            # if event.type == pygame.JOYBUTTONDOWN:
+            #     print("Joystick button pressed.")
+            # if event.type == pygame.JOYBUTTONUP:
+            #     print("Joystick button released.")
 
         # DRAWING STEP
         # First, clear the screen to white. Don't put other drawing commands
