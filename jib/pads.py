@@ -1,4 +1,4 @@
-# Hello, Joel here. Before running this code, connect one or more gamepads to the computer. This code detects which of the pads are Spartan Gear Oplon and which are Sony DualShock4 and reads 3 joysticks from each pad. The code then notices if a joystick on any of the connected pads is being turned by someone and sends that joystick position to arduino through serial (USB wire). This keeps repeating forever.
+# Hello, Joel here. Before running this code, connect one or more gamepads and arduinos to the computer. This code sends commands from the pads to several arduinos through serial (USB wire). This code is not yet finished.
 
 # libraries you may need to install with pip
 import pygame # https://www.pygame.org/docs/ref/joystick.html I took this code from here.
@@ -58,8 +58,7 @@ def deadzone(wolf): # calculates deadzones for DualShock4
 	else: # we are in deadzone
 		return int(0) # means don't move
 
-ser=None
-cat=[None,None,None,None,None,None]
+ser=[None,None,None,None,None,None]
 wax=0
 oldSilent=[0,0,0,0,0,0,0,0]
 newSilent=[0,0,0,0,0,0,0,0]
@@ -74,37 +73,27 @@ mode=False
 armed=[False,False,False,False,False,False,False,False]
 
 # opens COM ports
-i=0
+comCount=0
 for dog in serial.tools.list_ports.comports():
-	print(dog)
-	cat[i]=dog.device
 	try:
-		ser = serial.Serial(cat[i],250000) # port, baud rate
+		ser[comCount] = serial.Serial(dog.device,250000) # port, baud rate
 	except:
-		print('Problem.')
+		print('Problem with ',dog)
 	else:
-		threading.Thread(target=monitor, args=(ser,)).start()
-		i+=1
-if cat[0] is None:
+		threading.Thread(target=monitor, args=(ser[comCount],)).start()
+		comCount+=1
+		print('Connected ',dog)
+if comCount is 0:
 	print('Plug Arduino USB cable and relaunch me.')
 
 # -------- Main Program Loop -----------
 while done==False:
-
-	# EVENT PROCESSING STEP
 	for event in pygame.event.get(): # User did something
 		if event.type == pygame.QUIT: # If user clicked close
 			done=True # Flag that we are done so we exit this loop					
-
-	# DRAWING STEP
-	# First, clear the screen to white. Don't put other drawing commands
-	# above this, or they will be erased with this command.
 	screen.fill(BLACK)
 	textPrint.reset()
-
-	# Get count of joysticks
 	joystick_count = pygame.joystick.get_count()
-
 	textPrint.print(screen, "Number of joysticks: {}".format(joystick_count) )
 	textPrint.indent()
 	
@@ -113,27 +102,25 @@ while done==False:
 	hook=0
 	send=0
 	
-	# For each joystick:
+	# For each pad:
 	for i in range(joystick_count):
 		pad = pygame.joystick.Joystick(i)
 		pad.init()
 
-		textPrint.print(screen, "Joystick {}".format(i) )
+		textPrint.print(screen, "Pad {}".format(i) )
 		textPrint.indent()
 
 		# Get the name from the OS for the controller/joystick
 		name = pad.get_name()
-		textPrint.print(screen, "Joystick name: {}".format(name) )
+		textPrint.print(screen, "Pad name: {}".format(name) )
 		
-		# Usually axis run in pairs, up/down for one, and left/right for
-		# the other.
 		axes = pad.get_numaxes()
 		textPrint.print(screen, "Number of axes: {}".format(axes) )
 		textPrint.indent()
 		
 		for j in range( axes ):
 			axis = pad.get_axis( j )
-			textPrint.print(screen, "Axis {} value: {:>6.3f}".format(j, axis) )
+			textPrint.print(screen, "Axis {} : {:>6.3f}".format(j, axis) )
 		textPrint.unindent()
 		textPrint.unindent()
 		
@@ -187,34 +174,28 @@ while done==False:
 		if hook0!=0:
 			hook=hook0
 	
-	if ser is not None:
-		if slew!=slewOld or trolley!=trolleyOld or hook!=hookOld or 1:
-			try:
-				ser.write(bytes(struct.pack('>bbbb',127,slew,trolley,hook))) # send 4 bytes to Arduino. The first one, 127, is packet start byte. After that comes three joystick positions as a number between -126 to 126.
-			except:
-				ser=None
-			else:
-				slewOld=slew
-				trolleyOld=trolley
-				hookOld=hook
-		if send:
-			try:
-				ser.write(bytes(struct.pack('>bb',-127,wax))) # sometimes send also settings
-			except:
-				ser=None
-			else:
-				send=0
-	
+	#For each arduino
+	for i in range(comCount):
+		if ser[i] is not None:
+			if slew!=slewOld or trolley!=trolleyOld or hook!=hookOld or slew!=0 or trolley!=0 or hook!=0:
+				try:
+					ser[i].write(bytes(struct.pack('>bbbb',127,slew,trolley,hook)))
+				except:
+					ser[i]=None
+				else:
+					slewOld=slew
+					trolleyOld=trolley
+					hookOld=hook
+	if send:
+		for i in range(comCount):
+			if ser[i] is not None:
+				try:
+					ser[i].write(bytes(struct.pack('>bb',-127,wax))) # sometimes send also settings
+				except:
+					ser[i]=None
+		send=0
 	# ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
-	
-	# Go ahead and update the screen with what we've drawn.
 	pygame.display.flip()
-	
-	# Limit to 20 frames per second
 	clock.tick(20)
-		
-# Close the window and quit.
-# If you forget this line, the program will 'hang'
-# on exit if running from IDLE.
 ser.close()
 pygame.quit ()
