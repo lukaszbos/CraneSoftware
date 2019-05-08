@@ -1,6 +1,6 @@
 from GpsObjects import *
 from threading import *
-from controller import Controller
+from Controller import Controller
 import time
 import logging
 import queue
@@ -51,9 +51,12 @@ class CraneClient(Thread):
     def print_output(self):
         message = ''
         for i in self.outputMessage:
+            print(i)
             if len(self.outputMessage) != 0:
                 message += f"{i} "
         return message
+
+    # def to_bit(self):
 
 
     def infoString(self, rot_count):
@@ -71,15 +74,26 @@ class CraneClient(Thread):
             ''' connection handling '''
             try:
                 data = self.conn.recv(1024)
-                print(f'Server recived data: {data}')
+                print(f'{self.name} recived data: {data}')
+                # print(f"is server runing? {_running}")
                 # MESSAGE = input("Enter response:")
-                MESSAGE = self.print_output()
-                if MESSAGE == 'exit':
-                    break
-                self.conn.send(MESSAGE)
             except:
-                print("connection lost")
-                self.killThread()
+                print(f"{self.name} data not recieved")
+                # self.killThread()
+                break
+            try:
+                strinMESSAGE = self.print_output()
+                print(f'info z pada to {self.print_output()}')
+                byte_message = bytes(strinMESSAGE, 'utf-8')
+                MESSAGE = b'stringMESSAGE'
+                print(f'{type(byte_message)}    {type(MESSAGE)}')
+                # for i in range(5):
+                self.conn.send(byte_message)
+                # if MESSAGE == 'exit':
+                #     break
+            except:
+                print(f"{self.name}data not sent")
+                # self.killThread()
                 break
 
             self._hook.convertRadial(self._crane)

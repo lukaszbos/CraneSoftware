@@ -5,7 +5,7 @@ import sys
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # give server address (ip, port) suggested port from 10000 to 65535
-server_address = ('192.168.0.102', 10000)
+server_address = ('192.168.0.101', 10000)
 print('connecting to %s port %s' % server_address)
 
 # connect socket to the server

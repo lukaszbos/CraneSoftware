@@ -6,9 +6,8 @@ import time
 import logging
 import queue
 import pygame
-import sender
 import textprint
-import controller
+import Controller
 
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s: %(asctime)s %(threadName)-10s %(message)s',
@@ -25,16 +24,15 @@ class PadClient(Thread):
         self.index = index
         # self.pad = controller.Controller()
         self.myControllers = []
-        print('Pad Thread has started')
+        print('Pad Client has been created')
 
     _running = False
 
     def run(self):
-
         logging.info('Starting')
-        self._running = True
-        for i in range(2):
-            self.myControllers.append(controller.Controller(i))
+        numberOfPads = 2
+        self.isRunning()
+        self.fillListOfControllers(numberOfPads)
 
         '''
         Value Matrix scheme:
@@ -44,31 +42,24 @@ class PadClient(Thread):
         pad2 | int  | int  | int  | int
         pad3 | int  | int  | int  | int
         '''
-
-        tempCounter = 0
         pygame.init()
-        while self._running:
-            messageList = []
-            self.padHandler()
-
-            valueMatrix: List[List[int]] = [[], []]
-
-            p: controller.Controller
-            # tmpInfo = ''
-            for pad in self.myControllers:
-                # try:
-                # with self.lock:
-                valueMatrix[pad.index] = pad.getValueList()
-                # print(f'{pad.index} \n {pad.printValues()}')
-                # tempCounter += self._inc
-                # messageList.append(pad.printValues())
-                # tmpInfo += pad.printValues()
-
-            self.queue.put(valueMatrix)
-            # self.queue.put(messageList)
-            # finally:
-            #     print(f'Data not forwarded')
+        self.threadLoop()
         pygame.quit()
+
+    def threadLoop(self):
+        while self._running:
+            self.padHandler()
+            controllerValueMatrix: List[List[int]] = [[], []]
+            for pad in self.myControllers:
+                controllerValueMatrix[pad.index] = pad.getValueList()
+            self.queue.put(controllerValueMatrix)
+
+    def fillListOfControllers(self, numberOfPads):
+        for i in range(numberOfPads):
+            self.myControllers.append(Controller.Controller(i))
+
+    def isRunning(self):
+        self._running = True
 
     # print('running')
 
@@ -77,35 +68,26 @@ class PadClient(Thread):
         # Set the width and height of the screen [width,height]
         size = [500, 700]
         screen = pygame.display.set_mode(size)
-
         pygame.display.set_caption("Mi Crane")
-
         # Loop until the user clicks the close button.
         done = False
-
         # Used to manage how fast the screen updates
         clock = pygame.time.Clock()
-
         # Initialize the joysticks
         pygame.joystick.init()
-
         # Get ready to print
         textPrint = textprint.TextPrint()
-
         # while done == False:
         # EVENT PROCESSING STEP
         for event in pygame.event.get():  # User did something
             if event.type == pygame.QUIT:  # If user clicked close
                 done = True  # Flag that we are done so we exit this loop
-
             #   These are not necessary
-
             # Possible joystick actions: JOYAXISMOTION JOYBALLMOTION JOYBUTTONDOWN JOYBUTTONUP JOYHATMOTION
             # if event.type == pygame.JOYBUTTONDOWN:
             #     print("Joystick button pressed.")
             # if event.type == pygame.JOYBUTTONUP:
             #     print("Joystick button released.")
-
         # DRAWING STEP
         # First, clear the screen to white. Don't put other drawing commands
         # above this, or they will be erased with this command.
@@ -180,21 +162,4 @@ class PadClient(Thread):
     # Close the window and quit.
     # If you forget this line, the program will 'hang'
     # on exit if running from IDLE.
-    # pygame.quit()
-
-# def PadWorker(index):
-#     index = index
-#     logging.info('Starting')
-#     running = True
-#     controller = Controller()
-#     myControllers = []
-#     for i in range(3):
-#         myControllers.append(controller)
-#
-#     pygame.init()
-#     while running:
-#         print('working')
-#         for i in range(len(myControllers)):
-#             print(f'Pad_{i + 1} values: '
-#                   f'{myControllers[i].printAxis()}')
-#         time.sleep(1)
+    pygame.quit()

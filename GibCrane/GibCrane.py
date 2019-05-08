@@ -1,10 +1,9 @@
 from builtins import print
-# from socket import socket
-from queue import LifoQueue
-from typing import Any
 
 from ClientThreads import *
-from PadThread import *
+from PadClient import *
+
+# from socket import socket
 
 '''
     File name: GibCrane.py
@@ -35,78 +34,159 @@ logging.basicConfig(level=logging.INFO, filename='threadLogs.log',
                     datefmt='%m/%d/%Y  %I:%M:%S %p')
 """
 
-clientList = []
+listOfThreads = []
+listOfLocks = []
+listOfQueues = []
+
+testCondition = Condition(Lock())
 
 
-lockList = []
-queueList = []
-c = Condition(Lock())
+# craneLock_1 = Lock()
+# craneLock_2 = Lock()
+# padLock = Lock()
+# listOfLocks.append(craneLock_1)
+# listOfLocks.append(craneLock_2)
+# listOfLocks.append(padLock)
+#
+# craneQueue_1 = queue.LifoQueue()
+# craneQueue_2 = queue.LifoQueue()
+# padQueue = queue.LifoQueue()
+# listOfQueues.append(craneQueue_1)
+# listOfQueues.append(craneQueue_2)
+# listOfQueues.append(padQueue)
 
-craneLock_1 = Lock()
-
-craneLock_2 = Lock()
-padLock = Lock()
-lockList.append(craneLock_1)
-lockList.append(craneLock_2)
-lockList.append(padLock)
-craneQueue_1 = queue.LifoQueue()
-
-craneQueue_2 = queue.LifoQueue()
-padQueue = queue.LifoQueue()
-queueList.append(craneQueue_1)
-queueList.append(craneQueue_2)
-queueList.append(padQueue)
-
-
-# TODO get a hang of types
-
-def AcWorker(clients, condition: Condition):
+def startWorkingYouFucker(fuckingShit):
     logging.info(' Starting')
-    running = True
-    while running:
+    print(fuckingShit)
+    while True:
+
+        for i in range(len(fuckingShit)):
+            logging.info(f'{fuckingShit[i].name} is alive')
+
+        time.sleep(1.5)
+
+# TODO: ogarnać czy przypadkiem sie nie jebią indeksy bo to wygląda podejrzanie. czasami sie gówno wyswietla na ardu a czasasmi ni hcuja 
+
+def communicateThreads(threads, condition: Condition):
+    delay = 1 / 10
+    logging.info(' Starting')
+    while True:
         inputList = []
         pad_commands = [[], []]
         receivedMessage = []
-        for cl in clients:
+        for thread in threads:
             # with condition:
             #     condition.wait(0.1)
             #     print(queueList[client.index - 1].get())
-            if isinstance(cl, PadClient):
-                with lockList[cl.index]:
-                    pad_commands = queueList[cl.index].get()
+            print("type threada")
+            # print(type(thread))
+            if isinstance(thread, PadClient):
+                print("wchodzi to pierwsego ifa ")
+                with getLock(thread, threads):
+                    # print(threads.index(thread))
+                    pad_commands = listOfQueues[threads.index(thread)].get()
+                    # print("pad commands: ")
+                    # print(pad_commands)
                     # for m in receivedMessage:
                     #     inputList.append(m)
                 # print("pad")
-            elif isinstance(cl, CraneClient):
-                with lockList[cl.index]:
-                    receivedMessage = queueList[cl.index].get()
-                    # for m in receivedMessage:
-                    #     inputList.append(m)
-                # print('crane')
-                # print(queueList[cl].get())
-                # queueList[cl].task_done()
+            elif isinstance(thread, CraneClient):
+                #  with getLock(thread, threads):
+                print("wchodzi do ifa craneclient")
+                try:
+                    print(listOfQueues[threads.index(thread) - 1].qsize())
+                    # receivedMessage = listOfQueues[threads.index(thread) - 1].get()  #TODO TUTAJ BLAD
+                    # print(receivedMessage)
+                except Exception:
+                    print(Exception)
+
+                # for m in receivedMessage:
+                #     inputList.append(m)
+            # print('crane')
+            # print(queueList[thread].get())
+            # queueList[thread].task_done()
         # print(len(inputList))
         # for input in inputList:
 
-        for i in range(len(pad_commands)):
-            clientList[i].setOutput(pad_commands[i])
+        for thread in listOfThreads:
+            ii = 0
+            # print("i chuj")
+            if isinstance(thread, CraneClient):
+                # while thread.isAlive():
+                # print("i chujeeeee")
+                current_command = pad_commands[ii]
+                print(current_command)
+                # try:
+                thread.setOutput(current_command)
+                print("pad commands: ")
+                print(current_command)
+                ii += 1
+        # except IOError:
+        #   print(IOError)
+        #  print("Exeption in loop in commands")
+        else:
+            print("notting happened")
 
-        time.sleep(1 / 10)
+    # for command in pad_commands:
+    #     if isinstance(getThreadByIndex(command, pad_commands), CraneClient):
+    #         print("im in if gibcrane")
+    #         print(command)
+    #         try:
+    #             getThreadByIndex(command, pad_commands).setOutput(command)
+    #             print("pad commands: ")
+    #             print(pad_commands)
+    #         except IOError:
+    #             print(IOError)
+    #             print("Exeption in loop in commands")
+    #     else:
+    #         print("notting happened")
+
+    time.sleep(delay)
+
+
+def getThreadByIndex(command, pad_commands):
+    return listOfThreads[pad_commands.index(command) - 1]
+
+
+def getLock(thread, threads):
+    return listOfLocks[threads.index(thread) - 1]
+
+
+def createCraneThread():
+    iterator = len(listOfThreads) - 1
+    print('client connected')
+    tempQueue = queue.LifoQueue()
+    tempLock = Lock()
+    listOfQueues.append(tempQueue)
+    listOfLocks.append(tempLock)
+    # crane_index = list
+    crane = CraneClient('Crane', Crane(x=20, y=20, index=iterator),
+                        Hook(z=100, r=40, theta=0),
+                        inc=2 * PI / 360, delay=0.1, cond=testCondition, ip=ip, port=port,
+                        queue=listOfQueues[iterator], lock=listOfLocks[iterator], connection=connection)
+    crane.isDaemon()
+    listOfThreads.append(crane)
+    crane.start()
+
+
+def serverInit():
+    global sock, port
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    host = socket.gethostname()
+    port = 10000
+    sock.bind(('', port))
+    print(socket.gethostname())
+    # tmpIP = "nah"
 
 
 if __name__ == "__main__":
     with open('threadLogs.log', 'w'):
         pass
 
-    # server_address = ('localhost', 10000)
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = socket.gethostname()
-    port = 10000
-    sock.bind(('', port))
-    print(socket.gethostname())
-    i = 0
+    ''' Socket listening for connection is created here'''
 
-    # tmpIP = "nah"
+    # server_address = ('localhost', 10000)
+    serverInit()
     '''
     tmpip = 'nah'
     tmpPort = 'nah'
@@ -126,47 +206,54 @@ if __name__ == "__main__":
     # crane1.start()
     # crane2.start()
     '''
+
+    ''' Initialization of AcThread and Pad Thread. there is nothing to be changed'''
     # PadThread = Thread(target=PadWorker, name='PadThread', args=(3,))
     # clientList.append(PadThread)
-    PadThread = PadClient(name='PadThread', index=2, queue=queueList[2], lock=lockList[2])
+
+    padLock = Lock()
+    padQueue = queue.LifoQueue()
+
+    listOfLocks.append(padLock)
+    listOfQueues.append(padQueue)
+
+    padThreadIndex = listOfQueues.index(padQueue)
+
+    PadThread = PadClient(name='PadThread', index=padThreadIndex, queue=listOfQueues[padThreadIndex],
+                          lock=listOfLocks[padThreadIndex])
     PadThread.start()
-    clientList.append(PadThread)
+    listOfThreads.append(PadThread)
     # PadThread.start()
 
-    AcThread = Thread(target=AcWorker, name='AcThread', args=(clientList, c,))
+    DataExchangeThread = Thread(target=communicateThreads, name='DataExchangeThread',
+                                args=(listOfThreads, testCondition,))
+
+    fuckingThread = Thread(target=startWorkingYouFucker, name='motherfucker', args=(listOfThreads,))
+    fuckingThread.start()
+    listOfThreads.append(fuckingThread)
     # clientList.append(AcThread)
-
-
     # for t in clientList:
     #     t.start()
 
+    if not DataExchangeThread.isAlive():
+        DataExchangeThread.start()
+
     while True:
-        for client in clientList:
+        for client in listOfThreads:
             if client.isAlive():
                 pass
             else:
-                clientList.remove(client)
+                listOfThreads.remove(client)
 
-        sock.listen(1)
-
+        sock.listen(True)
         print('Server is waiting for cranes')
         (connection, (ip, port)) = sock.accept()
-        try:
-            print('client connected')
-            crane = CraneClient('Crane', Crane(x=20, y=20, index=i),
-                                Hook(z=100, r=40, theta=0),
-                                inc=2 * PI / 360, delay=0.1, cond=c, ip=ip, port=port,
-                                queue=queueList[0], lock=lockList[0], connection=connection)
 
-            crane.isDaemon()
-            clientList.append(crane)
-            crane.start()
-            i += 1
-            if not AcThread.isAlive():
-                AcThread.start()
+        try:
+            createCraneThread()
+
         except:
             print("something went horribly wrong")
-
 
 # t.join()
 # var = input()

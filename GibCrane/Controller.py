@@ -8,14 +8,14 @@ class Controller:
         self.index = index
         self.valueList = [self.axisHorizontal, self.axisVertical, self.axisHook, self.button]
 
-    def update(self, numberOfAxe, voltage):
-        if numberOfAxe == 1:
+    def update(self, numberOfAxes, voltage):
+        if numberOfAxes == 1:
             self.axisHorizontal = voltage
             self.valueList[0] = voltage
-        if numberOfAxe == 0:
+        if numberOfAxes == 0:
             self.axisVertical = voltage
             self.valueList[1] = voltage
-        if numberOfAxe == 4:
+        if numberOfAxes == 4:
             self.axisHook = voltage
             self.valueList[2] = voltage
 
@@ -23,11 +23,6 @@ class Controller:
         return self.valueList
 
     def printValues(self):
-        # print("Horizontal ", self.axisVertical)
-        # print("Vertical ", self.axisHorizontal)
-        # print("Hook ", self.axisHook)
-        # print("Sprint Button ", self.button)
-        # print("")
         return f'Horizontal {self.axisVertical} \nVertical {self.axisHorizontal} \nHook {self.axisHook} \nSprint Button {self.button}'
 
     def updateButton(self, buttonClicked, buttonValue):

@@ -1,16 +1,15 @@
 import pygame
-import sender
-import controller
+
+import Controller
 import textprint
 
 # http://www.pygame.org/docs/ref/joystick.html
 
 # https://www.codeproject.com/Articles/26949/Xbox-360-Controller-Input-in-C-with-XInput
 
-sender = sender.Sender(voltage=0, joystickNumber=0, nameOfJoystick="")
 
 # crating list of 4 controllers
-controller = controller.Controller()
+controller = Controller.Controller()
 myControllers = []
 for i in range(3):
     myControllers.append(controller)
