@@ -175,7 +175,6 @@ while done==False:
 			trolley=trolley0
 		if hook0!=0:
 			hook=hook0
-	
 	if ser is None: # auto select arduino COM port
 		if cat is None:
 			now=time.time()
