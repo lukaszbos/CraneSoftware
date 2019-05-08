@@ -29,7 +29,7 @@ pygame.init()
  
 size = [300, 700] # screen size [width,height]
 screen = pygame.display.set_mode(size)
-pygame.display.set_caption("PdP MiCrane gamepad")
+pygame.display.set_caption("tester")
 done = False #Loop until the user clicks the close button.
 clock = pygame.time.Clock() # Used to manage how fast the screen updates
 pygame.joystick.init() # Initialize the joysticks
