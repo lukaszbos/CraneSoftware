@@ -6,7 +6,6 @@ import logging
 import queue
 import socket
 
-
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s: %(asctime)s %(threadName)-10s %(message)s',
                     datefmt='%m/%d/%Y  %I:%M:%S %p')
@@ -14,7 +13,7 @@ logging.basicConfig(level=logging.INFO,
 
 class CraneClient(Thread):
 
-    def __init__(self, name, crane: Crane, hook: Hook, inc, delay, cond: Condition, ip, port, queue, lock, connection):
+    def __init__(self, name, crane: Crane, hook: Hook, inc, delay, cond: Condition, Queue, lock, connection):
         Thread.__init__(self, name=f'{name}_{crane.GetIndex() + 1}')
         self._crane = crane
         self._hook = hook
@@ -23,9 +22,7 @@ class CraneClient(Thread):
         self._delay = delay
         self.index = crane.GetIndex()
         self._condition = cond
-        self._ip = ip
-        self._port = port
-        self.queue = queue
+        self.queue = Queue
         self.lock = lock
         self.name = f'{name}_{crane.GetIndex() + 1}'
         self.conn = connection
@@ -45,10 +42,12 @@ class CraneClient(Thread):
     def setOutput(self, msg):
         with self.outputLock:
             self.outputMessage = msg
+
     def getOutput(self):
         with self.outputLock:
             return self.outputMessage
-    def print_output(self):
+
+    def getFullOutput(self):
         message = ''
         for i in self.outputMessage:
             print(i)
@@ -58,18 +57,15 @@ class CraneClient(Thread):
 
     # def to_bit(self):
 
-
     def infoString(self, rot_count):
         return f"Hook_{self._crane.GetIndex()} coordinates are: " \
             f"X={self._hook.GetX()} " \
             f"Y={self._hook.GetY()} " \
             f"Z={self._hook.GetZ()} current rotation: {rot_count} degrees"
 
-    def run(self):
-        _running = True
+    def run(self, iteratorek=0):
         logging.info('Starting')
-
-        while _running:
+        while True:
             messageList = []
             ''' connection handling '''
             try:
@@ -82,16 +78,23 @@ class CraneClient(Thread):
                 # self.killThread()
                 break
             try:
-                strinMESSAGE = self.print_output()
-                print(f'info z pada to {self.print_output()}')
-                byte_message = bytes(strinMESSAGE, 'utf-8')
-                MESSAGE = b'stringMESSAGE'
+                stringMESSAGE = self.getFullOutput()
+                print(f'info z pada to {self.getFullOutput()}')
+                byte_message = bytes(stringMESSAGE, 'utf-8')
+                MESSAGE = b'chuj ci w dupe'
                 print(f'{type(byte_message)}    {type(MESSAGE)}')
+                print(f'jebane gunwo {MESSAGE}')
                 # for i in range(5):
-                self.conn.send(byte_message)
+                if iteratorek < 1:  # TODO Zrobic locki zeby tego nie trzeba bylo wysylac
+                    self.conn.send(MESSAGE)
+                    iteratorek = iteratorek + 1
+
+                else:
+                    self.conn.send(byte_message)
+
                 # if MESSAGE == 'exit':
                 #     break
-            except:
+            except Exception:
                 print(f"{self.name}data not sent")
                 # self.killThread()
                 break
@@ -107,7 +110,7 @@ class CraneClient(Thread):
                 messageList.append(self.infoString(self.tempCounter))
                 self.queue.put(messageList)
 
-            print(f'\n{self.name}\n{self.print_output()}')
+            print(f'\n{self.name}\n{self.getFullOutput()}')
 
             # print
 
@@ -133,10 +136,3 @@ class CraneClient(Thread):
     # def getQ(self):
     #     with self.lock:
     #         return self.q
-
-    def isrunning(self):
-        return self._running
-
-    @staticmethod
-    def killThread():
-        _running = False
