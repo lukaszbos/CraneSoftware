@@ -14,23 +14,32 @@ logging.basicConfig(level=logging.DEBUG,
 
 # TODO Necessary integration of pad control program with threads
 
-    # craneLock_1 = Lock()
-    # craneLock_2 = Lock()
-    # padLock = Lock()
-    # listOfLocks.append(craneLock_1)
-    # listOfLocks.append(craneLock_2)
-    # listOfLocks.append(padLock)
-    #
-    # craneQueue_1 = queue.LifoQueue()
-    # craneQueue_2 = queue.LifoQueue()
-    # padQueue = queue.LifoQueue()
-    # listOfQueues.append(craneQueue_1)
-    # listOfQueues.append(craneQueue_2)
-    # listOfQueues.append(padQueue)
-
+# craneLock_1 = Lock()
+# craneLock_2 = Lock()
+# padLock = Lock()
+# listOfLocks.append(craneLock_1)
+# listOfLocks.append(craneLock_2)
+# listOfLocks.append(padLock)
+#
+# craneQueue_1 = queue.LifoQueue()
+# craneQueue_2 = queue.LifoQueue()
+# padQueue = queue.LifoQueue()
+# listOfQueues.append(craneQueue_1)
+# listOfQueues.append(craneQueue_2)
+# listOfQueues.append(padQueue)
 
 
 # TODO: dodac oddzielne porty dla kazdego urzadzenia
+
+def startWorkingYouFucker(listOfThreadsTest):
+    logging.info(' Starting')
+    print(listOfThreadsTest)
+    while True:
+        for shit in listOfThreadsTest:
+            logging.info(f'{shit.name} is alive')
+
+        time.sleep(1.5)
+
 
 class GibCrane:
     listOfThreads = []
@@ -38,20 +47,12 @@ class GibCrane:
     listOfQueues = []
     testCondition = Condition(Lock())
 
-    def __init__(self, Port):
+    def __init__(self, numberOfCranes):
         # tmpIP = "nah"
+        self.numberOfCranes = numberOfCranes
         self._run()
 
     # TODO: ogarnać czy przypadkiem sie nie jebią indeksy bo to wygląda podejrzanie. czasami sie gówno wyswietla na ardu a czasasmi ni hcuja
-
-    def startWorkingYouFucker(self, listOfThreadsTest):
-        logging.info(' Starting')
-        print(listOfThreadsTest)
-        while True:
-            for shit in listOfThreadsTest:
-                logging.info(f'{shit.name} is alive')
-
-            time.sleep(1.5)
 
     def communicateThreads(self, threads, condition: Condition):
         delay = 1 / 10
@@ -103,6 +104,7 @@ class GibCrane:
                     current_command = pad_commands[ii]
                     # try:
                     thread.setOutput(current_command)
+                    thread.sendCommandsToCrane()
                     print("pad commandyy: ")
                     print(current_command)
                     ii += 1
@@ -186,39 +188,31 @@ class GibCrane:
     # PadThread = Thread(target=PadWorker, name='PadThread', args=(3,))
     # clientList.append(PadThread)
     def _run(self):
-
-        global sock, port
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # global sock, port
+        # sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         host = socket.gethostname()
         port = 10000
-
-        sock.bind(('', port))
-        print(socket.gethostname())
-
+        listOfSockets = []
+        # sock.bind(('', port))
+        # print(socket.gethostname())
         padLock = Lock()
         padQueue = queue.LifoQueue()
-
         self.listOfLocks.append(padLock)
         self.listOfQueues.append(padQueue)
 
         padThreadIndex = self.listOfQueues.index(padQueue)
-
         PadThread = PadClient(name='PadThread', index=padThreadIndex, queue=self.listOfQueues[padThreadIndex],
                               lock=self.listOfLocks[padThreadIndex])
         PadThread.start()
         self.listOfThreads.append(PadThread)
         # PadThread.start()
-
         DataExchangeThread = Thread(target=self.communicateThreads, name='DataExchangeThread',
                                     args=(self.listOfThreads, self.testCondition,))
         DataExchangeThread.start()
-
-        fuckingThread = Thread(target=self.startWorkingYouFucker, name='motherfucker', args=(self.listOfThreads,))
+        fuckingThread = Thread(target=startWorkingYouFucker, name='motherfucker', args=(self.listOfThreads,))
         fuckingThread.start()
         self.listOfThreads.append(fuckingThread)
-        # clientList.append(AcThread)
-        # for t in clientList:
-        #     t.start()
+        self.createSockets(host, listOfSockets, port)
 
         while True:
             for client in self.listOfThreads:
@@ -226,28 +220,34 @@ class GibCrane:
                     pass
                 else:
                     self.listOfThreads.remove(client)
+            tmpPort = 0
+            for s in range(len(listOfSockets)):
+                tmpPort = port + s
+                print('Server is waiting for cranes')
+                listOfSockets[s].listen(1)
+                print(f'[*] Server listening on {host} {tmpPort}')
+                (connection, (ip, tmpPort)) = listOfSockets[s].accept()
+                try:
+                    print('wchodzi tu')
+                    crane = self.createCraneThread(connection)
+                    self.listOfThreads.append(crane)
+                    crane.start()
+                except Exception:
+                    print("something went horribly wrong")
 
-            sock.listen(1)
-            print('Server is waiting for cranes')
-            (connection, (ip, port)) = sock.accept()
-
-            try:
-                print('wchodzi tu')
-                crane = self.createCraneThread(connection)
-                self.listOfThreads.append(crane)
-                crane.start()
-            except Exception:
-                print("something went horribly wrong")
-
-
-def main():
-    GibCrane(10000)
+    def createSockets(self, host, listOfSockets, port):
+        for i in range(self.numberOfCranes):
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            sock.bind(('', port + i))
+            print(f'created free socket: {socket.getaddrinfo(host, port)} ')
+            listOfSockets.append(sock)
 
 
 if __name__ == "__main__":
     with open('threadLogs.log', 'w'):
         pass
-    main()
+    GibCrane(2)
 # t.join()
 # var = input()
 #
