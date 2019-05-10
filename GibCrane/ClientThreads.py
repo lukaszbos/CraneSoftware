@@ -10,10 +10,15 @@ logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s: %(asctime)s %(threadName)-10s %(message)s',
                     datefmt='%m/%d/%Y  %I:%M:%S %p')
 
+'''
+    Ta Klasa, jest uruchamiana jako wątek łączący się z arduino. musi być w oddzielnym wątku bo dla 4 dzwigów będzie 
+    troche obliczeń do zrobienia w tym samym czasie.
+'''
+
 
 class CraneClient(Thread):
 
-    def __init__(self, name, crane: Crane, hook: Hook, inc, delay, cond: Condition, Queue, lock, connection):
+    def __init__(self, name, crane: Crane, hook: Hook, inc, delay, cond: Condition, Queue, lock):
         Thread.__init__(self, name=f'{name}_{crane.GetIndex() + 1}')
         self._crane = crane
         self._hook = hook
@@ -25,35 +30,44 @@ class CraneClient(Thread):
         self.queue = Queue
         self.lock = lock
         self.name = f'{name}_{crane.GetIndex() + 1}'
-        self.conn = connection
-
+        self.ip = None
         print("new crane connected")
 
-        # self.lock = Lock()
-        # lockList.append(self.lock)
-        # self.q = queue.LifoQueue()
-        # queueList.append(self.q)
+
 
     tempCounter = 0
     _running = False
     outputLock = Lock()
     outputMessage = []
 
+    def CompareIP(self, craneIP):
+
+        if self.ip == None:
+            self.ip = craneIP
+            return True
+        elif craneIP == self.ip:
+            return True
+        else:
+            return False
+
     def setOutput(self, msg):
         with self.outputLock:
             self.outputMessage = msg
 
-    def getOutput(self):
-        with self.outputLock:
-            return self.outputMessage
 
+    '''
+        Metoda sklejająca tablicę danych otrzymaną z padów, do jednego stringa
+    '''
     def getFullOutput(self):
         message = ''
-        for i in self.outputMessage:
-            print(i)
-            if len(self.outputMessage) != 0:
-                message += f"{i} "
-        return message
+        testMessage = self.name
+        with self.outputLock:
+            # return self.outputMessage
+            for i in self.outputMessage:
+                # print(i)
+                if len(self.outputMessage) != 0:
+                    message += f"{i} "
+            return bytes(message, 'utf-8')
 
     # def to_bit(self):
 
@@ -63,41 +77,39 @@ class CraneClient(Thread):
             f"Y={self._hook.GetY()} " \
             f"Z={self._hook.GetZ()} current rotation: {rot_count} degrees"
 
-    def run(self, iteratorek=0):
+    def run(self):
+        iteratorek = 0  #nie wiem po chuj to Łukasz cos wymyslił
+        cnt = 0         #licznik danhych wyslanych do ARD
         logging.info('Starting')
         while True:
             messageList = []
-            ''' connection handling '''
-            try:
-                data = self.conn.recv(1024)
-                print(f'{self.name} recived data: {data}')
-                # print(f"is server runing? {_running}")
-                # MESSAGE = input("Enter response:")
-            except:
-                print(f"{self.name} data not recieved")
-                # self.killThread()
-                break
-            try:
-                stringMESSAGE = self.getFullOutput()
-                print(f'info z pada to {self.getFullOutput()}')
-                byte_message = bytes(stringMESSAGE, 'utf-8')
-                MESSAGE = b'chuj ci w dupe'
-                print(f'{type(byte_message)}    {type(MESSAGE)}')
-                print(f'jebane gunwo {MESSAGE}')
-                # for i in range(5):
-                if iteratorek < 1:  # TODO Zrobic locki zeby tego nie trzeba bylo wysylac
-                    self.conn.send(MESSAGE)
-                    iteratorek = iteratorek + 1
+            # ''' connection handling '''
+            # try:
+            #     pass
+            #     # data = self.conn.recv(1024)
+            #     # print(f'{self.name} recived data: {data}')
+            # except IOError:
+            #     print(f"{self.name} data not recieved")
+            # try:
+            #     stringMESSAGE = self.getFullOutput()
+            #     print(f'info z pada to {self.getFullOutput()}')
+            #     MESSAGE = b'chuj ci w dupe'
+            #     print(f'{type(stringMESSAGE)}    {type(MESSAGE)}')
+            #     if iteratorek < 1:  # TODO Zrobic locki zeby tego nie trzeba bylo wysylac
+            #         self.conn.send(MESSAGE)
+            #         iteratorek = iteratorek + 1
+            #
+            #     else:
+            #         # self.conn.send(bytes(cnt))
+            #         self.conn.send(stringMESSAGE)
+            #         print(f'LOG: DO ARDUINO {self.name} [{cnt}] |{stringMESSAGE}|')
+            #         cnt += 1
+            # except Exception:
+            #     print(f"{self.name}data not sent")
+            #     # self.killThread()
+            #     break
 
-                else:
-                    self.conn.send(byte_message)
-
-                # if MESSAGE == 'exit':
-                #     break
-            except Exception:
-                print(f"{self.name}data not sent")
-                # self.killThread()
-                break
+            ''' Dalej nie dzieje się nic z czym mamy problem, tylko troche obliczen i wypełianie kolejki'''
 
             self._hook.convertRadial(self._crane)
             self._hook.SetTheta(self._hook.GetTheta() + self._inc)
@@ -110,21 +122,7 @@ class CraneClient(Thread):
                 messageList.append(self.infoString(self.tempCounter))
                 self.queue.put(messageList)
 
-            print(f'\n{self.name}\n{self.getFullOutput()}')
-
-            # print
-
-            # finally:
-            #     print(f'Data not forwarded')
-
-            # queueList[self.index - 1]
-            # print(f'{time.time()} {self.infoString()}')
-
-            """  Console notifications  """
-            # print(f'{time.time()} Hook_{self._crane.GetIndex()} '
-            #       f'coordinates are: X={self._hook.GetX()} '
-            #       f'Y={self._hook.GetY()} '
-            #       f'Z={self._hook.GetZ()} ')
+            # print(f'\n{self.name}\n{self.getFullOutput()}')
 
             # TODO make conditions work better, or, thb,  work at all
             # self._condition.notifyAll()
