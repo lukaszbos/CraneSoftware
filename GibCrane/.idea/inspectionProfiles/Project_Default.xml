@@ -7,6 +7,13 @@
           <option value="N806" />
         </list>
       </option>
+      <option name="ignoredBaseClasses">
+        <list>
+          <option value="unittest.TestCase" />
+          <option value="unittest.case.TestCase" />
+          <option value="GibCrane.GibCrane" />
+        </list>
+      </option>
     </inspection_tool>
   </profile>
 </component>

@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO,
 
 class CraneClient(Thread):
 
-    def __init__(self, name, crane: Crane, hook: Hook, inc, delay, cond: Condition, Queue, lock, connection):
+    def __init__(self, name, crane: Crane, hook: Hook, inc, delay, cond: Condition, Queue, lock):
         Thread.__init__(self, name=f'{name}_{crane.GetIndex() + 1}')
         self._crane = crane
         self._hook = hook
@@ -30,13 +30,25 @@ class CraneClient(Thread):
         self.queue = Queue
         self.lock = lock
         self.name = f'{name}_{crane.GetIndex() + 1}'
-        self.conn = connection
+        self.ip = None
         print("new crane connected")
+
+
 
     tempCounter = 0
     _running = False
     outputLock = Lock()
     outputMessage = []
+
+    def CompareIP(self, craneIP):
+
+        if self.ip == None:
+            self.ip = craneIP
+            return True
+        elif craneIP == self.ip:
+            return True
+        else:
+            return False
 
     def setOutput(self, msg):
         with self.outputLock:
@@ -48,10 +60,11 @@ class CraneClient(Thread):
     '''
     def getFullOutput(self):
         message = ''
+        testMessage = self.name
         with self.outputLock:
             # return self.outputMessage
             for i in self.outputMessage:
-                print(i)
+                # print(i)
                 if len(self.outputMessage) != 0:
                     message += f"{i} "
             return bytes(message, 'utf-8')
@@ -66,32 +79,35 @@ class CraneClient(Thread):
 
     def run(self):
         iteratorek = 0  #nie wiem po chuj to Łukasz cos wymyslił
+        cnt = 0         #licznik danhych wyslanych do ARD
         logging.info('Starting')
         while True:
             messageList = []
-            ''' connection handling '''
-            try:
-                data = self.conn.recv(1024)
-                print(f'{self.name} recived data: {data}')
-            except IOError:
-                print(f"{self.name} data not recieved")
-                break
-            try:
-                stringMESSAGE = self.getFullOutput()
-                print(f'info z pada to {self.getFullOutput()}')
-                MESSAGE = b'chuj ci w dupe'
-                print(f'{type(stringMESSAGE)}    {type(MESSAGE)}')
-                if iteratorek < 1:  # TODO Zrobic locki zeby tego nie trzeba bylo wysylac
-                    self.conn.send(MESSAGE)
-                    iteratorek = iteratorek + 1
-
-                else:
-                    self.conn.send(stringMESSAGE)
-
-            except Exception:
-                print(f"{self.name}data not sent")
-                # self.killThread()
-                break
+            # ''' connection handling '''
+            # try:
+            #     pass
+            #     # data = self.conn.recv(1024)
+            #     # print(f'{self.name} recived data: {data}')
+            # except IOError:
+            #     print(f"{self.name} data not recieved")
+            # try:
+            #     stringMESSAGE = self.getFullOutput()
+            #     print(f'info z pada to {self.getFullOutput()}')
+            #     MESSAGE = b'chuj ci w dupe'
+            #     print(f'{type(stringMESSAGE)}    {type(MESSAGE)}')
+            #     if iteratorek < 1:  # TODO Zrobic locki zeby tego nie trzeba bylo wysylac
+            #         self.conn.send(MESSAGE)
+            #         iteratorek = iteratorek + 1
+            #
+            #     else:
+            #         # self.conn.send(bytes(cnt))
+            #         self.conn.send(stringMESSAGE)
+            #         print(f'LOG: DO ARDUINO {self.name} [{cnt}] |{stringMESSAGE}|')
+            #         cnt += 1
+            # except Exception:
+            #     print(f"{self.name}data not sent")
+            #     # self.killThread()
+            #     break
 
             ''' Dalej nie dzieje się nic z czym mamy problem, tylko troche obliczen i wypełianie kolejki'''
 
@@ -106,7 +122,7 @@ class CraneClient(Thread):
                 messageList.append(self.infoString(self.tempCounter))
                 self.queue.put(messageList)
 
-            print(f'\n{self.name}\n{self.getFullOutput()}')
+            # print(f'\n{self.name}\n{self.getFullOutput()}')
 
             # TODO make conditions work better, or, thb,  work at all
             # self._condition.notifyAll()
