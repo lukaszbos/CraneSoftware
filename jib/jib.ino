@@ -6,7 +6,6 @@
  * combine with ethernet code
  * real acceleration setting instead of acl
  * joystick smoothing? jerk limit? increase acceleration resolution?
- * make hook stop before it hits trolley to keep string loose for better trolley homing
  * make trolley slow down before edges to limit sway
  * adjust sg_stall_value based on input voltage
  * POWER & TORQUE:
@@ -14,7 +13,6 @@
 	 * enable coolStep for power savings and less heating
 	 * high torque mode for heavy lifting (and homing?), low torque for power savings
 	 * use stallGuard value to limit speed to prevent motors stalling
- * add neoPixel leds for cool light effects
  * ISR is not sending step pulses perfectly evenly when spinning many motors at the same time
  * dont use blocking analogRead(A6) inside ISR, instead read it from registers in non blocking way
 */
