@@ -6,22 +6,21 @@ void home(){
 		fastMode();
 		goal0=0;
 		goal1=0;
-		goal2=-50;
+		goal2=-20;
 		homing=2;
 	}
 	else if(homing==2){
-		if(spd[2]<=-50){
+		if(spd[2]<=-20){
 			Serial.println("Raising hook");
 			goal2=50;
 			homing=3;
 		}
 	}
 	else if(homing==4){
-		goal2=0;
-		Serial.println("Lowering hook a bit");
+		Serial.println("Hook stalled. Lowering hook a bit");
+		delay(50);
 		hook.shaft_dir(!dir[2]);
-		PORTD ^= 1<<6;
-		for(byte i=0; i<6; i++){
+		for(byte i=0; i<8; i++){
 			delay(10);
 			PORTD ^= 1<<6;
 		}
@@ -34,9 +33,9 @@ void home(){
 		posMin=-2E9;
 		homing=5;
 		homeSlew=1;
-		goal0=10;
+		goal0=126;
 		homeTrolley=1;
-		goal1=-50;
+		goal1=-126;
 	}
 	else if(homing==5){
 		if(homeTrolley==2){
@@ -46,7 +45,8 @@ void home(){
 			pos[1]=-20; // stop before edge
 			sei();
 			posMax=2E9;
-			goal1=-50; // change direction
+			delay(50);
+			goal1=126; // change direction
 			homeTrolley=3;
 		}
 		else if(homeTrolley==4){

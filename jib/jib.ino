@@ -20,7 +20,7 @@
 */
 
 // a motor can never spin too fast, right?
-#pragma GCC optimize ("-O2") // https://www.instructables.com/id/Arduino-IDE-16x-compiler-optimisations-faster-code/
+#pragma GCC optimize ("-O1") // https://www.instructables.com/id/Arduino-IDE-16x-compiler-optimisations-faster-code/
 
 // TMC2130 pin connections
 	/* You need to connect the SPI pins as follows for programming the TMC2130. If you have several TMC2130, they all must use these same pins.
@@ -42,10 +42,15 @@
 
 // This code uses libraries. These can be easily installed through Arduino IDE library manager by pressing CTRL + SHIFT + I
 #include <TMC2130Stepper.h> // https://github.com/teemuatlut/TMC2130Stepper
+
 // choose chip select pins for each stepper driver
 TMC2130Stepper slew = TMC2130Stepper(A0);
 TMC2130Stepper trolley = TMC2130Stepper(A1);
 TMC2130Stepper hook = TMC2130Stepper(A2);
+
+// led library
+#include <Adafruit_NeoPixel.h>
+Adafruit_NeoPixel led(23, A4, NEO_GRB + NEO_KHZ800); // led count, led pin
 
 // global variables
 volatile unsigned long

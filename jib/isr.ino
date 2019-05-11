@@ -39,6 +39,8 @@ ISR(TIMER1_CAPT_vect) // http://www.gammon.com.au/interrupts
 			{
 				motOn[1]=0;
 				kid[1]=0xFFFF00;
+				spd[1]=0;
+				goal1=0;
 				++homeTrolley;
 			}
 		}
@@ -74,6 +76,8 @@ ISR(TIMER1_CAPT_vect) // http://www.gammon.com.au/interrupts
 			{
 				motOn[2]=0;
 				kid[2]=0xFFFF00;
+				spd[2]=0;
+				goal2=0;
 				homing++;
 			}
 		}

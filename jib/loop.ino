@@ -39,7 +39,7 @@ void loop() {
 		cli();
 		const long posHook=pos[2];
 		sei();
-		if(posHook>=posTop && spd[2]<0) spd[2]=0;
+		if(posHook>=posTop && spd[2]>0) spd[2]=0;
 		static bool newDir2=0;
 		if(spd[2]>0) newDir2=1; else
 		if(spd[2]<0) newDir2=0;
@@ -47,7 +47,7 @@ void loop() {
 			hook.shaft_dir(newDir2);
 			dir[2]=newDir2;
 		}
-		if(newDir2==0 && digitalRead(A3)==0){ // slack detection
+		if(newDir2==0 && (PINC&8)==0){ // slack detection
 			spd[2]=0;
 			goal2=0;
 			setSpeed(2,0);
@@ -102,4 +102,11 @@ void loop() {
 		owl=now;
 		printDebug();
 	}
+
+	static unsigned long rat=0;
+	if(spd[0]==0 && spd[1]==0 && spd[2]==0 && now-rat>40){
+		rat=now;
+		larsonScanner();
+	}
+	
 }
