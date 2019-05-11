@@ -1,14 +1,15 @@
 class Controller:
 
     def __init__(self, index):
-        self.axisVertical = 0
-        self.axisHorizontal = 0
-        self.axisHook = 0
-        self.button = 0
+        self.axisVertical = 1.00
+        self.axisHorizontal = 1.00
+        self.axisHook = 1.00
+        self.button = 1.00
         self.index = index
         self.valueList = [self.axisHorizontal, self.axisVertical, self.axisHook, self.button]
 
     def update(self, numberOfAxes, voltage):
+        voltage = self.formatVoltage(voltage)
         if numberOfAxes == 1:
             self.axisHorizontal = voltage
             self.valueList[0] = voltage
@@ -19,7 +20,13 @@ class Controller:
             self.axisHook = voltage
             self.valueList[2] = voltage
 
-    def getValueList(self):     #lock should be added here
+    @staticmethod
+    def formatVoltage(voltage):
+        voltage = voltage + 1
+        voltage = "{:.2f}".format(voltage)
+        return voltage
+
+    def getValueList(self):  # lock should be added here
         return self.valueList
 
     def printValues(self):

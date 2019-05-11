@@ -52,7 +52,11 @@ class CraneClient(Thread):
 
     def setOutput(self, msg):
         with self.outputLock:
-            self.outputMessage = msg
+            try:
+                self.outputMessage = msg
+                # print(f'msg for {self.name} is : {msg}')
+            except:
+                print('shit happend')
 
 
     '''
@@ -67,6 +71,7 @@ class CraneClient(Thread):
                 # print(i)
                 if len(self.outputMessage) != 0:
                     message += f"{i} "
+            # print (f'full output is {message}')
             return bytes(message, 'utf-8')
 
     # def to_bit(self):

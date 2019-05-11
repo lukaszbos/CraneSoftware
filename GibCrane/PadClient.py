@@ -52,6 +52,7 @@ class PadClient(Thread):
             controllerValueMatrix: List[List[int]] = [[], []]
             for pad in self.myControllers:
                 controllerValueMatrix[pad.index] = pad.getValueList()
+            # print(controllerValueMatrix)
             self.queue.put(controllerValueMatrix)
 
     def fillListOfControllers(self, numberOfPads):
@@ -103,6 +104,7 @@ class PadClient(Thread):
         # For each joystick:
         for i in range(joystick_count):
             joystickInUse = i
+
             joystick = pygame.joystick.Joystick(i)
             joystick.init()
 

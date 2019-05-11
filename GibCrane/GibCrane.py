@@ -30,11 +30,12 @@ class GibCrane:
     listOfLocks = []
     listOfQueues = []
     testCondition = Condition(Lock())
+
     def __init__(self, Port):
         # tmpIP = "nah"
         self._run()
 
-    # TODO: ogarnać czy przypadkiem sie nie jebią indeksy bo to wygląda podejrzanie. czasami sie gówno wyswietla na ardu a czasasmi ni hcuja
+    # TODO: ogarnać czy przypadkiem sie nie jebią indeksy bo to wygląda podejrzanie. czasami sie gówno wyswietla na ardu a czasasmi ni hcuja
 
     ''' Ta metoda, jest odpalana jako watek który wypisuje logi informujące o każdym z aktywnych wątków'''
 
@@ -87,21 +88,26 @@ class GibCrane:
                     # print(ii)
                     try:
                         current_command = pad_commands[ii]
+                        # print(f'{thread.name}: {current_command}')
                         # try:
                         thread.setOutput(current_command)
                     except Exception as e:
-                        pass
                         # print(f'[*] Exception happened in {thread.name}: {e}')
+                        pass
                     # print("pad commandyy: ")
                     # print(f'FROM PAD {ii} : |{current_command}|')
 
+                    # except IOError:
+                    #   print(IOError)
+                    #  print("Exeption in loop in commands")
+
                     ii += 1
-                # except IOError:
-                #   print(IOError)
-                #  print("Exeption in loop in commands")
+
+
+
                 else:
-                    # print("notting happened")
                     pass
+                # print("notting happened")
 
             time.sleep(delay)
 
@@ -144,6 +150,8 @@ class GibCrane:
 
         PadThread = PadClient(name='PadThread', index=padThreadIndex, queue=self.listOfQueues[padThreadIndex],
                               lock=self.listOfLocks[padThreadIndex])  # utworzenie wątku obsługującego pady
+        print("list of locks")
+        print(self.listOfQueues[padThreadIndex])
         PadThread.start()
         self.listOfThreads.append(PadThread)
         # PadThread.start()
@@ -173,7 +181,7 @@ class GibCrane:
         # print(socket.gethostname())
         # connectionList = []
 
-        self.createAllCranes(4)
+        self.createAllCranes(2)
         sock = self.createSocket()
 
         while True:
@@ -192,15 +200,20 @@ class GibCrane:
                 print("no data")
                 pass
             print(addr[0])
-
+            # print(self.listOfThreads)
             for thread in self.listOfThreads:
-                # print('for dziala')
+                # print(f'current thread is : {thread.name}')
                 if isinstance(thread, CraneClient):
-                    print(f'{thread.name}: dzwigiem')
+                    print(f'{thread.name}: jest dzwigiem')
                     if thread.CompareIP(addr[0]):
                         print(f'{thread.name}: ip sie zgadza')
-                        sock.sendto(thread.getFullOutput(), addr)
-                        break
+                        # print(f'trying to send {thread.getFullOutput()}')
+                        try:
+                            sock.sendto(thread.getFullOutput(), addr)
+                            print('message sent')
+                        except:
+                            print(f'did not send to {thread.name}')
+                            break
                 else:
                     # print('nie jest dzwigiem')
                     pass
@@ -216,7 +229,6 @@ class GibCrane:
             # (connection, (ip, port)) = socketList[iterator].accept()
             # (connection, (ip, port)) = socketList[iterator].accept()
             # iterator += 1
-
 
             # try:
             #     print(
@@ -253,6 +265,7 @@ class GibCrane:
         print('Socket bind complete')
         return s
         # listOfSockets.append(sock)
+
 
 if __name__ == "__main__":
     with open('threadLogs.log', 'w'):
