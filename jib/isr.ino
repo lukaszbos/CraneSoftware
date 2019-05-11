@@ -8,15 +8,18 @@ ISR(TIMER1_CAPT_vect) // http://www.gammon.com.au/interrupts
 	{
 		if(homeSlew>0) // homing mode
 		{
-			const int box = analogRead(A6);
-			if(homeSlew==1 && box>923)
+			const int box = analogReader(A6);
+			if(box>=0)
 			{
-				homeSlew=2;
-			}
-			else if(homeSlew==2 && box<512)
-			{
-				homeSlew=3;
-				pos[0]=0;
+				if(homeSlew==1 && box>923)
+				{
+					homeSlew=2;
+				}
+				else if(homeSlew==2 && box<512)
+				{
+					homeSlew=3;
+					pos[0]=0;
+				}
 			}
 		}
 		if(dir[0]) ++pos[0];

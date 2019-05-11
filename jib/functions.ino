@@ -147,48 +147,22 @@ void larsonScanner(){
   }
 }
 
-int analogRead(uint8_t pin)
-{
-	uint8_t low, high;
-
-#if defined(analogPinToChannel)
-		pin = analogPinToChannel(pin);
-#else
+int analogReader(uint8_t pin){
 	if (pin >= 14) pin -= 14; // allow for channel or pin numbers
-#endif
-
-#if defined(ADCSRB) && defined(MUX5)
-	// the MUX5 bit of ADCSRB selects whether we're reading from channels
-	// 0 to 7 (MUX5 low) or 8 to 15 (MUX5 high).
-	ADCSRB = (ADCSRB & ~(1 << MUX5)) | (((pin >> 3) & 0x01) << MUX5);
-#endif
-  
-	// set the analog reference (high two bits of ADMUX) and select the
-	// channel (low 4 bits).  this also sets ADLAR (left-adjust result)
-	// to 0 (the default).
-#if defined(ADMUX)
-	#if defined(__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
-		ADMUX = (DEFAULT << 4) | (pin & 0x07);
-	#else
+	//static int reading[8];
+	static bool working=0;
+	static byte lastPin=255;
+	if(!working){
 		ADMUX = (DEFAULT << 6) | (pin & 0x07);
-	#endif
-#endif
-
-// start the conversion
-bitSet(ADCSRA, ADSC);
-
-// ADSC is cleared when the conversion finishes
-while (bit_is_set(ADCSRA, ADSC));
-
-// we have to read ADCL first; doing so locks both ADCL
-// and ADCH until ADCH is read.  reading ADCL second would
-// cause the results of each conversion to be discarded,
-// as ADCL and ADCH would be locked when it completed.
-low  = ADCL;
-high = ADCH;
-
-	// combine the two bytes
-	return (high << 8) | low;
+		bitSet(ADCSRA, ADSC); // start the conversion
+		working=1;
+		lastPin=pin;
+	}
+	else if(bit_is_clear(ADCSRA, ADSC)){ // ADSC is cleared when the conversion finishes.
+		working=0;
+		return ADCL | (ADCH << 8);
+	}
+	else return -1;
 }
 
 void setup() {

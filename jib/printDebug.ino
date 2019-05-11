@@ -66,14 +66,14 @@ void printDebug()
 		Serial.print(", ");
 		Serial.print(homingOld,DEC);
 		Serial.print(", ");
-		Serial.print(analogRead(A6));
-		Serial.println();
+		Serial.print(analogReader(A6));
 		if(rat>0){
 			Serial.print(", timer1 overflow ");
 			Serial.print(rat);
 			Serial.print(" times");
 			rat=0;
 		}
+		Serial.println();
 	}
 
 	static bool enabled=0;
