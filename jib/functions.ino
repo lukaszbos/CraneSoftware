@@ -149,21 +149,27 @@ void larsonScanner(){
 
 int analogReader(uint8_t pin){
 	if (pin >= 14) pin -= 14; // allow for channel or pin numbers
-	//static int reading[8];
-	static bool working=0;
+	static int result[8]={0};
 	static byte lastPin=255;
-	if(!working){
+	if(!converting){
 		ADMUX = (DEFAULT << 6) | (pin & 0x07);
 		bitSet(ADCSRA, ADSC); // start the conversion
-		working=1;
+		converting=1;
 		lastPin=pin;
 	}
 	else if(bit_is_clear(ADCSRA, ADSC)){ // ADSC is cleared when the conversion finishes.
-		working=0;
+		converting=0;
 		return ADCL | (ADCH << 8);
 	}
 	else return -1;
 }
+
+if not converting
+	save result
+	start conversion
+	return result
+if converting
+	return old result
 
 void setup() {
 	DDRD |= 0b01110000; // step pins outputs
