@@ -147,29 +147,20 @@ void larsonScanner(){
   }
 }
 
-int analogReader(uint8_t pin){
+// Unlike its Arduino counterpart, this does not wait that ADC is ready. It makes using analogRead() inside interrupt so much faster.
+int analogRead(uint8_t pin){
 	if (pin >= 14) pin -= 14; // allow for channel or pin numbers
+	if (pin>7) return -1;
 	static int result[8]={0};
 	static byte lastPin=255;
-	if(!converting){
+	if(bit_is_clear(ADCSRA, ADSC)){ // ADSC is cleared when the conversion finishes.
+		result[lastPin] = ADCL | (ADCH << 8);
 		ADMUX = (DEFAULT << 6) | (pin & 0x07);
-		bitSet(ADCSRA, ADSC); // start the conversion
-		converting=1;
 		lastPin=pin;
+		bitSet(ADCSRA, ADSC); // start the conversion
 	}
-	else if(bit_is_clear(ADCSRA, ADSC)){ // ADSC is cleared when the conversion finishes.
-		converting=0;
-		return ADCL | (ADCH << 8);
-	}
-	else return -1;
+	return result[pin];
 }
-
-if not converting
-	save result
-	start conversion
-	return result
-if converting
-	return old result
 
 void setup() {
 	DDRD |= 0b01110000; // step pins outputs

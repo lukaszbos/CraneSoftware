@@ -135,6 +135,7 @@ while done==False:
 			if button is 1:
 				textPrint.print(screen, "Button {:>2}".format(j) )
 		textPrint.unindent()
+		textPrint.unindent()
 		
 		if pad.get_name() == 'Wireless Controller': # bluetooth DualShock4
 			newSilent[i]=pad.get_button(1) # silent mode
