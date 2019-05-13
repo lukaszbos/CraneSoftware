@@ -1,32 +1,39 @@
 void loop() {
 
-Udp.beginPacket(ip_server, localPort);
-    Udp.write(ReplyBuffer);
- //      Serial.println(ReplyBuffer);
-    Udp.endPacket();
-  // if there's data available, read a packet
-  int packetSize = Udp.parsePacket();
-  //    Serial.print(packetSize);
-  if (packetSize) {
-    Serial.print("Received packet of size ");
-    Serial.println(packetSize);
-    Serial.print("From ");
-    IPAddress remote = Udp.remoteIP();
-    for (int i=0; i < 4; i++) {
-      Serial.print(remote[i], DEC);
-      if (i < 3) {
-        Serial.print(".");
-      }
-    }
-    Serial.print(", port ");
-    Serial.println(Udp.remotePort());
-
-    // read the packet into packetBufffer
-    Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-    Serial.println("Contents:");
-    Serial.println(packetBuffer);
-	  }
-  delay(10);
+		// send some random data to PC
+		Udp.beginPacket(ip_server, localPort);
+		Udp.write(ReplyBuffer);
+		Udp.endPacket();
+	
+	// if there's data available, read a packet
+	const byte packetSize = Udp.parsePacket();
+	if (packetSize) {
+		Serial.print("Received ");
+		Serial.print(packetSize);
+		Serial.print(" bytes from ");
+		IPAddress remote = Udp.remoteIP();
+		for (int i=0; i < 4; i++) {
+		Serial.print(remote[i], DEC);
+			if (i < 3) {
+				Serial.print(".");
+			}
+		}
+		Serial.print(", port ");
+		Serial.print(Udp.remotePort());
+		
+		// read the packet into packetBufffer
+		Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
+		Serial.print(" Contents: ");
+		Serial.print(packetBuffer[0],DEC);
+		Serial.print(" ");
+		Serial.print(packetBuffer[1],DEC);
+		Serial.print(" ");
+		Serial.print(packetBuffer[2],DEC);
+		Serial.print(" ");
+		Serial.print(packetBuffer[3],DEC);
+		Serial.println();
+	}
+	delay(10);
 
 	static unsigned long then=0;
 	const unsigned long now=millis();
