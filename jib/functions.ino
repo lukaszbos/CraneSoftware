@@ -164,7 +164,7 @@ int analogRead(uint8_t pin){
 
 void setup() {
 	DDRD |= 0b01110000; // step pins outputs
-	Serial.begin(250000); // Set baud rate in serial monitor
+	Serial.begin(9600); // Set baud rate in serial monitor
 	// let's enable timer1 to time the step pulses. See p113 here https://www.sparkfun.com/datasheets/Components/SMD/ATMega328.pdf
 	TCCR1A=B00000000; //p134
 	TIMSK1=B00100001; //p139
@@ -174,4 +174,10 @@ void setup() {
 	pinMode(9,INPUT_PULLUP); // diag1 hook
 	fastMode();
 	led.begin();
+  Ethernet.init(10);
+  Ethernet.begin(mac, ip);
+  // start UDP
+  Udp.begin(localPort);
+    Serial.println("Right connection");
+    Serial.println(Ethernet.localIP());
 }
