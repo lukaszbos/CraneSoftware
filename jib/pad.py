@@ -43,7 +43,7 @@ class TextPrint:
 
 pygame.init()
 screen = pygame.display.set_mode([300, 700]) # screen size [width,height]
-pygame.display.set_caption("PdP MiCrane gamepad")
+pygame.display.set_caption("pad PdP MiCrane")
 done = False #Loop until the user clicks the close button.
 clock = pygame.time.Clock() # Used to manage how fast the screen updates
 pygame.joystick.init() # Initialize the joysticks
@@ -104,7 +104,7 @@ while done==False:
 	stopping=False
 	homing=False
 	
-	# For each joystick:
+	# For each pad:
 	for i in range(joystick_count):
 		pad = pygame.joystick.Joystick(i)
 		pad.init()
@@ -137,50 +137,45 @@ while done==False:
 		textPrint.unindent()
 		textPrint.unindent()
 		
-		if pad.get_name() == 'Wireless Controller': # bluetooth DualShock4
-			newSilent[i]=pad.get_button(1) # silent mode
-			if newSilent[i]>oldSilent[i]:
-				wax |= 1
-				send=1
-			oldSilent[i]=newSilent[i]
-			newFast[i]=pad.get_button(2) # fast mode
-			if newFast[i]>oldFast[i]:
-				wax &= ~1
-				send=1
-			oldFast[i]=newFast[i]
-			newHome[i]=pad.get_button(8) # home
-			if newHome[i]>oldHome[i]:
-				wax |= 2
-				send=1
-				homing=True		
-			oldHome[i]=newHome[i]
-			if pad.get_button(9): # switch joystick modes
-				if armed[i]:
-					mode = not mode
-					armed[i]=False
-			else:
-				armed[i]=True
-			if pad.get_button(13): # stop motors button
-				wax |= 4
-				send=1
-				slew0=0
-				trolley0=0
-				hook0=0
-				stopping=True
-			else:
-				if stopping == False:
-					wax &= ~4
-					trolley0=deadzone(pad.get_axis(1)) # DualShock4 doesn't have built in deadzones, so we do that here in software.
-					if mode:
-						slew0=-deadzone(pad.get_axis(0))
-						hook0=deadzone(pad.get_axis(3))
-					else:
-						slew0=int((pad.get_axis(5)-pad.get_axis(4))*63.01)
-						hook0=-deadzone(pad.get_axis(3))
-		else: # Spartan Gear Oplon has built in deadzones
-			slew0=-int(pad.get_axis(0)*126)
-			trolley0=int(pad.get_axis(1)*126)
-			hook0=-int(pad.get_axis(3)*126)
+		newSilent[i]=pad.get_button(1) # silent mode
+		if newSilent[i]>oldSilent[i]:
+			wax |= 1
+			send=1
+		oldSilent[i]=newSilent[i]
+		newFast[i]=pad.get_button(2) # fast mode
+		if newFast[i]>oldFast[i]:
+			wax &= ~1
+			send=1
+		oldFast[i]=newFast[i]
+		newHome[i]=pad.get_button(8) # home
+		if newHome[i]>oldHome[i]:
+			wax |= 2
+			send=1
+			homing=True		
+		oldHome[i]=newHome[i]
+		if pad.get_button(9): # switch joystick modes
+			if armed[i]:
+				mode = not mode
+				armed[i]=False
+		else:
+			armed[i]=True
+		if pad.get_button(13): # stop motors button
+			wax |= 4
+			send=1
+			slew0=0
+			trolley0=0
+			hook0=0
+			stopping=True
+		else:
+			if stopping == False:
+				wax &= ~4
+				trolley0=deadzone(pad.get_axis(1)) # DualShock4 doesn't have built in deadzones, so we do that here in software.
+				if mode:
+					slew0=-deadzone(pad.get_axis(0))
+					hook0=deadzone(pad.get_axis(3))
+				else:
+					slew0=int((pad.get_axis(5)-pad.get_axis(4))*63.01)
+					hook0=-deadzone(pad.get_axis(3))
 		if slew0!=0:
 			slew=slew0
 		if trolley0!=0:

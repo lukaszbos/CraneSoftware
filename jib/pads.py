@@ -43,7 +43,7 @@ class TextPrint:
 
 pygame.init()
 screen = pygame.display.set_mode([300, 700]) # screen size [width,height]
-pygame.display.set_caption("PdP MiCrane gamepad")
+pygame.display.set_caption("pads PdP MiCrane")
 done = False #Loop until the user clicks the close button.
 clock = pygame.time.Clock() # Used to manage how fast the screen updates
 pygame.joystick.init() # Initialize the joysticks
@@ -101,72 +101,83 @@ while done==False:
 	trolley=0
 	hook=0
 	send=0
+	stopping=False
+	homing=False
 	
 	# For each pad:
 	for i in range(joystick_count):
 		pad = pygame.joystick.Joystick(i)
 		pad.init()
-
-		textPrint.print(screen, "Pad {}".format(i) )
+		textPrint.print(screen, "Joystick {} : {}".format(i,pad.get_name()) )
 		textPrint.indent()
-
-		# Get the name from the OS for the controller/joystick
-		name = pad.get_name()
-		textPrint.print(screen, "Pad name: {}".format(name) )
 		
+		# Usually axis run in pairs, up/down for one, and left/right for
+		# the other.
 		axes = pad.get_numaxes()
 		textPrint.print(screen, "Number of axes: {}".format(axes) )
 		textPrint.indent()
 		
+		show=False
 		for j in range( axes ):
-			axis = pad.get_axis( j )
-			textPrint.print(screen, "Axis {} : {:>6.3f}".format(j, axis) )
+			if pad.get_axis(j) != 0:
+				show=True
+		if show:
+			for j in range( axes ):
+				textPrint.print(screen, "Axis {} : {:>6.3f}".format(j, pad.get_axis(j)) )
+		textPrint.unindent()
+				
+		buttons = pad.get_numbuttons()
+		textPrint.print(screen, "Number of buttons: {}".format(buttons) )
+		textPrint.indent()
+
+		for j in range( buttons ):
+			button = pad.get_button( j )
+			if button is 1:
+				textPrint.print(screen, "Button {:>2}".format(j) )
 		textPrint.unindent()
 		textPrint.unindent()
 		
-		if pad.get_name() == 'Wireless Controller': # bluetooth DualShock4
-			newSilent[i]=pad.get_button(1) # silent mode
-			if newSilent[i]>oldSilent[i]:
-				wax |= 1
-				send=1
-			oldSilent[i]=newSilent[i]
-			newFast[i]=pad.get_button(2) # fast mode
-			if newFast[i]>oldFast[i]:
-				wax &= ~1
-				send=1
-			oldFast[i]=newFast[i]
-			newHome[i]=pad.get_button(8) # home
-			if newHome[i]>oldHome[i]:
-				wax |= 2
-				send=1
-			else: # don't home again
-				wax &= ~2
-			oldHome[i]=newHome[i]
-			if pad.get_button(9): # switch joystick modes
-				if armed[i]:
-					mode = not mode
-					armed[i]=False
-			else:
-				armed[i]=True
-			if pad.get_button(13): # stop motors button
-				wax |= 4
-				send=1
-				slew0=0
-				trolley0=0
-				hook0=0
-			else:
+		newSilent[i]=pad.get_button(1) # silent mode
+		if newSilent[i]>oldSilent[i]:
+			wax |= 1
+			send=1
+		oldSilent[i]=newSilent[i]
+		newFast[i]=pad.get_button(2) # fast mode
+		if newFast[i]>oldFast[i]:
+			wax &= ~1
+			send=1
+		oldFast[i]=newFast[i]
+		newHome[i]=pad.get_button(8) # home
+		if newHome[i]>oldHome[i]:
+			wax |= 2
+			send=1
+			homing=True
+		else: # don't home again
+			wax &= ~2
+		oldHome[i]=newHome[i]
+		if pad.get_button(9): # switch joystick modes
+			if armed[i]:
+				mode = not mode
+				armed[i]=False
+		else:
+			armed[i]=True
+		if pad.get_button(13): # stop motors button
+			wax |= 4
+			send=1
+			slew0=0
+			trolley0=0
+			hook0=0
+			stopping=True
+		else:
+			if stopping == False:
 				wax &= ~4
 				trolley0=deadzone(pad.get_axis(1)) # DualShock4 doesn't have built in deadzones, so we do that here in software.
-				if mode:
-					slew0=-deadzone(pad.get_axis(0))
-					hook0=deadzone(pad.get_axis(3))
-				else:
-					slew0=int((pad.get_axis(5)-pad.get_axis(4))*63.01)
-					hook0=-deadzone(pad.get_axis(3))
-		else: # Spartan Gear Oplon has built in deadzones
-			slew0=-int(pad.get_axis(0)*126)
-			trolley0=int(pad.get_axis(1)*126)
-			hook0=-int(pad.get_axis(3)*126)
+			if mode:
+				slew0=-deadzone(pad.get_axis(0))
+				hook0=deadzone(pad.get_axis(3))
+			else:
+				slew0=int((pad.get_axis(5)-pad.get_axis(4))*63.01)
+				hook0=-deadzone(pad.get_axis(3))
 		if slew0!=0:
 			slew=slew0
 		if trolley0!=0:
@@ -194,6 +205,7 @@ while done==False:
 				except:
 					ser[i]=None
 		send=0
+		wax &= ~2 # stop homing
 	# ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
 	pygame.display.flip()
 	clock.tick(20)
