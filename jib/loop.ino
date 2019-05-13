@@ -1,8 +1,17 @@
 void loop() {
+	const unsigned long now=millis();
+	static unsigned long timeReceived = 0;
+
+	// send some random data to PC
+	Udp.beginPacket(ip_server, localPort);
+	Udp.write(ReplyBuffer);
+	if(Udp.endPacket()) Serial.println("Send OK");
+	else Serial.println("Send failed");
 	
 	// receive commands from PC through Ethernet
 	const byte packetSize = Udp.parsePacket();
 	if (packetSize) {
+		timeReceived=now;
 		Serial.print(packetSize);
 		Serial.print(" bytes from ");
 		IPAddress remote = Udp.remoteIP();
@@ -30,10 +39,9 @@ void loop() {
 		Serial.print(packetBuffer[3],DEC);
 		Serial.println();
 	}
-	//delay(10);
+	delay(10);
 
 	static unsigned long then=0;
-	const unsigned long now=millis();
 	
 	if(now-then>acl){ //accelerate slowly
 		then=now;
@@ -89,7 +97,6 @@ void loop() {
 	}
 
 	// receive commands from PC through USB
-	static unsigned long timeReceived = 0;
 	if(Serial.available()){
 		timeReceived = now;
 		static byte job=255;
@@ -125,7 +132,7 @@ void loop() {
 		}
 	}
 
-	if (now - timeReceived > 1000){
+	if(now - timeReceived > 1000){
 		goal0=0; goal1=0; goal2=0;
 	}
 	
@@ -135,11 +142,6 @@ void loop() {
 	if(now-owl>1000){ // prints various numbers to serial
 		owl=now;
 		printDebug();
-		
-		// send some random data to PC
-		Udp.beginPacket(ip_server, localPort);
-		Udp.write(ReplyBuffer);
-		Udp.endPacket();
 	}
 
 	static unsigned long rat=0;
