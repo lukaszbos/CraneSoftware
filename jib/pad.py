@@ -201,7 +201,7 @@ while done==False:
 						print('Plug Arduino USB cable.')
 		else:
 			try:
-				ser = serial.Serial(cat,250000) # port, baud rate
+				ser = serial.Serial(cat,500000) # port, baud rate
 			except:
 				pass
 			else:

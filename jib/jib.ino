@@ -55,16 +55,14 @@ Adafruit_NeoPixel led(23, A4, NEO_GRB + NEO_KHZ800); // led count, led pin
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
-byte mac[] = {
-  0xAE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
-};
+byte mac[] = {0xAE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 IPAddress ip(192, 168, 0, 177);  
 IPAddress ip_server(192, 168, 0, 102);
 
 unsigned int localPort = 10000;      // local port to listen on
 
 // buffers for receiving and sending data
-char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet,
+char packetBuffer[4]; // buffer to hold incoming packet
 char ReplyBuffer[] = "acknowledged";        // a string to send back
 
 // An EthernetUDP instance to let us send and receive packets over UDP

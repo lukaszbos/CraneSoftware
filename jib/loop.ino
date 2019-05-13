@@ -1,14 +1,8 @@
 void loop() {
-
-		// send some random data to PC
-		Udp.beginPacket(ip_server, localPort);
-		Udp.write(ReplyBuffer);
-		Udp.endPacket();
 	
-	// if there's data available, read a packet
+	// receive commands from PC through Ethernet
 	const byte packetSize = Udp.parsePacket();
 	if (packetSize) {
-		Serial.print("Received ");
 		Serial.print(packetSize);
 		Serial.print(" bytes from ");
 		IPAddress remote = Udp.remoteIP();
@@ -23,7 +17,10 @@ void loop() {
 		
 		// read the packet into packetBufffer
 		Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-		Serial.print(" Contents: ");
+		goal0=packetBuffer[0];
+		goal1=packetBuffer[1];
+		goal2=packetBuffer[2];
+		Serial.print(", contents ");
 		Serial.print(packetBuffer[0],DEC);
 		Serial.print(" ");
 		Serial.print(packetBuffer[1],DEC);
@@ -33,7 +30,7 @@ void loop() {
 		Serial.print(packetBuffer[3],DEC);
 		Serial.println();
 	}
-	delay(10);
+	//delay(10);
 
 	static unsigned long then=0;
 	const unsigned long now=millis();
@@ -91,8 +88,9 @@ void loop() {
 		else setSpeed(2,spd[2]==0?0:fast[2]/abs(spd[2]));
 	}
 
+	// receive commands from PC through USB
 	static unsigned long timeReceived = 0;
-	if(Serial.available()){ // receive commands from Python code
+	if(Serial.available()){
 		timeReceived = now;
 		static byte job=255;
 		char wax=Serial.read();
@@ -134,9 +132,14 @@ void loop() {
 	if(homing>0) home();
 	
 	static unsigned long owl=0;
-	if(now-owl>200){ // prints various numbers to serial
+	if(now-owl>1000){ // prints various numbers to serial
 		owl=now;
 		printDebug();
+		
+		// send some random data to PC
+		Udp.beginPacket(ip_server, localPort);
+		Udp.write(ReplyBuffer);
+		Udp.endPacket();
 	}
 
 	static unsigned long rat=0;
