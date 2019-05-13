@@ -65,8 +65,8 @@ class GibCrane:
                         pad_commands = self.listOfQueues[
                             threads.index(thread)].get()  # pobiera z kolejki komunikaty z padów
 
-                        # print("pad commands: ")
-                        # print(pad_commands)
+                        print("pad commands: ")
+                        print(pad_commands)
 
                 elif isinstance(thread, CraneClient):  # znowu sprawdza typ wątku ale ta część na razie nic nie robi
                     #  with getLock(thread, threads):
@@ -199,21 +199,27 @@ class GibCrane:
             if not data:
                 print("no data")
                 pass
-            print(addr[0])
+            print(f'current ip is: {addr[0]}')
             # print(self.listOfThreads)
             for thread in self.listOfThreads:
                 # print(f'current thread is : {thread.name}')
                 if isinstance(thread, CraneClient):
-                    print(f'{thread.name}: jest dzwigiem')
-                    if thread.CompareIP(addr[0]):
-                        print(f'{thread.name}: ip sie zgadza')
-                        # print(f'trying to send {thread.getFullOutput()}')
-                        try:
-                            sock.sendto(thread.getFullOutput(), addr)
-                            print('message sent')
-                        except:
-                            print(f'did not send to {thread.name}')
-                            break
+                    print(f'{thread.name}: is a crane with ip: {thread.ip}')
+
+                    if not self.checkExistingIP(addr[0], self.listOfThreads):
+                        if thread.CompareIP(addr[0]):
+                            print(f'{thread.name}: ip is correct')
+                            # print(f'trying to send {thread.getFullOutput()}')
+                            try:
+                                sock.sendto(thread.getFullOutput(), addr)
+                                print('message sent')
+                            except:
+                                print(f'did not send to {thread.name}')
+                                break
+                        else:
+                            print('next ip')
+                    else:
+                        print (f"{addr[0]} is already set somewhere")
                 else:
                     # print('nie jest dzwigiem')
                     pass
@@ -242,6 +248,17 @@ class GibCrane:
             crane = self.createCraneThreads()
             self.listOfThreads.append(crane)
             crane.start()
+
+    def checkExistingIP(self,currentIP, threads):
+        for thread in threads:
+            if isinstance(thread, CraneClient):
+                if thread.ip is currentIP:
+                    return True
+                if thread.ip is not currentIP:
+                    return False
+            else:
+                pass
+
 
     def createSocket(self):
         host = ''
