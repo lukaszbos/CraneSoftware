@@ -201,9 +201,10 @@ void loop() {
 			// send some random data to PC
 			Udp.beginPacket(ip_server, localPort);
 			Udp.write(ReplyBuffer);
-			//Udp.endPacket();
-			if(Udp.endPacket()) Serial.println("Send OK");
-			else Serial.println("Send failed");
+			if(Udp.endPacket()==0){
+				Serial.println(F("UDP send failed. :("));
+				ethernetConnected=0;
+			}
 		}
 	}
 
