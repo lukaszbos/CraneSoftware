@@ -30,6 +30,7 @@ class GibCrane:
     listOfLocks = []
     listOfQueues = []
     testCondition = Condition(Lock())
+    listOfIpAddresses = ['192.168.0.176', '192.168.0.177', '192.168.0.178']
 
     def __init__(self, Port):
         # tmpIP = "nah"
@@ -51,7 +52,7 @@ class GibCrane:
     ''' Ta metoda jest odpalana jako wątek obsługujacy komunikację między wątkami '''
 
     def communicateThreads(self, threads, condition: Condition):
-        delay = 1 / 10
+        delay = 1/50
         logging.info(' Starting')
         while True:
             inputList = []
@@ -113,7 +114,7 @@ class GibCrane:
 
     ''' Tworzy i zwraca wątek klienta dzwigu '''
 
-    def createCraneThreads(self):
+    def createCraneThreads(self, IPaddress):
         iterator = len(self.listOfThreads) - 1
         print('client connected')
         tempQueue = queue.LifoQueue()
@@ -123,8 +124,11 @@ class GibCrane:
         # crane_index = list
         crane = CraneClient('Crane', Crane(x=20, y=20, index=iterator),
                             Hook(z=100, r=40, theta=0),
-                            inc=2 * PI / 360, delay=0.1, cond=self.testCondition, Queue=self.listOfQueues[iterator],
-                            lock=self.listOfLocks[iterator])
+                            inc=2 * PI / 360, delay=0.1,
+                            cond=self.testCondition,
+                            Queue=self.listOfQueues[iterator],
+                            lock=self.listOfLocks[iterator],
+                            ip=IPaddress)
         crane.isDaemon()
         return crane
 
@@ -174,17 +178,16 @@ class GibCrane:
         # print(socket.gethostname())
         # connectionList = []
 
-        self.createAllCranes(4)
+        self.createAllCranes(len(self.listOfIpAddresses))
         sock = self.createSocket()
 
         while True:
 
-            for client in self.listOfThreads:
-                if client.isAlive():
-                    pass
-                else:
-                    self.listOfThreads.remove(client)
-
+            # for client in self.listOfThreads:
+            #     if client.isAlive():
+            #         pass
+            #     else:
+            #         self.listOfThreads.remove(client)
             d = sock.recvfrom(1024)
             # print(d)
             data = d[0]
@@ -194,13 +197,23 @@ class GibCrane:
                 pass
             print(addr[0])
 
+
             for thread in self.listOfThreads:
                 # print('for dziala')
                 if isinstance(thread, CraneClient):
-                    print(f'{thread.name}: dzwigiem')
+                    # while True:
+
+
+                    # print(f'{thread.name}: dzwigiem')
+                    print(f'Ip to compare: {thread.name} -> {thread.ip} | Current message -> {addr[0]}')
                     if thread.CompareIP(addr[0]):
                         print(f'{thread.name}: ip sie zgadza')
-                        sock.sendto(thread.getFullOutput(), addr)
+                        try:
+                            sock.sendto(thread.getFullOutput(), addr)
+                            print(f'{thread.name} has sent message')
+                            # break
+                        except Exception as e:
+                            print(f'message not sent. Exception {e}')
                         # print(thread.getFullOutput())
                         break
                 else:
@@ -210,7 +223,7 @@ class GibCrane:
 
     def createAllCranes(self, amount):
         for i in range(amount):
-            crane = self.createCraneThreads()
+            crane = self.createCraneThreads(self.listOfIpAddresses[i])
             self.listOfThreads.append(crane)
             crane.start()
 

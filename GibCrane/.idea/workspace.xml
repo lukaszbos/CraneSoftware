@@ -4,10 +4,7 @@
     <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0fb0d697-4123-47ae-9083-7ec82bef6f3d" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/Controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/Controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GibCrane.py" beforeDir="false" afterPath="$PROJECT_DIR$/GibCrane.py" afterDir="false" />
-    </list>
+    <list default="true" id="0fb0d697-4123-47ae-9083-7ec82bef6f3d" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,8 +16,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/GibCrane.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="409">
-              <caret line="297" selection-start-line="297" selection-end-line="297" />
+            <state relative-caret-position="2278">
+              <caret line="275" column="1" lean-forward="true" selection-start-line="275" selection-start-column="1" selection-end-line="275" selection-end-column="1" />
               <folding>
                 <element signature="e#0#26#0" expanded="true" />
               </folding>
@@ -28,7 +25,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/PadClient.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="136">
@@ -40,11 +37,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ClientThreads.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="409">
-              <caret line="141" selection-start-line="141" selection-end-line="141" />
+            <state relative-caret-position="-767">
+              <caret line="67" column="29" lean-forward="true" selection-start-line="67" selection-start-column="29" selection-end-line="67" selection-end-column="29" />
               <folding>
                 <element signature="e#0#24#0" expanded="true" />
               </folding>
@@ -327,7 +324,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="25" width="1920" height="974" extended-state="6" />
+    <frame x="960" y="25" width="960" height="974" extended-state="4" />
     <editor active="true" />
     <layout>
       <window_info id="DB Browser" order="0" />
@@ -337,7 +334,7 @@
       <window_info anchor="bottom" id="DB Execution Console" order="0" />
       <window_info anchor="bottom" id="Message" order="1" />
       <window_info anchor="bottom" id="Find" order="2" weight="0.32972324" />
-      <window_info active="true" anchor="bottom" id="Run" order="3" visible="true" weight="0.37906137" />
+      <window_info anchor="bottom" id="Run" order="3" weight="0.37906137" />
       <window_info anchor="bottom" id="Debug" order="4" weight="0.39951864" />
       <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
@@ -480,8 +477,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ClientThreads.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="409">
-          <caret line="141" selection-start-line="141" selection-end-line="141" />
+        <state relative-caret-position="-767">
+          <caret line="67" column="29" lean-forward="true" selection-start-line="67" selection-start-column="29" selection-end-line="67" selection-end-column="29" />
           <folding>
             <element signature="e#0#24#0" expanded="true" />
           </folding>
@@ -497,8 +494,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/GibCrane.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="409">
-          <caret line="297" selection-start-line="297" selection-end-line="297" />
+        <state relative-caret-position="2278">
+          <caret line="275" column="1" lean-forward="true" selection-start-line="275" selection-start-column="1" selection-end-line="275" selection-end-column="1" />
           <folding>
             <element signature="e#0#26#0" expanded="true" />
           </folding>

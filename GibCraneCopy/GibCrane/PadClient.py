@@ -31,8 +31,9 @@ class PadClient(Thread):
     def run(self):
         logging.info('Starting')
         numberOfPads = 2
-        self.isRunning()
+        # self.isRunning()
         self.fillListOfControllers(numberOfPads)
+        print("list of controllers")
 
         '''
         Value Matrix scheme:
@@ -47,20 +48,23 @@ class PadClient(Thread):
         pygame.quit()
 
     def threadLoop(self):
-        while self._running:
+        while True:
             self.padHandler()
             controllerValueMatrix: List[List[int]] = [[], []]
+            # print(self.myControllers)
             for pad in self.myControllers:
                 controllerValueMatrix[pad.index] = pad.getValueList()
-            # print(controllerValueMatrix[pad.index])
+            print(controllerValueMatrix[pad.index])
             self.queue.put(controllerValueMatrix)
 
     def fillListOfControllers(self, numberOfPads):
         for i in range(numberOfPads):
             self.myControllers.append(Controller.Controller(i))
+        # print("lista kontrolerow")
+        # print(self.myControllers)
 
-    def isRunning(self):
-        self._running = True
+    # def isRunning(self):
+    #     self._running = True
 
     # print('running')
 
