@@ -50,16 +50,15 @@ TMC2130Stepper hook = TMC2130Stepper(A2);
 #include <Adafruit_NeoPixel.h>
 Adafruit_NeoPixel led(23, A4, NEO_GRB + NEO_KHZ800); // led count, led pin
 
-#include <Ethernet.h>
 #include <EthernetUdp.h>
 
 //#include <EEPROM.h>
-//EEPROM.update(0,179);
+//EEPROM.update(0,177);
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
-byte mac[] = {0xAE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
-IPAddress ip(192, 168, 0, /*EEPROM.read(0)*/177);
+byte mac[] = {0xA3, 0xAD, 0x2E, 0xE3, 0xB7, 0x8D};
+IPAddress ip(192, 168, 0, /*EEPROM.read(0)*/176);
 IPAddress ip_server(192, 168, 0, 102);
 
 unsigned int localPort = 10000; // local port to listen on
@@ -68,6 +67,7 @@ unsigned int localPort = 10000; // local port to listen on
 #define UDP_TX_PACKET_MAX_SIZE 24
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // buffer to hold incoming packet
 char ReplyBuffer[] = "h"; // a string to send back
+bool ethernetConnected=0;
 
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;

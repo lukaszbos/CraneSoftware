@@ -189,16 +189,22 @@ void loop() {
 	if(homing>0) home();
 	
 	static unsigned long owl=0;
-	if(now-owl>50){ // prints various numbers to serial
+	if(now-owl>200){ // prints various numbers to serial
 		owl=now;
 		printDebug();
-		
-		// send some random data to PC
-		Udp.beginPacket(ip_server, localPort);
-		Udp.write(ReplyBuffer);
-		Udp.endPacket();
-		//if(Udp.endPacket()) Serial.println("Send OK");
-		//else Serial.println("Send failed");
+	}
+
+	if(ethernetConnected){
+		static unsigned long dad=0;
+		if(now-dad>50){
+			dad=now;
+			// send some random data to PC
+			Udp.beginPacket(ip_server, localPort);
+			Udp.write(ReplyBuffer);
+			//Udp.endPacket();
+			if(Udp.endPacket()) Serial.println("Send OK");
+			else Serial.println("Send failed");
+		}
 	}
 
 	static unsigned long rat=0;
