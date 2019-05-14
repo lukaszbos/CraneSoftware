@@ -152,7 +152,7 @@ int analogRead(uint8_t pin){
 	if (pin >= 14) pin -= 14; // allow for channel or pin numbers
 	if (pin>7) return -1;
 	static int result[8]={0};
-	static byte lastPin=255;
+	static byte lastPin=0;
 	if(bit_is_clear(ADCSRA, ADSC)){ // ADSC is cleared when the conversion finishes.
 		result[lastPin] = ADCL | (ADCH << 8);
 		ADMUX = (DEFAULT << 6) | (pin & 0x07);
