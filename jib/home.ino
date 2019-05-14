@@ -20,7 +20,7 @@ void home(){
 		Serial.println("Hook stalled. Lowering hook a bit");
 		delay(50);
 		hook.shaft_dir(!dir[2]);
-		for(byte i=0; i<8; i++){
+		for(byte i=0; i<9; i++){
 			delay(10);
 			PORTD ^= 1<<6;
 		}

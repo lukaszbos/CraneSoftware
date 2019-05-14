@@ -18,7 +18,7 @@
 */
 
 // a motor can never spin too fast, right?
-#pragma GCC optimize ("-O1") // https://www.instructables.com/id/Arduino-IDE-16x-compiler-optimisations-faster-code/
+#pragma GCC optimize ("-O2") // https://www.instructables.com/id/Arduino-IDE-16x-compiler-optimisations-faster-code/
 
 // TMC2130 pin connections
 	/* You need to connect the SPI pins as follows for programming the TMC2130. If you have several TMC2130, they all must use these same pins.
@@ -53,17 +53,21 @@ Adafruit_NeoPixel led(23, A4, NEO_GRB + NEO_KHZ800); // led count, led pin
 #include <Ethernet.h>
 #include <EthernetUdp.h>
 
+//#include <EEPROM.h>
+//EEPROM.update(0,179);
+
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {0xAE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
-IPAddress ip(192, 168, 0, 177);  
+IPAddress ip(192, 168, 0, /*EEPROM.read(0)*/177);
 IPAddress ip_server(192, 168, 0, 102);
 
 unsigned int localPort = 10000; // local port to listen on
 
 // buffers for receiving and sending data
-char packetBuffer[24]; // buffer to hold incoming packet
-char ReplyBuffer[] = "acknowledged"; // a string to send back
+#define UDP_TX_PACKET_MAX_SIZE 24
+char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // buffer to hold incoming packet
+char ReplyBuffer[] = "h"; // a string to send back
 
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;

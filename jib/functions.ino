@@ -28,7 +28,7 @@ void settings(){ // this function changes some settings of TMC2130
 	trolley.chopper_mode(0);
 	trolley.coolstep_min_speed(200);
 	trolley.diag1_stall(1);
-	trolley.sg_stall_value(5);
+	trolley.sg_stall_value(15);
 
 	// hoisting driver settings
 	hook.begin();
@@ -176,8 +176,9 @@ void setup() {
 	led.begin();
   Ethernet.init(10);
   Ethernet.begin(mac, ip);
+  if(Ethernet.hardwareStatus()==EthernetNoHardware) Serial.println(F("Ethernet shield not found. :("));
+	if(Ethernet.linkStatus()==LinkOFF) Serial.println(F("Ethernet cable not connected. :("));
   // start UDP
-  Udp.begin(localPort);
-    Serial.println("Right connection");
-    Serial.println(Ethernet.localIP());
+  if(Udp.begin(localPort)) Serial.println(F("UDP socket opened. :)"));
+  Serial.println(Ethernet.localIP());
 }
