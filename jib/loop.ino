@@ -48,10 +48,10 @@ void loop() {
 			int xMapped;
 			 
 			while (token = strtok_r(rest, " ", &rest)) {
-				if(debugger){
+				/*if(debugger){
 					Serial.print(F("Token "));
 					Serial.print(token);
-				}
+				}*/
 				double x;
 				 
 				if (String(token) == "s"){
@@ -62,8 +62,8 @@ void loop() {
 						goal0=valuesFromController[0];
 						goal1=valuesFromController[1];
 						goal2=valuesFromController[2];
-						if(valuesFromController[3]) homing=1;
-						if(debugger){
+						if(valuesFromController[3] && homing==0) homing=1;
+						/*if(debugger){
 							Serial.print(" ");
 							Serial.print(valuesFromController[0]);
 							Serial.print(" ");
@@ -72,7 +72,7 @@ void loop() {
 							Serial.print(valuesFromController[2]);
 							Serial.print(" ");
 							Serial.println(valuesFromController[3]);
-						}
+						}*/
 					}
 					
 					x = atof(token); 

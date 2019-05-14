@@ -67,7 +67,6 @@ unsigned int localPort = 10000; // local port to listen on
 #define UDP_TX_PACKET_MAX_SIZE 24
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // buffer to hold incoming packet
 char ReplyBuffer[] = "h"; // a string to send back
-bool ethernetConnected=0;
 
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
@@ -87,3 +86,4 @@ unsigned long fast[3]; // motor max speeds
 unsigned long acl=10; // acceleration setting
 char goal0=0, goal1=0, goal2=0;
 char spd[3]={0,0,0};
+bool ethernetConnected=0;

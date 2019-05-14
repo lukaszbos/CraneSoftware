@@ -1,12 +1,12 @@
 void settings(){ // this function changes some settings of TMC2130
 	// slewing driver settings
 	slew.begin(); // Initiate pins and registeries
-	slew.high_sense_R(1); // reference voltage for coil current sense resistors  1 = 0.18V       0 = 0.32V
+	slew.high_sense_R(1); // reference voltage for coil current sense resistors	1 = 0.18V			 0 = 0.32V
 	slew.hold_current(0); // 0-31 standstill current per motor coil
-	slew.run_current(8); // 0-31,     0 = 30 mA per coil,    31 = 980 mA per coil
+	slew.run_current(8); // 0-31,		 0 = 30 mA per coil,		31 = 980 mA per coil
 	slew.power_down_delay(30); // how long to wait after movement stops before reducing to hold current 0-255 = 0-4 seconds
 	slew.hold_delay(3); // 0-15 how gradually it reduces to hold current. 0=fast change. 15=slow change.
-	slew.stealthChop(1);      // Enable extremely quiet stepping
+	slew.stealthChop(1);			// Enable extremely quiet stepping
 	slew.stealth_autoscale(1);
 	slew.microsteps(0); // we dont want any
 	slew.interpolate(1); // automatic 256 x microstepping
@@ -122,29 +122,37 @@ inline void fox(unsigned long cycles){
 void larsonScanner(){
 	static char pos = 0, dir = 1; // Position, direction of "eye"
  
-  // Draw 5 pixels centered on pos.  setPixelColor() will clip any
-  // pixels off the ends of the strip, we don't need to watch for that.
-  led.setPixelColor(pos - 2, 0x100000); // Dark red
-  led.setPixelColor(pos - 1, 0x800000); // Medium red
-  led.setPixelColor(pos    , 0xFF3000); // Center pixel is brightest
-  led.setPixelColor(pos + 1, 0x800000); // Medium red
-  led.setPixelColor(pos + 2, 0x100000); // Dark red
+	// Draw 5 pixels centered on pos.	setPixelColor() will clip any
+	// pixels off the ends of the strip, we don't need to watch for that.
+	if(ethernetConnected){
+		led.setPixelColor(pos - 2, 0x001000);
+		led.setPixelColor(pos - 1, 0x008000);
+		led.setPixelColor(pos    , 0x00FF00); // Center pixel is brightest
+		led.setPixelColor(pos + 1, 0x008000);
+		led.setPixelColor(pos + 2, 0x001000);
+	}else{
+		led.setPixelColor(pos - 2, 0x100000); // Dark red
+		led.setPixelColor(pos - 1, 0x800000); // Medium red
+		led.setPixelColor(pos    , 0xFF0000); // Center pixel is brightest
+		led.setPixelColor(pos + 1, 0x800000); // Medium red
+		led.setPixelColor(pos + 2, 0x100000); // Dark red
+	}
  
-  led.show();
+	led.show();
  
-  // Rather than being sneaky and erasing just the tail pixel,
-  // it's easier to erase it all and draw a new one next time.
-  for(char j=-2; j<= 2; j++) led.setPixelColor(pos+j, 0);
+	// Rather than being sneaky and erasing just the tail pixel,
+	// it's easier to erase it all and draw a new one next time.
+	for(char j=-2; j<= 2; j++) led.setPixelColor(pos+j, 0);
  
-  // Bounce off ends of strip
-  pos += dir;
-  if(pos < 0) {
-    pos = 1;
-    dir = -dir;
-  } else if(pos >= led.numPixels()) {
-    pos = led.numPixels() - 2;
-    dir = -dir;
-  }
+	// Bounce off ends of strip
+	pos += dir;
+	if(pos < 0) {
+		pos = 1;
+		dir = -dir;
+	} else if(pos >= led.numPixels()) {
+		pos = led.numPixels() - 2;
+		dir = -dir;
+	}
 }
 
 // Unlike its Arduino counterpart, this does not wait that ADC is ready. It makes using analogRead() inside interrupt so much faster.
@@ -174,13 +182,13 @@ void setup() {
 	pinMode(9,INPUT_PULLUP); // diag1 hook
 	fastMode();
 	led.begin();
-  Ethernet.init(10);
-  Ethernet.begin(mac, ip);
-  if(Ethernet.hardwareStatus()==EthernetNoHardware) Serial.println(F("Ethernet shield not found. :("));
+	Ethernet.init(10);
+	Ethernet.begin(mac, ip);
+	if(Ethernet.hardwareStatus()==EthernetNoHardware) Serial.println(F("Ethernet shield not found. :("));
 	else if(Ethernet.linkStatus()==LinkOFF) Serial.println(F("Ethernet cable not connected. :("));
-  else if(Udp.begin(localPort)){
-  	Serial.println(F("UDP socket opened. :)"));
-  	ethernetConnected=1;
-  }
-  Serial.println(Ethernet.localIP());
+	else if(Udp.begin(localPort)){
+		Serial.println(F("UDP socket opened. :)"));
+		ethernetConnected=1;
+	}
+	Serial.println(Ethernet.localIP());
 }
