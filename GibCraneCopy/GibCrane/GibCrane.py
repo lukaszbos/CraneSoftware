@@ -30,7 +30,7 @@ class GibCrane:
     listOfLocks = []
     listOfQueues = []
     testCondition = Condition(Lock())
-    listOfIpAddresses = ['192.168.0.176', '192.168.0.177', '192.168.0.178']
+    listOfIpAddresses = ['192.168.0.176', '192.168.0.177', '192.168.0.178', '192.168.0.179']
 
     def __init__(self, Port):
         # tmpIP = "nah"
@@ -52,7 +52,7 @@ class GibCrane:
     ''' Ta metoda jest odpalana jako wątek obsługujacy komunikację między wątkami '''
 
     def communicateThreads(self, threads, condition: Condition):
-        delay = 1/50
+        delay = 1 / 50
         logging.info(' Starting')
         while True:
             inputList = []
@@ -66,8 +66,8 @@ class GibCrane:
                         pad_commands = self.listOfQueues[
                             threads.index(thread)].get()  # pobiera z kolejki komunikaty z padów
 
-                        # print("pad commands: ")
-                        # print(pad_commands)
+                        print("pad commands: ")
+                        print(pad_commands)
 
                 elif isinstance(thread, CraneClient):  # znowu sprawdza typ wątku ale ta część na razie nic nie robi
                     #  with getLock(thread, threads):
@@ -138,7 +138,6 @@ class GibCrane:
     '''
 
     def _run(self):
-
         padLock = Lock()
         padQueue = queue.LifoQueue()
 
@@ -160,6 +159,7 @@ class GibCrane:
         fuckingThread = Thread(target=self.startWorkingYouFucker, name='motherfucker', args=(self.listOfThreads,))
         fuckingThread.start()  # Utworzenie wątku zwracającego ifo o działających w programie wątkach
         self.listOfThreads.append(fuckingThread)
+
         # clientList.append(AcThread)
         # for t in clientList:
         #     t.start()
@@ -188,8 +188,9 @@ class GibCrane:
             #         pass
             #     else:
             #         self.listOfThreads.remove(client)
+            print('waiting for message')
             d = sock.recvfrom(1024)
-            # print(d)
+            print('message received')
             data = d[0]
             addr = d[1]
             if not data:
@@ -197,14 +198,12 @@ class GibCrane:
                 pass
             print(addr[0])
 
-
             for thread in self.listOfThreads:
                 # print('for dziala')
                 if isinstance(thread, CraneClient):
                     # while True:
 
-
-                    # print(f'{thread.name}: dzwigiem')
+                    print(f'{thread.name}: jest dzwigiem')
                     print(f'Ip to compare: {thread.name} -> {thread.ip} | Current message -> {addr[0]}')
                     if thread.CompareIP(addr[0]):
                         print(f'{thread.name}: ip sie zgadza')

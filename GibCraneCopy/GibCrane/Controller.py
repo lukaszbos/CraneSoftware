@@ -10,8 +10,8 @@ class Controller:
 
     def update(self, numberOfAxes, voltage):
         if numberOfAxes == 0:
-            # voltage = voltage * (-1)  # couse direction was wrong
-            voltage = self.formatVoltage(-1*voltage)
+            voltage = voltage * (-1)  # couse direction was wrong
+            voltage = self.formatVoltage(voltage)
             self.axisHorizontal = voltage
             self.valueList[0] = voltage
         if numberOfAxes == 1:
@@ -22,6 +22,15 @@ class Controller:
             voltage = self.formatVoltage(voltage)
             self.axisHook = voltage
             self.valueList[2] = voltage
+    #     if numberOfAxes == 5 or numberOfAxes == 2:
+    #         voltageTwo =
+    #         voltage = self.formatVoltage(voltage/2)
+    #         self.axisHorizontal = voltage
+    #         self.valueList[0] = voltage
+    #     if numberOfAxes == 2:
+    #         voltage = self.formatVoltage(voltage/2)
+    #         self.axisHorizontal = voltage
+    #         self.valueList[0] = voltage
 
     @staticmethod
     def formatVoltage(voltage):

@@ -82,7 +82,11 @@ while done == False:
             axis = joystick.get_axis(i)
             textPrint.print(screen, "Axis {} value: {:>6.3f}".format(i, axis))
 
-            myControllers[joystickInUse].update(i, axis)
+            axisTwo = 0
+            if i == 5:
+                axisTwo = joystick.get_axis(i)
+
+            myControllers[joystickInUse].update(i, axis, axisTwo)
             myControllers[joystickInUse].printAxis()
 
         textPrint.unindent()

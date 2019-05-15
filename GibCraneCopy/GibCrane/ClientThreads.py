@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO,
 class CraneClient(Thread):
 
     def __init__(self, name, crane: Crane, hook: Hook, inc, delay, cond: Condition, Queue, lock, ip):
-        Thread.__init__(self, name=f'{name}_{crane.GetIndex() + 1}')
+        Thread.__init__(self, name=f'{name}_{crane.GetIndex()}')
         self._crane = crane
         self._hook = hook
         self._hook.SetIndex(self._crane.GetIndex())
@@ -31,7 +31,7 @@ class CraneClient(Thread):
         self._condition = cond
         self.queue = Queue
         self.lock = lock
-        self.name = f'{name}_{crane.GetIndex() + 1}'
+        self.name = f'{name}_{crane.GetIndex()}'
         self.ip = None
         print("new crane connected")
         self.outputMessage = []

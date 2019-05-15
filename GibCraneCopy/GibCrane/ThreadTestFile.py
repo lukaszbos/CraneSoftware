@@ -12,10 +12,10 @@ class sleeperClass(threading.Thread):
         self.name = value
 
     def run(self):
-        print(f"hi, i am {self.name}. I am going to sleep for {self.n} seconds")
+        # print(f"hi, i am {self.name}. I am going to sleep for {self.n} seconds")
         for i in range(self.n):
             time.sleep(1)
-            print('zzZ')
+            # print('zzZ')
         print(f'{self.name} is awake now')
 
 

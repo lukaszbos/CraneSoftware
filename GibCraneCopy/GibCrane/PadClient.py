@@ -1,13 +1,11 @@
-from typing import List, Any
-
-from GpsObjects import *
-from threading import *
-import time
 import logging
-import queue
+from threading import *
+from typing import List
+
 import pygame
-import textprint
+
 import Controller
+import textprint
 
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s: %(asctime)s %(threadName)-10s %(message)s',
@@ -30,11 +28,11 @@ class PadClient(Thread):
 
     def run(self):
         logging.info('Starting')
-        numberOfPads = 2
+        numberOfPads = 4
         # self.isRunning()
         self.fillListOfControllers(numberOfPads)
         print("list of controllers")
-
+        print(self.myControllers)
         '''
         Value Matrix scheme:
              | var0 | var1 | var2 | var3
@@ -43,18 +41,25 @@ class PadClient(Thread):
         pad2 | int  | int  | int  | int
         pad3 | int  | int  | int  | int
         '''
+
         pygame.init()
         self.threadLoop()
         pygame.quit()
 
     def threadLoop(self):
+        controllerValueMatrix = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         while True:
             self.padHandler()
-            controllerValueMatrix: List[List[int]] = [[], []]
+            controllerValueMatrix: List[List[int]]
+            #controllerValueMatrix.clear()
             # print(self.myControllers)
             for pad in self.myControllers:
+                # print("controller value matrix")
                 controllerValueMatrix[pad.index] = pad.getValueList()
-            print(controllerValueMatrix[pad.index])
+                # print("controller value matrix by idex")
+                # print(controllerValueMatrix[pad.index])
+                # TODO
+            # print(controllerValueMatrix[pad.index])
             self.queue.put(controllerValueMatrix)
 
     def fillListOfControllers(self, numberOfPads):
@@ -108,6 +113,8 @@ class PadClient(Thread):
         # For each joystick:
         for i in range(joystick_count):
             joystickInUse = i
+            # print("joystickInUse")
+            # print(joystickInUse)
             joystick = pygame.joystick.Joystick(i)
             joystick.init()
 
@@ -127,9 +134,13 @@ class PadClient(Thread):
             for i in range(axes):
                 axis = joystick.get_axis(i)
                 textPrint.print(screen, "Axis {} value: {:>6.3f}".format(i, axis))
-
-                self.myControllers[joystickInUse].update(i, axis)
-                # self.myControllers[joystickInUse].printValues()
+                try:
+                    self.myControllers[joystickInUse].update(i, axis)
+                    # print("printig values: controller : ")
+                    self.myControllers[joystickInUse].printValues()
+                except Exception as e:
+                    print("error when updating controller")
+                    print(e)
 
             textPrint.unindent()
 
