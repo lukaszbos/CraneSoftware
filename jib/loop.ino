@@ -3,89 +3,91 @@ void loop() {
 	static unsigned long timeReceived = 0;
 	
 	// receive commands from PC through Ethernet
-	const bool debugger=1;
-	const byte packetSize = Udp.parsePacket();
-	if (packetSize) {
-		timeReceived=now;
-		if(debugger){
-			Serial.print(packetSize);
-			Serial.print(" bytes from ");
-			IPAddress remote = Udp.remoteIP();
-			for (int i=0; i < 4; i++) {
-				Serial.print(remote[i], DEC);
-				if (i < 3) Serial.print(".");
-			}
-			Serial.print(", port ");
-			Serial.println(Udp.remotePort());
-		}
-		
-		// read the packet into packetBuffer
-		Udp.read(packetBuffer, packetSize);
-		if(packetSize<5){
-			/*goal0=packetBuffer[0];
-			goal1=packetBuffer[1];
-			goal2=packetBuffer[2];*/
+	if(ethernetConnected){
+		const bool debugger=1;
+		const byte packetSize = Udp.parsePacket();
+		if (packetSize) {
+			timeReceived=now;
 			if(debugger){
-				Serial.print(", contents ");
-				Serial.print(packetBuffer[0],DEC);
-				Serial.print(" ");
-				Serial.print(packetBuffer[1],DEC);
-				Serial.print(" ");
-				Serial.print(packetBuffer[2],DEC);
-				Serial.print(" ");
-				Serial.print(packetBuffer[3],DEC);
-				Serial.println();
-			}
-		}else{
-			if(debugger){
-				Serial.println(packetBuffer);
-			}
-			char* token;
-			char* rest = packetBuffer;
-			int iterator;
-			int valuesFromController[4];
-			int xMapped;
-
-			while (token = strtok_r(rest, " ", &rest)) {
-				/*if(debugger){
-					Serial.print(F("Token "));
-					Serial.print(token);
-				}*/
-				double x;
-				 
-				if (String(token) == "s"){
-					iterator = 0;
+				Serial.print(packetSize);
+				Serial.print(" bytes from ");
+				IPAddress remote = Udp.remoteIP();
+				for (int i=0; i < 4; i++) {
+					Serial.print(remote[i], DEC);
+					if (i < 3) Serial.print(".");
 				}
-				else{
-					if (String(token) == "e"){
-						if(homing==0){
-							goal0=valuesFromController[0];
-							goal1=valuesFromController[1];
-							goal2=valuesFromController[2];
-							if(valuesFromController[3]) homing=1;
+				Serial.print(", port ");
+				Serial.println(Udp.remotePort());
+			}
+			
+			// read the packet into packetBuffer
+			Udp.read(packetBuffer, packetSize);
+			if(packetSize<5){
+				/*goal0=packetBuffer[0];
+				goal1=packetBuffer[1];
+				goal2=packetBuffer[2];*/
+				if(debugger){
+					Serial.print(", contents ");
+					Serial.print(packetBuffer[0],DEC);
+					Serial.print(" ");
+					Serial.print(packetBuffer[1],DEC);
+					Serial.print(" ");
+					Serial.print(packetBuffer[2],DEC);
+					Serial.print(" ");
+					Serial.print(packetBuffer[3],DEC);
+					Serial.println();
+				}
+			}else{
+				if(debugger){
+					Serial.println(packetBuffer);
+				}
+				char* token;
+				char* rest = packetBuffer;
+				int iterator;
+				int valuesFromController[4];
+				int xMapped;
+	
+				while (token = strtok_r(rest, " ", &rest)) {
+					/*if(debugger){
+						Serial.print(F("Token "));
+						Serial.print(token);
+					}*/
+					double x;
+					 
+					if (String(token) == "s"){
+						iterator = 0;
+					}
+					else{
+						if (String(token) == "e"){
+							if(homing==0){
+								goal0=valuesFromController[0];
+								goal1=valuesFromController[1];
+								goal2=valuesFromController[2];
+								if(valuesFromController[3]) homing=1;
+							}
+							/*if(debugger){
+								Serial.print(" ");
+								Serial.print(valuesFromController[0]);
+								Serial.print(" ");
+								Serial.print(valuesFromController[1]);
+								Serial.print(" ");
+								Serial.print(valuesFromController[2]);
+								Serial.print(" ");
+								Serial.println(valuesFromController[3]);
+							}*/
 						}
-						/*if(debugger){
-							Serial.print(" ");
-							Serial.print(valuesFromController[0]);
-							Serial.print(" ");
-							Serial.print(valuesFromController[1]);
-							Serial.print(" ");
-							Serial.print(valuesFromController[2]);
-							Serial.print(" ");
-							Serial.println(valuesFromController[3]);
-						}*/
+						
+						x = atof(token); 
+						
+						if(iterator != 3){
+							x = x * 100;
+							xMapped = map(x, 0.00, 200.00, -126, 126);
+							valuesFromController[iterator] = xMapped; 
+						}else{
+							valuesFromController[iterator] = x; 
+						}
+						iterator++;
 					}
-					
-					x = atof(token); 
-					
-					if(iterator != 3){
-						x = x * 100;
-						xMapped = map(x, 0.00, 200.00, -126, 126);
-						valuesFromController[iterator] = xMapped; 
-					}else{
-						valuesFromController[iterator] = x; 
-					}
-					iterator++;
 				}
 			}
 		}
