@@ -59,10 +59,12 @@ void loop() {
 				}
 				else{
 					if (String(token) == "e"){
-						goal0=valuesFromController[0];
-						goal1=valuesFromController[1];
-						goal2=valuesFromController[2];
-						if(valuesFromController[3] && homing==0) homing=1;
+						if(homing==0){
+							goal0=valuesFromController[0];
+							goal1=valuesFromController[1];
+							goal2=valuesFromController[2];
+							if(valuesFromController[3]) homing=1;
+						}
 						/*if(debugger){
 							Serial.print(" ");
 							Serial.print(valuesFromController[0]);
