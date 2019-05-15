@@ -16,7 +16,7 @@ void loop() {
 				if (i < 3) Serial.print(".");
 			}
 			Serial.print(", port ");
-			Serial.print(Udp.remotePort());
+			Serial.println(Udp.remotePort());
 		}
 		
 		// read the packet into packetBuffer
@@ -38,15 +38,14 @@ void loop() {
 			}
 		}else{
 			if(debugger){
-				Serial.println();
 				Serial.println(packetBuffer);
 			}
-			char* token; 
-			char* rest = packetBuffer; 
+			char* token;
+			char* rest = packetBuffer;
 			int iterator;
 			int valuesFromController[4];
 			int xMapped;
-			 
+
 			while (token = strtok_r(rest, " ", &rest)) {
 				/*if(debugger){
 					Serial.print(F("Token "));
@@ -88,7 +87,6 @@ void loop() {
 					}
 					iterator++;
 				}
-				if(debugger) Serial.println();
 			}
 		}
 	}
@@ -191,9 +189,21 @@ void loop() {
 	if(homing>0) home();
 	
 	static unsigned long owl=0;
-	if(now-owl>200){ // prints various numbers to serial
+	if(now-owl>200){
 		owl=now;
 		printDebug();
+		if(ethernetConnected){
+			if(Ethernet.linkStatus()==LinkOFF){
+				Serial.println(F("Ethernet cable unplugged. :("));
+				Udp.stop();
+				ethernetConnected=0;
+			}
+		}else{
+			if(Ethernet.linkStatus()==LinkON && Udp.begin(localPort)){
+				Serial.println(F("UDP socket opened. :)"));
+				ethernetConnected=1;
+			}
+		}
 	}
 
 	if(ethernetConnected){
@@ -205,6 +215,7 @@ void loop() {
 			Udp.write(ReplyBuffer);
 			if(Udp.endPacket()==0){
 				Serial.println(F("UDP send failed. :("));
+				Udp.stop();
 				ethernetConnected=0;
 			}
 		}

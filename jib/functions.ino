@@ -186,9 +186,5 @@ void setup() {
 	Ethernet.begin(mac, ip);
 	if(Ethernet.hardwareStatus()==EthernetNoHardware) Serial.println(F("Ethernet shield not found. :("));
 	else if(Ethernet.linkStatus()==LinkOFF) Serial.println(F("Ethernet cable not connected. :("));
-	else if(Udp.begin(localPort)){
-		Serial.println(F("UDP socket opened. :)"));
-		ethernetConnected=1;
-	}
 	Serial.println(Ethernet.localIP());
 }

@@ -61,7 +61,7 @@ byte mac[] = {0xA3, 0xAD, 0x2E, 0xE3, 0xB7, 0x8D};
 IPAddress ip(192, 168, 0, /*EEPROM.read(0)*/176);
 IPAddress ip_server(192, 168, 0, 102);
 
-unsigned int localPort = 10000; // local port to listen on
+word localPort = 10000; // local port to listen on
 
 // buffers for receiving and sending data
 #define UDP_TX_PACKET_MAX_SIZE 24
