@@ -48,6 +48,7 @@ void settings(){ // this function changes some settings of TMC2130
 }
 
 void silentMode(){
+	Serial.println(F("Silent mode"));
 	slew.stealth_max_speed(10); // switch stealthChop off if motor spins fast enough (meaning if time between two steps is less than this)
 	trolley.stealth_max_speed(10);
 	hook.stealth_max_speed(10);
@@ -59,6 +60,7 @@ void silentMode(){
 }
 
 void fastMode(){
+	Serial.println("Fast mode");
 	slew.stealth_max_speed(10000);
 	trolley.stealth_max_speed(10000);
 	hook.stealth_max_speed(10000);
@@ -117,6 +119,14 @@ inline void fox(unsigned long cycles){
 	ICR1 = period;
 	TCCR1B = _BV(WGM13) | _BV(WGM12) | clockSelectBits; // mode 12. p136
 	//TCNT1 = 0; // reset counter. p115
+}
+
+void stopMotors(){
+	goal0=0; goal1=0; goal2=0;
+	spd[0]=0; spd[1]=0; spd[2]=0;
+	setSpeed(0,0); setSpeed(1,0); setSpeed(2,0);
+	homing=0; homeTrolley=0; homeSlew=0;
+	posMax=2E9; posMin=-2E9; posTop=2E9;
 }
 
 void larsonScanner(){

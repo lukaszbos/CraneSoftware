@@ -44,7 +44,7 @@ void loop() {
 				char* token;
 				char* rest = packetBuffer;
 				int iterator;
-				int valuesFromController[4];
+				int valuesFromController[6];
 				int xMapped;
 	
 				while (token = strtok_r(rest, " ", &rest)) {
@@ -64,6 +64,13 @@ void loop() {
 								goal1=valuesFromController[1];
 								goal2=valuesFromController[2];
 								if(valuesFromController[3]) homing=1;
+								static byte oldMode=2; // 1=fast, 0=slow
+								if(valuesFromController[4] != oldMode){
+									oldMode=valuesFromController[4];
+									if(oldMode) fastMode();
+									else silentMode();
+								}
+								if(valuesFromController[5]) stopMotors(); // stop
 							}
 							/*if(debugger){
 								Serial.print(" ");
@@ -79,7 +86,7 @@ void loop() {
 						
 						x = atof(token); 
 						
-						if(iterator != 3){
+						if(iterator < 3){
 							x = x * 100;
 							xMapped = map(x, 0.00, 200.00, -126, 126);
 							valuesFromController[iterator] = xMapped; 
@@ -162,22 +169,13 @@ void loop() {
 			++job;
 		}
 		else if(job==4){ // decode settings byte
-			if(wax & 4){ // stop motors now
-				goal0=0; goal1=0; goal2=0;
-				spd[0]=0; spd[1]=0; spd[2]=0;
-				setSpeed(0,0); setSpeed(1,0); setSpeed(2,0);
-				homing=0; homeTrolley=0; homeSlew=0;
-				posMax=2E9; posMin=-2E9; posTop=2E9;
+			if(wax & 4){
+				stopMotors();
 			}else{
 				if(wax & 2) homing=1;
 				else{
-					if(wax & 1){
-						Serial.println(F("Silent mode"));
-						silentMode();
-					}else{
-						Serial.println("Fast mode");
-						fastMode();
-					}
+					if(wax & 1) silentMode();
+					else fastMode();
 				}
 			}
 			++job;
