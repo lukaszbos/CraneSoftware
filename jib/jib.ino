@@ -18,7 +18,7 @@
 */
 
 // a motor can never spin too fast, right?
-#pragma GCC optimize ("-O2") // https://www.instructables.com/id/Arduino-IDE-16x-compiler-optimisations-faster-code/
+#pragma GCC optimize ("-O1") // https://www.instructables.com/id/Arduino-IDE-16x-compiler-optimisations-faster-code/
 
 // TMC2130 pin connections
 	/* You need to connect the SPI pins as follows for programming the TMC2130. If you have several TMC2130, they all must use these same pins.
@@ -50,15 +50,11 @@ TMC2130Stepper hook = TMC2130Stepper(A2);
 #include <Adafruit_NeoPixel.h>
 Adafruit_NeoPixel led(23, A4, NEO_GRB + NEO_KHZ800); // led count, led pin
 
+#include <EEPROM.h>
 #include <EthernetUdp.h>
-
-//#include <EEPROM.h>
-//EEPROM.update(0,177);
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
-byte mac[] = {0xA3, 0xAD, 0x2E, 0xE3, 0xB7, 0x8D};
-IPAddress ip(192, 168, 0, /*EEPROM.read(0)*/176);
 IPAddress ip_server(192, 168, 0, 102);
 
 word localPort = 10000; // local port to listen on

@@ -122,6 +122,7 @@ inline void fox(unsigned long cycles){
 }
 
 void stopMotors(){
+	Serial.println(F("Stop motors"));
 	goal0=0; goal1=0; goal2=0;
 	spd[0]=0; spd[1]=0; spd[2]=0;
 	setSpeed(0,0); setSpeed(1,0); setSpeed(2,0);
@@ -193,6 +194,10 @@ void setup() {
 	fastMode();
 	led.begin();
 	Ethernet.init(10);
+	//EEPROM.update(0,174);
+	const byte myIP=EEPROM.read(0);
+	IPAddress ip(192, 168, 0, myIP);
+	byte mac[] = {0xA3, 0xAD, 0xBE, 0x16, 0x47, myIP};
 	Ethernet.begin(mac, ip);
 	if(Ethernet.hardwareStatus()==EthernetNoHardware) Serial.println(F("Ethernet shield not found. :("));
 	else if(Ethernet.linkStatus()==LinkOFF) Serial.println(F("Ethernet cable not connected. :("));

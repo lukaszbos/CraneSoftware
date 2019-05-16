@@ -4,7 +4,7 @@ void loop() {
 	
 	// receive commands from PC through Ethernet
 	if(ethernetConnected){
-		const bool debugger=1;
+		const bool debugger=0;
 		const byte packetSize = Udp.parsePacket();
 		if (packetSize) {
 			timeReceived=now;
@@ -46,14 +46,14 @@ void loop() {
 				int iterator;
 				int valuesFromController[6];
 				int xMapped;
-	
+
 				while (token = strtok_r(rest, " ", &rest)) {
 					/*if(debugger){
 						Serial.print(F("Token "));
 						Serial.print(token);
 					}*/
 					double x;
-					 
+
 					if (String(token) == "s"){
 						iterator = 0;
 					}
@@ -63,15 +63,25 @@ void loop() {
 								goal0=valuesFromController[0];
 								goal1=valuesFromController[1];
 								goal2=valuesFromController[2];
-								if(valuesFromController[3]) homing=1;
-								static byte oldMode=2; // 1=fast, 0=slow
-								if(valuesFromController[4] != oldMode){
-									oldMode=valuesFromController[4];
-									if(oldMode) fastMode();
-									else silentMode();
-								}
-								if(valuesFromController[5]) stopMotors(); // stop
 							}
+							static byte oldMode=2; // 1=fast, 0=slow
+							if(valuesFromController[4] != oldMode){
+								oldMode=valuesFromController[4];
+								if(oldMode) fastMode();
+								else silentMode();
+							}
+							if(valuesFromController[5]){
+								stopMotors();
+								while(1){
+									led.fill(0xFF0000);
+									led.show();
+									delay(300);
+									led.clear();
+									led.show();
+									delay(300);
+								}
+							}
+							else if(valuesFromController[3]) homing=1;
 							/*if(debugger){
 								Serial.print(" ");
 								Serial.print(valuesFromController[0]);
@@ -189,8 +199,9 @@ void loop() {
 	if(homing>0) home();
 	
 	static unsigned long owl=0;
-	if(now-owl>200){
+	if(now-owl>20){
 		owl=now;
+		//Serial.println(goal2,DEC);
 		printDebug();
 		if(ethernetConnected){
 			if(Ethernet.linkStatus()==LinkOFF){

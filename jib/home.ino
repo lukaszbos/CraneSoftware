@@ -10,7 +10,7 @@ void home(){
 		homing=2;
 	}
 	else if(homing==2){
-		if(spd[2]<=-20){
+		if(spd[2]<=-20/* || (PINC&8)==0*/){
 			Serial.println("Raising hook");
 			goal2=50;
 			homing=3;
