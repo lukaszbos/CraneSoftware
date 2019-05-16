@@ -2,11 +2,12 @@ void settings(){ // this function changes some settings of TMC2130
 	// slewing driver settings
 	slew.begin(); // Initiate pins and registeries
 	slew.high_sense_R(1); // reference voltage for coil current sense resistors	1 = 0.18V			 0 = 0.32V
-	slew.hold_current(0); // 0-31 standstill current per motor coil
+	slew.hold_current(1); // 0-31 standstill current per motor coil
 	slew.run_current(8); // 0-31,		 0 = 30 mA per coil,		31 = 980 mA per coil
 	slew.power_down_delay(30); // how long to wait after movement stops before reducing to hold current 0-255 = 0-4 seconds
 	slew.hold_delay(3); // 0-15 how gradually it reduces to hold current. 0=fast change. 15=slow change.
 	slew.stealthChop(1);			// Enable extremely quiet stepping
+	slew.standstill_mode(2);
 	slew.stealth_autoscale(1);
 	slew.microsteps(0); // we dont want any
 	slew.interpolate(1); // automatic 256 x microstepping
@@ -16,11 +17,12 @@ void settings(){ // this function changes some settings of TMC2130
 	// trolleying driver settings
 	trolley.begin();
 	trolley.high_sense_R(1);
-	trolley.hold_current(0);
+	trolley.hold_current(1);
 	trolley.run_current(8);
 	trolley.power_down_delay(30);
 	trolley.hold_delay(3);
 	trolley.stealthChop(1);
+	trolley.standstill_mode(2);
 	trolley.stealth_autoscale(1);
 	trolley.microsteps(0);
 	trolley.interpolate(1);
@@ -33,12 +35,13 @@ void settings(){ // this function changes some settings of TMC2130
 	// hoisting driver settings
 	hook.begin();
 	hook.high_sense_R(1);
-	hook.hold_current(0);
+	hook.hold_current(1);
 	hook.run_current(20); // increase this to be able to lift heavier loads
 	hook.power_down_delay(30);
 	hook.hold_delay(3);
 	hook.stealthChop(1);
 	hook.stealth_autoscale(1);
+	hook.standstill_mode(2);
 	hook.microsteps(0);
 	hook.interpolate(1);
 	hook.double_edge_step(1);
@@ -122,12 +125,12 @@ inline void fox(unsigned long cycles){
 }
 
 void stopMotors(){
-	Serial.println(F("Stop motors"));
 	goal0=0; goal1=0; goal2=0;
 	spd[0]=0; spd[1]=0; spd[2]=0;
 	setSpeed(0,0); setSpeed(1,0); setSpeed(2,0);
 	homing=0; homeTrolley=0; homeSlew=0;
 	posMax=2E9; posMin=-2E9; posTop=2E9;
+	Serial.println(F("Stop motors"));
 }
 
 void larsonScanner(){

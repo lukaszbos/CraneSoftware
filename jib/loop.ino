@@ -63,14 +63,17 @@ void loop() {
 								goal0=valuesFromController[0];
 								goal1=valuesFromController[1];
 								goal2=valuesFromController[2];
-							}
-							static byte oldMode=2; // 1=fast, 0=slow
-							if(valuesFromController[4] != oldMode){
-								oldMode=valuesFromController[4];
-								if(oldMode) fastMode();
-								else silentMode();
+								static byte oldMode=2; // 1=fast, 0=slow
+								if(valuesFromController[4] != oldMode){
+									oldMode=valuesFromController[4];
+									if(oldMode) fastMode();
+									else silentMode();
+								}
 							}
 							if(valuesFromController[5]){
+								slew.hold_current(0);
+								trolley.hold_current(0);
+								hook.hold_current(0);
 								stopMotors();
 								while(1){
 									led.fill(0xFF0000);

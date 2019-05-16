@@ -14,7 +14,6 @@
 	 * high torque mode for heavy lifting (and homing?), low torque for power savings
 	 * use stallGuard value to limit speed to prevent motors stalling
  * ISR is not sending step pulses perfectly evenly when spinning many motors at the same time
- * dont use blocking analogRead(A6) inside ISR, instead read it from registers in non blocking way
 */
 
 // a motor can never spin too fast, right?
