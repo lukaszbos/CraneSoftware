@@ -47,7 +47,7 @@ class PadClient(Thread):
         pygame.quit()
 
     def threadLoop(self):
-        controllerValueMatrix = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        controllerValueMatrix = [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]]
         while True:
             self.padHandler()
             controllerValueMatrix: List[List[int]]
@@ -136,11 +136,12 @@ class PadClient(Thread):
                 textPrint.print(screen, "Axis {} value: {:>6.3f}".format(i, axis))
                 try:
                     self.myControllers[joystickInUse].update(i, axis)
-                    # print("printig values: controller : ")
-                    self.myControllers[joystickInUse].printValues()
+                    # self.myControllers[joystickInUse].printValues()
                 except Exception as e:
                     print("error when updating controller")
                     print(e)
+            #if self.myControllers[joystickInUse] is not None
+            self.myControllers[joystickInUse].updateHorizontals(joystick.get_axis(5), joystick.get_axis(2))
 
             textPrint.unindent()
 
@@ -151,7 +152,10 @@ class PadClient(Thread):
             for i in range(buttons):
                 button = joystick.get_button(i)
                 textPrint.print(screen, "Button {:>2} value: {}".format(i, button))
-                self.myControllers[joystickInUse].updateButton(i, button)
+                self.myControllers[joystickInUse].updateButtons(i, button)
+                self.myControllers[joystickInUse].updatePreciseFastButtons(joystick.get_button(1),
+                                                                           joystick.get_button(0))
+                self.myControllers[joystickInUse].printValues()
             textPrint.unindent()
 
             # Hat switch. All or nothing for direction, not like joysticks.
@@ -162,6 +166,9 @@ class PadClient(Thread):
 
             for i in range(hats):
                 hat = joystick.get_hat(i)
+                print("hat")
+                print(hats)
+                self.myControllers[joystickInUse].stopEngines(hat)
                 textPrint.print(screen, "Hat {} value: {}".format(i, str(hat)))
             textPrint.unindent()
 

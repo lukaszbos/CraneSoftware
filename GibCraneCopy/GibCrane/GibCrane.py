@@ -30,7 +30,7 @@ class GibCrane:
     listOfLocks = []
     listOfQueues = []
     testCondition = Condition(Lock())
-    listOfIpAddresses = ['192.168.0.176', '192.168.0.177', '192.168.0.178', '192.168.0.179']
+    listOfIpAddresses = ['192.168.0.172', '192.168.0.174', '192.168.0.171', '192.168.0.173']
 
     def __init__(self, Port):
         # tmpIP = "nah"

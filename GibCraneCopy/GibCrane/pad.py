@@ -109,6 +109,7 @@ while done == False:
 
         for i in range(hats):
             hat = joystick.get_hat(i)
+
             textPrint.print(screen, "Hat {} value: {}".format(i, str(hat)))
         textPrint.unindent()
 
