@@ -1,6 +1,6 @@
 void loop() {
 	const unsigned long now=millis();
-	static unsigned long timeReceived = 0;
+	static unsigned long timeReceived=0, timeSerial=0;
 	
 	// receive commands from PC through Ethernet
 	if(ethernetConnected){
@@ -171,6 +171,7 @@ void loop() {
 	// receive commands from PC through USB
 	if(Serial.available()){
 		timeReceived = now;
+		timeSerial = now;
 		static byte job=255;
 		char wax=Serial.read();
 		if(wax==127 && homing==0) job=0; // speed packet start character is 127
@@ -202,29 +203,18 @@ void loop() {
 	if(homing>0) home();
 	
 	static unsigned long owl=0;
-	if(now-owl>20){
+	if(now-owl>200){
 		owl=now;
 		//Serial.println(goal2,DEC);
 		printDebug();
-		if(ethernetConnected){
-			if(Ethernet.linkStatus()==LinkOFF){
-				Serial.println(F("Ethernet cable unplugged. :("));
-				Udp.stop();
-				ethernetConnected=0;
-			}
-		}else{
-			if(Ethernet.linkStatus()==LinkON && Udp.begin(localPort)){
-				Serial.println(F("UDP socket opened. :)"));
-				ethernetConnected=1;
-			}
-		}
 	}
 
+	const bool serialActive = now-timeSerial<1000?1:0;
 	if(ethernetConnected){
 		static unsigned long dad=0;
 		if(now-dad>50){
 			dad=now;
-			// send some random data to PC
+			// send some data to PC
 			Udp.beginPacket(ip_server, localPort);
 			Udp.write(ReplyBuffer);
 			if(Udp.endPacket()==0){
@@ -232,6 +222,21 @@ void loop() {
 				Udp.stop();
 				ethernetConnected=0;
 			}
+		}
+		if(serialActive){
+			Udp.stop();
+			ethernetConnected=0;
+			Serial.println(F("Serial active --> UDP closed. :)"));
+		}
+		if(Ethernet.linkStatus()==LinkOFF){
+			Serial.println(F("Ethernet cable unplugged. :("));
+			Udp.stop();
+			ethernetConnected=0;
+		}
+	}else{
+		if(!serialActive && Ethernet.linkStatus()==LinkON && Udp.begin(localPort)){
+			Serial.println(F("UDP socket opened. :)"));
+			ethernetConnected=1;
 		}
 	}
 

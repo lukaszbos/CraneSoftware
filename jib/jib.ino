@@ -3,9 +3,8 @@
 /* todo:
  * smooth transition from slow mode to fast mode
  * user shouldnt be able to switch to silent mode during homing
- * combine with ethernet code
  * real acceleration setting instead of acl
- * joystick smoothing? jerk limit? increase acceleration resolution?
+ * jerk limit? increase acceleration resolution?
  * make trolley slow down before edges to limit sway
  * adjust sg_stall_value based on input voltage
  * POWER & TORQUE:
@@ -74,8 +73,7 @@ volatile bool motOn[3]={0,0,0}; // which motors are spinning
 volatile bool dir[3]={0,0,0}; // slew, trolley, hook direction
 volatile long
 	pos[3]={0,0,0}, // motor step positions
-	posMax=2E9, posMin=-2E9,
-	posTop=2E9;
+	posMax=2E9, posMin=-2E9, posTop=2E9;
 volatile byte homing=0, homeSlew=0, homeTrolley=0;
 unsigned long fast[3]; // motor max speeds
 unsigned long acl=10; // acceleration setting
