@@ -196,7 +196,7 @@ void setup() {
 	pinMode(9,INPUT_PULLUP); // diag1 hook
 	fastMode();
 	led.begin();
-	Ethernet.init(10); /// Ethernet shield CS pin
+	Ethernet.init(10); // Ethernet shield CS pin
 	//EEPROM.update(0,174);
 	const byte myIP=EEPROM.read(0);
 	IPAddress ip(192, 168, 0, myIP);
