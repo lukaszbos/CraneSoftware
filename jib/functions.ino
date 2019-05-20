@@ -6,7 +6,7 @@ void settings(){ // this function changes some settings of TMC2130
 	slew.run_current(8); // 0-31,		 0 = 30 mA per coil,		31 = 980 mA per coil
 	slew.power_down_delay(30); // how long to wait after movement stops before reducing to hold current 0-255 = 0-4 seconds
 	slew.hold_delay(3); // 0-15 how gradually it reduces to hold current. 0=fast change. 15=slow change.
-	slew.stealthChop(1);			// Enable extremely quiet stepping
+	slew.stealthChop(1); // Enable extremely quiet stepping
 	slew.standstill_mode(2);
 	slew.stealth_autoscale(1);
 	slew.microsteps(0); // we dont want any
@@ -138,7 +138,13 @@ void larsonScanner(){
  
 	// Draw 5 pixels centered on pos.	setPixelColor() will clip any
 	// pixels off the ends of the strip, we don't need to watch for that.
-	if(ethernetConnected){
+	if(serialActive){
+		led.setPixelColor(pos - 2, 0x000010);
+		led.setPixelColor(pos - 1, 0x000080);
+		led.setPixelColor(pos    , 0x0000FF);
+		led.setPixelColor(pos + 1, 0x000080);
+		led.setPixelColor(pos + 2, 0x000010);
+	}else if(ethernetConnected){
 		led.setPixelColor(pos - 2, 0x001000);
 		led.setPixelColor(pos - 1, 0x008000);
 		led.setPixelColor(pos    , 0x00FF00); // Center pixel is brightest
@@ -170,7 +176,7 @@ void larsonScanner(){
 }
 
 // Unlike its Arduino counterpart, this does not wait that ADC is ready. It makes using analogRead() inside interrupt so much faster.
-int analogRead(uint8_t pin){
+int analogRead(byte pin){
 	if (pin >= 14) pin -= 14; // allow for channel or pin numbers
 	if (pin>7) return -1;
 	static int result[8]={0};

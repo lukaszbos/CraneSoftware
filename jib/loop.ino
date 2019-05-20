@@ -196,6 +196,7 @@ void loop() {
 		}
 	}
 
+	serialActive = now-timeSerial<1000?1:0;
 	if(now - timeReceived > 1000){
 		goal0=0; goal1=0; goal2=0;
 	}
@@ -209,7 +210,6 @@ void loop() {
 		printDebug();
 	}
 
-	const bool serialActive = now-timeSerial<1000?1:0;
 	if(ethernetConnected){
 		static unsigned long dad=0;
 		if(now-dad>50){
