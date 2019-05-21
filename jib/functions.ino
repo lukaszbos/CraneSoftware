@@ -205,6 +205,7 @@ void setup() {
 	Ethernet.init(10); // Ethernet shield CS pin
 	//EEPROM.update(0,174);
 	const byte myIP=EEPROM.read(0);
+	if(myIP==171) led.updateLength(47); // because jib number one has more leds
 	IPAddress ip(192, 168, 0, myIP);
 	byte mac[] = {0xA3, 0xAD, 0xBE, 0x16, 0x47, myIP};
 	Ethernet.begin(mac, ip);

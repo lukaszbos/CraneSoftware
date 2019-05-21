@@ -196,7 +196,15 @@ void loop() {
 		}
 	}
 
+	static bool serialOld=serialActive;
 	serialActive = now-timeSerial<1000?1:0;
+	static unsigned long rat=0;
+	if((serialActive>serialOld) || (spd[0]==0 && spd[1]==0 && spd[2]==0 && now-rat>40)){
+		rat=now;
+		larsonScanner();
+		serialOld=serialActive;
+	}
+
 	if(now - timeReceived > 1000){
 		goal0=0; goal1=0; goal2=0;
 	}
@@ -239,11 +247,4 @@ void loop() {
 			ethernetConnected=1;
 		}
 	}
-
-	static unsigned long rat=0;
-	if(spd[0]==0 && spd[1]==0 && spd[2]==0 && now-rat>40){
-		rat=now;
-		larsonScanner();
-	}
-	
 }
