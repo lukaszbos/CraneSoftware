@@ -182,6 +182,23 @@ while done==False:
 			trolley=trolley0
 		if hook0!=0:
 			hook=hook0
+			
+	# keyboard control
+	if stopping == False:
+		keys=pygame.key.get_pressed()
+		if keys[pygame.K_LEFT]:
+			slew=-126
+		elif keys[pygame.K_RIGHT]:
+			slew=126
+		if keys[pygame.K_UP]:
+			trolley=-126
+		elif keys[pygame.K_DOWN]:
+			trolley=126
+		if keys[pygame.K_a]:
+			hook=-126
+		elif keys[pygame.K_z]:
+			hook=126
+	
 	if ser is None: # auto select arduino COM port
 		if cat is None:
 			now=time.time()
@@ -204,8 +221,9 @@ while done==False:
 	
 	else:
 		if slew!=slewOld or trolley!=trolleyOld or hook!=hookOld or 1:
+			msg=struct.pack('>bbbb',127,slew,trolley,hook)
 			try:
-				ser.write(bytes(struct.pack('>bbbb',127,slew,trolley,hook))) # send 4 bytes to Arduino. The first one, 127, is packet start byte. After that comes three joystick positions as a number between -126 to 126.
+				ser.write(bytes(msg)) # send 4 bytes to Arduino. The first one, 127, is packet start byte. After that comes three joystick positions as a number between -126 to 126.
 			except:
 				ser=None
 				cat=None
@@ -214,9 +232,11 @@ while done==False:
 				slewOld=slew
 				trolleyOld=trolley
 				hookOld=hook
+				textPrint.print(screen,"Sent: {}".format(msg))
 		if send:
+			msg=struct.pack('>bb',-127,wax)
 			try:
-				ser.write(bytes(struct.pack('>bb',-127,wax))) # sometimes send also settings
+				ser.write(bytes(msg)) # sometimes send also settings
 			except:
 				ser=None
 				cat=None
@@ -224,6 +244,7 @@ while done==False:
 			else:
 				send=0
 				wax &= ~2 # stop homing
+				textPrint.print(screen,"Sent: {}".format(msg))
 	
 	# ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
 	
