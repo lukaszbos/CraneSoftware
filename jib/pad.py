@@ -80,11 +80,6 @@ armed=[False,False,False,False,False,False,False,False]
 # -------- Main Program Loop -----------
 while done==False:
 
-	# EVENT PROCESSING STEP
-	for event in pygame.event.get(): # User did something
-		if event.type == pygame.QUIT: # If user clicked close
-			done=True # Flag that we are done so we exit this loop					
-
 	# DRAWING STEP
 	# First, clear the screen to white. Don't put other drawing commands
 	# above this, or they will be erased with this command.
@@ -182,22 +177,34 @@ while done==False:
 			trolley=trolley0
 		if hook0!=0:
 			hook=hook0
-			
+
+	# EVENT PROCESSING STEP
+	for event in pygame.event.get(): # User did something
+		if event.type == pygame.QUIT: # If user clicked close
+			done=True # Flag that we are done so we exit this loop
+		if event.type == pygame.KEYDOWN:
+			if event.key == pygame.K_f:
+				wax &= ~1
+				send=1
+			if event.key == pygame.K_s:
+				wax |= 1
+				send=1
+				
 	# keyboard control
 	if stopping == False:
 		keys=pygame.key.get_pressed()
 		if keys[pygame.K_LEFT]:
-			slew=-126
-		elif keys[pygame.K_RIGHT]:
 			slew=126
+		elif keys[pygame.K_RIGHT]:
+			slew=-126
 		if keys[pygame.K_UP]:
 			trolley=-126
 		elif keys[pygame.K_DOWN]:
 			trolley=126
 		if keys[pygame.K_a]:
-			hook=-126
-		elif keys[pygame.K_z]:
 			hook=126
+		elif keys[pygame.K_z]:
+			hook=-126
 	
 	if ser is None: # auto select arduino COM port
 		if cat is None:
@@ -221,9 +228,8 @@ while done==False:
 	
 	else:
 		if slew!=slewOld or trolley!=trolleyOld or hook!=hookOld or 1:
-			msg=struct.pack('>bbbb',127,slew,trolley,hook)
 			try:
-				ser.write(bytes(msg)) # send 4 bytes to Arduino. The first one, 127, is packet start byte. After that comes three joystick positions as a number between -126 to 126.
+				ser.write(bytes(struct.pack('>bbbb',127,slew,trolley,hook))) # send 4 bytes to Arduino. The first one, 127, is packet start byte. After that comes three joystick positions as a number between -126 to 126.
 			except:
 				ser=None
 				cat=None
@@ -232,11 +238,10 @@ while done==False:
 				slewOld=slew
 				trolleyOld=trolley
 				hookOld=hook
-				textPrint.print(screen,"Sent: {}".format(msg))
+				textPrint.print(screen,"{} {} {}".format(slew,trolley,hook))
 		if send:
-			msg=struct.pack('>bb',-127,wax)
 			try:
-				ser.write(bytes(msg)) # sometimes send also settings
+				ser.write(bytes(struct.pack('>bb',-127,wax))) # sometimes send also settings
 			except:
 				ser=None
 				cat=None
@@ -244,7 +249,7 @@ while done==False:
 			else:
 				send=0
 				wax &= ~2 # stop homing
-				textPrint.print(screen,"Sent: {}".format(msg))
+				textPrint.print(screen,"{}".format(wax))
 	
 	# ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
 	

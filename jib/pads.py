@@ -189,21 +189,26 @@ while done==False:
 	for i in range(comCount):
 		if ser[i] is not None:
 			if slew!=slewOld or trolley!=trolleyOld or hook!=hookOld or slew!=0 or trolley!=0 or hook!=0:
+				msg=struct.pack('>bbbb',127,slew,trolley,hook)
 				try:
-					ser[i].write(bytes(struct.pack('>bbbb',127,slew,trolley,hook)))
+					ser[i].write(bytes(msg))
 				except:
 					ser[i]=None
 				else:
 					slewOld=slew
 					trolleyOld=trolley
 					hookOld=hook
+					textPrint.print(screen,"Sent: {}".format(msg))
 	if send:
+		msg=struct.pack('>bb',-127,wax)
 		for i in range(comCount):
 			if ser[i] is not None:
 				try:
-					ser[i].write(bytes(struct.pack('>bb',-127,wax))) # sometimes send also settings
+					ser[i].write(bytes(msg)) # sometimes send also settings
 				except:
 					ser[i]=None
+				else:
+					textPrint.print(screen,"Sent: {}".format(msg))
 		send=0
 		wax &= ~2 # stop homing
 	# ALL CODE TO DRAW SHOULD GO ABOVE THIS COMMENT
