@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO,
 
 class CraneClient(Thread):
 
-    def __init__(self, name, crane: Crane, hook: Hook, inc, delay, cond: Condition, Queue, lock, ip):
+    def __init__(self, name, crane: Crane, hook: Hook, inc, delay, Queue, lock, ip):
         Thread.__init__(self, name=f'{name}_{crane.GetIndex()}')
         self._crane = crane
         self._hook = hook
@@ -28,7 +28,6 @@ class CraneClient(Thread):
         self._inc = inc
         self._delay = delay
         self.index = crane.GetIndex()
-        self._condition = cond
         self.queue = Queue
         self.lock = lock
         self.name = f'{name}_{crane.GetIndex()}'
@@ -61,27 +60,16 @@ class CraneClient(Thread):
         with self.outputLock:
             self.setMessage(msg)
 
-    '''
-        Metoda sklejająca tablicę danych otrzymaną z padów, do jednego stringa
-    '''
-
     def getFullOutput(self):
         message = 's '
         testMessage = self.name
-        # print("Paczuszki w get full: ")
-        # print(self.outputMessage)
         with self.outputLock:
-            # return self.outputMessage
             for i in self.outputMessage:
-                # print(i)
                 if len(self.outputMessage) != 0:
                     message += f"{i} "
-                # print(message)
             message += 'e '
-            print(f'{self.name} message: >[{message}]<')
             return bytes(message, 'utf-8')
 
-    # def to_bit(self):
     def getPackage(self):
         print("Paczuszki poza try: ")
         print(self.getMessage())
