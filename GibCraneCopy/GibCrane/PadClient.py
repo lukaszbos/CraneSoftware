@@ -21,7 +21,7 @@ class PadClient(Thread):
         self.name = name
         self.index = index
         # self.pad = controller.Controller()
-        self.myControllers = []
+        self.myControllers = []  # contains info of every controller connected to the platform
         print('Pad Client has been created')
 
     _running = False
@@ -51,7 +51,7 @@ class PadClient(Thread):
         while True:
             self.padHandler()
             controllerValueMatrix: List[List[int]]
-            #controllerValueMatrix.clear()
+            # controllerValueMatrix.clear()
             # print(self.myControllers)
             for pad in self.myControllers:
                 # print("controller value matrix")
@@ -65,14 +65,10 @@ class PadClient(Thread):
     def fillListOfControllers(self, numberOfPads):
         for i in range(numberOfPads):
             self.myControllers.append(Controller.Controller(i))
-        # print("lista kontrolerow")
-        # print(self.myControllers)
 
-    # def isRunning(self):
-    #     self._running = True
-
-    # print('running')
-
+    # to fully understand padHandler method check: https://www.pygame.org/docs/ref/joystick.html and Controller class
+    # what it simply do is it loops by every button of every connected to computer controller, displays the data
+    # to the screen and also updates myControllers List
     def padHandler(self):
 
         # Set the width and height of the screen [width,height]
@@ -135,12 +131,12 @@ class PadClient(Thread):
                 axis = joystick.get_axis(i)
                 textPrint.print(screen, "Axis {} value: {:>6.3f}".format(i, axis))
                 try:
-                    self.myControllers[joystickInUse].update(i, axis)
+                    self.myControllers[joystickInUse].updateVerticalJoysticks(i, axis)
                     # self.myControllers[joystickInUse].printValues()
                 except Exception as e:
                     print("error when updating controller")
                     print(e)
-            #if self.myControllers[joystickInUse] is not None
+            # if self.myControllers[joystickInUse] is not None
             self.myControllers[joystickInUse].updateHorizontals(joystick.get_axis(5), joystick.get_axis(2))
 
             textPrint.unindent()

@@ -1,3 +1,8 @@
+"""
+File not needed - can be deleted
+
+"""
+
 import socket
 import sys
 
@@ -31,4 +36,4 @@ while True:
 
 # finally:
 #   print('closing socket')
-# sock.close()  # closing socket connection
+# sock.close() # closing socket connection
