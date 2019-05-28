@@ -1,4 +1,14 @@
-"# CraneSoftware" 
+# GibCrane 
+
+## Quick GibCrane Tutorial:
+
+**Python version: python3.7**
+    *GibCrane wont work with earlier versions of Python so that is quite necessary thing to have*
+
+Necessary modules:
+    -PyGame
+    
+
 
 update on branches
 Hi. I created jib branch.
