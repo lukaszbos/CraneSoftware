@@ -25,6 +25,7 @@ class Controller:
             voltage = self.formatVoltage(voltage)
             self.axisHook = voltage
             self.valueList[2] = voltage
+
     #     if numberOfAxes == 5 or numberOfAxes == 2:
     #         voltageTwo =
     #         voltage = self.formatVoltage(voltage/2)

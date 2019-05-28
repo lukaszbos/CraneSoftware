@@ -7,6 +7,8 @@ import pygame
 import Controller
 import textprint
 
+
+
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s: %(asctime)s %(threadName)-10s %(message)s',
                     datefmt='%m/%d/%Y  %I:%M:%S %p')
@@ -22,7 +24,6 @@ class PadClient(Thread):
         self.index = index
         # self.pad = controller.Controller()
         self.myControllers = []
-        print('Pad Client has been created')
 
     _running = False
 
@@ -46,33 +47,25 @@ class PadClient(Thread):
         self.threadLoop()
         pygame.quit()
 
+    #   threadLoop() checks for changes in any of connected gamepads and later it sets newest data into the queue
     def threadLoop(self):
         controllerValueMatrix = [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]]
         while True:
-            self.padHandler()
+            try:
+                self.padHandler()
+            except Exception as e:
+                logging.info(f'-> Exception has happened. Exception: {e} \n '
+                             f'GamePads might not be connected properly')
             controllerValueMatrix: List[List[int]]
-            #controllerValueMatrix.clear()
-            # print(self.myControllers)
             for pad in self.myControllers:
-                # print("controller value matrix")
                 controllerValueMatrix[pad.index] = pad.getValueList()
-                # print("controller value matrix by idex")
-                # print(controllerValueMatrix[pad.index])
-                # TODO
-            # print(controllerValueMatrix[pad.index])
             self.queue.put(controllerValueMatrix)
 
     def fillListOfControllers(self, numberOfPads):
         for i in range(numberOfPads):
             self.myControllers.append(Controller.Controller(i))
-        # print("lista kontrolerow")
-        # print(self.myControllers)
 
-    # def isRunning(self):
-    #     self._running = True
-
-    # print('running')
-
+    #   Method responsible for handling Pads connected to computer
     def padHandler(self):
 
         # Set the width and height of the screen [width,height]
@@ -140,7 +133,7 @@ class PadClient(Thread):
                 except Exception as e:
                     print("error when updating controller")
                     print(e)
-            #if self.myControllers[joystickInUse] is not None
+            # if self.myControllers[joystickInUse] is not None
             self.myControllers[joystickInUse].updateHorizontals(joystick.get_axis(5), joystick.get_axis(2))
 
             textPrint.unindent()
