@@ -7,11 +7,29 @@
 
 Necessary modules:
     -PyGame
-    
+
+Very importat thing for configuration of testbed, is to have correct ip adresses (and ports) both in GibCrane python code, and arduino code. Each arduino has it's ip and port defined in following lines in file [jib.ino](https://github.com/lukaszbos/CraneSoftware/blob/jib/jib/jib.ino) :
+```cpp
+
+#include <EthernetUdp.h>
+IPAddress ip_server(192, 168, 0, 102);
+word localPort = 10000; // local port to listen on
+
+```
+
+
+```python
+
+#  Chosen port used for local communication, and list of IP adresses hardcoded in arduino
+PORT = 10000
+listOfIpAddresses = ['192.168.0.171', '192.168.0.173', '192.168.0.172', '192.168.0.174']
+
+```
 
 
 update on branches
 Hi. I created jib branch.
+
 
 
 Usefull stuff (download is probably necessary):
