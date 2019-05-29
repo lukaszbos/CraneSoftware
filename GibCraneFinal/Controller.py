@@ -1,5 +1,5 @@
 """
-I tried to name classes & variable so code would be understandable without comments
+I tried to name classes & variable so code would be understandable without comments, LM
 
 *****************************************************************
 

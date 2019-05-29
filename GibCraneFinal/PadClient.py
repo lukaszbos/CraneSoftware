@@ -131,7 +131,7 @@ class PadClient(Thread):
                 axis = joystick.get_axis(i)
                 textPrint.print(screen, "Axis {} value: {:>6.3f}".format(i, axis))
                 try:
-                    self.myControllers[joystickInUse].update(i, axis)
+                    self.myControllers[joystickInUse].updateVerticalJoysticks(i, axis)
                     # self.myControllers[joystickInUse].printValues()
                 except Exception as e:
                     print("error when updating controller")
@@ -162,6 +162,8 @@ class PadClient(Thread):
 
             for i in range(hats):
                 hat = joystick.get_hat(i)
+                print("hat")
+                print(hats)
                 self.myControllers[joystickInUse].stopEngines(hat)
                 textPrint.print(screen, "Hat {} value: {}".format(i, str(hat)))
             textPrint.unindent()
