@@ -1,9 +1,11 @@
-from builtins import print
 import sys
+import queue
+import socket
+
+from builtins import print
 from CraneClient import *
 from PadClient import *
-from SupportThreads import startWorkingYouFucker, communicateThreads
-
+from SupportThreads import loggingThreadFunction, communicateThreads
 '''
     GibCrane.py: Main class of program. It creates and manages all threads and connection between UDP clients 
     As program includes Threading module, in classes: Crane client, and PadClient, method run() is one that actually 
@@ -40,35 +42,11 @@ class GibCrane:
     def run(self):
         self._createPadControllingThread()
         self._createDataExchangeThread()
-        self._createThisFuckingThread()
+        self._createLoggingThread()
         self._createAllCranes(len(listOfIpAddresses))
         sock = self._createUdpCompatibleSocket()
         while True:
             self._communicateCranesWithSoftware(sock)
-
-    def _communicateCranesWithSoftware(self, sock):
-        #   sock.recvfrom() returns tuple with data and address.
-        #   address is also a tuple consisting of ipAddress and port
-        d = sock.recvfrom(1024)
-        data = d[0]
-        addr = d[1]
-        if not data:
-            print("no data")
-            pass
-        self._communicateWithProperCraneBasedOnIP(addr, sock)
-
-    def _createThisFuckingThread(self):  # creates thread responsible for logging informations about alive threads
-        fuckingThread = Thread(target=startWorkingYouFucker, name='motherfucker', args=(self.listOfThreads,))
-        fuckingThread.setDaemon(True)
-        fuckingThread.start()
-        self.listOfThreads.append(fuckingThread)
-
-    def _createDataExchangeThread(self):    # creates thread responsible for data exchange between different threads
-        DataExchangeThread = Thread(target=communicateThreads, name='DataExchangeThread',
-                                    args=(self.listOfThreads, self.listOfQueues,
-                                          self.listOfLocks,))
-        DataExchangeThread.setDaemon(True)
-        DataExchangeThread.start()
 
     def _createPadControllingThread(self):
         padLock = Lock()
@@ -84,9 +62,27 @@ class GibCrane:
         PadThread.start()
         self.listOfThreads.append(PadThread)
 
-    def _createCraneThreads(self, ipAddress):
+    def _createDataExchangeThread(self):    # creates thread responsible for data exchange between different threads
+        DataExchangeThread = Thread(target=communicateThreads, name='DataExchangeThread',
+                                    args=(self.listOfThreads, self.listOfQueues,
+                                          self.listOfLocks,))
+        DataExchangeThread.setDaemon(True)
+        DataExchangeThread.start()
+
+    def _createLoggingThread(self):  # creates thread responsible for logging informations about alive threads
+        fuckingThread = Thread(target=loggingThreadFunction, name='Logger', args=(self.listOfThreads,))
+        fuckingThread.setDaemon(True)
+        fuckingThread.start()
+        self.listOfThreads.append(fuckingThread)
+
+    def _createAllCranes(self, amount):
+        for i in range(amount):
+            crane = self._createCraneThread(listOfIpAddresses[i])
+            self.listOfThreads.append(crane)
+            crane.start()
+
+    def _createCraneThread(self, ipAddress):
         iterator = len(self.listOfThreads) - 1
-        print('client connected')
         newQueue = queue.LifoQueue()
         newLock = Lock()
         self.listOfQueues.append(newQueue)
@@ -102,11 +98,16 @@ class GibCrane:
         crane.setDaemon(True)
         return crane
 
-    def _createAllCranes(self, amount):
-        for i in range(amount):
-            crane = self._createCraneThreads(listOfIpAddresses[i])
-            self.listOfThreads.append(crane)
-            crane.start()
+    def _communicateCranesWithSoftware(self, sock):
+        #   sock.recvfrom() returns tuple with data and address.
+        #   address is also a tuple consisting of ipAddress and port
+        d = sock.recvfrom(1024)
+        data = d[0]
+        addr = d[1]
+        if not data:
+            print("no data")
+            pass
+        self._communicateWithProperCraneBasedOnIP(addr, sock)
 
     def _communicateWithProperCraneBasedOnIP(self, addr, sock):
         for thread in self.listOfThreads:  # For each loop iterating on threads

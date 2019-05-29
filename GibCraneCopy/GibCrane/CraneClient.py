@@ -1,12 +1,9 @@
+import logging
 import struct
+import time
+from threading import *
 
 from GpsObjects import *
-from threading import *
-from Controller import Controller
-import time
-import logging
-import queue
-import socket
 
 '''
     CraneClient.py: Crane client thread object is defined here. It handles all calculations 
@@ -35,9 +32,9 @@ class CraneClient(Thread):
         self.lock = lock
         self.name = f'{name}_{crane.GetIndex()}'
         self.ip = None
-        print("new crane connected")
         self.outputMessage = []
         self.ip = ip
+        logging.info(f'{self.getName()} has been created')
 
     tempCounter = 0
     _running = False

@@ -1,12 +1,10 @@
 import logging
-from threading import *
-from typing import List
-
 import pygame
-
 import Controller
 import textprint
 
+from threading import *
+from typing import List
 
 
 logging.basicConfig(level=logging.INFO,
@@ -30,7 +28,6 @@ class PadClient(Thread):
     def run(self):
         logging.info('Starting')
         numberOfPads = 4
-        # self.isRunning()
         self.fillListOfControllers(numberOfPads)
         print("list of controllers")
         print(self.myControllers)

@@ -15,7 +15,7 @@ from CraneClient import CraneClient
 '''
 
 
-def startWorkingYouFucker(listOfThreadsTest):
+def loggingThreadFunction(listOfThreadsTest):
     logging.info(' Starting')
     print(listOfThreadsTest)
     while True:
@@ -41,8 +41,8 @@ def passDataToCraneThreads(pad_commands, threads):
             try:
                 current_command = pad_commands[ii]
                 thread.setOutput(current_command)
-            except Exception as e:
-                pass
+            except Exception as exception:
+                logging.info(f'Exception has happend: {exception}')
 
             ii += 1
         else:
