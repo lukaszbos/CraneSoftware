@@ -7,7 +7,7 @@ from CraneClient import CraneClient
 '''
     SupportThreads.py: File contains definitions of 2 essential methods running as separate threads:
     > communicateThreads - thread handling communication between threads
-    > startWorkingYouFucker - thread responsible for logging information about status of all running threads
+    > loggingThreadFunction - thread responsible for logging information about status of all running threads
     
     Python version: 3.7
     
