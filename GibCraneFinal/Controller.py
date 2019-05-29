@@ -1,5 +1,16 @@
-class Controller:
+"""
+I tried to name classes & variable so code would be understandable without comments
 
+*****************************************************************
+
+Class Controller simulates every PS4 pad button used to control a crane.
+Make sure that you know pygame library before reading this class: https://www.pygame.org/docs/ref/joystick.html
+
+"""
+
+
+class Controller:
+    # if no button pressed variables are initialized with undermentioned values
     def __init__(self, index):
         self.axisHorizontal = 1.00
         self.axisVertical = 1.00
@@ -8,46 +19,34 @@ class Controller:
         self.fastOrPrecise = 0
         self.emergencyStopButton = 0
         self.index = index
+        # this list contains actual values of every button
         self.valueList = [self.axisHorizontal, self.axisVertical, self.axisHook, self.homingButton, self.fastOrPrecise,
                           self.emergencyStopButton]
 
-    def update(self, numberOfAxes, voltage):
-        # if numberOfAxes == 0:
-        #     voltage = voltage * (-1)  # cause direction was wrong
-        #     voltage = self.formatVoltage(voltage)
-        #     self.axisHorizontal = voltage
-        #     self.valueList[0] = voltage
-        if numberOfAxes == 1:
-            voltage = self.formatVoltage(voltage)
+    # updates value of both joysticks (vertical plane only)
+    def updateVerticalJoysticks(self, numberOfAxe, voltage):
+        if numberOfAxe == 1:
+            voltage = self.formatValue(voltage)
             self.axisVertical = voltage
             self.valueList[1] = voltage
-        if numberOfAxes == 4:
-            voltage = self.formatVoltage(voltage)
+        if numberOfAxe == 4:
+            voltage = self.formatValue(voltage)
             self.axisHook = voltage
             self.valueList[2] = voltage
 
-    #     if numberOfAxes == 5 or numberOfAxes == 2:
-    #         voltageTwo =
-    #         voltage = self.formatVoltage(voltage/2)
-    #         self.axisHorizontal = voltage
-    #         self.valueList[0] = voltage
-    #     if numberOfAxes == 2:
-    #         voltage = self.formatVoltage(voltage/2)
-    #         self.axisHorizontal = voltage
-    #         self.valueList[0] = voltage
-
+    # maps input from pad so it has static length
     @staticmethod
-    def formatVoltage(voltage):
+    def formatValue(voltage):
         voltage = voltage + 1
         voltage = "{:.2f}".format(voltage)
         return voltage
 
-    # VOLTAGES
-    def updateHorizontals(self, voltageHorizontalRight, voltageHorizontalLeft):
-        voltageHorizontal = -(voltageHorizontalRight - voltageHorizontalLeft) / 2
-        voltageHorizontal = self.formatVoltage(voltageHorizontal)
-        self.axisHorizontal = voltageHorizontal
-        self.valueList[0] = voltageHorizontal
+    # updates buttons responsible for movement in horizontal plane
+    def updateHorizontals(self, valueHorizontalRight, valueHorizontalLeft):
+        valueHorizontal = -(valueHorizontalRight - valueHorizontalLeft) / 2
+        valueHorizontal = self.formatValue(valueHorizontal)
+        self.axisHorizontal = valueHorizontal
+        self.valueList[0] = valueHorizontal
 
     @staticmethod
     def deadzone(voltage):  # calculates deadzones for DualShock4
@@ -67,14 +66,12 @@ class Controller:
 
     def updateButtons(self, buttonNumber, buttonValue):
         homingButtonNumber = 8
-        emergencyStopButtonNumber = 2
         if buttonNumber == homingButtonNumber:
             self.homingButton = buttonValue
             self.valueList[3] = buttonValue
 
     def updatePreciseFastButtons(self, fastButtonValue, preciseButtonValue):
-        fastModeButtonNumber = 0
-        slowModeButtonNumber = 1
+        # 1 means that button was clicked
         if fastButtonValue == 1:
             self.fastOrPrecise = 1
             self.valueList[4] = 1

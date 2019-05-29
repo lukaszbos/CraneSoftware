@@ -65,7 +65,10 @@ class PadClient(Thread):
         for i in range(numberOfPads):
             self.myControllers.append(Controller.Controller(i))
 
-    #   Method responsible for handling Pads connected to computer
+    # Method responsible for handling Pads connected to computer
+    # to fully understand padHandler method check: https://www.pygame.org/docs/ref/joystick.html and Controller class
+    # what it simply do is it loops by every button of every connected to computer controller, displays the data
+    # to the screen and also updates myControllers List
     def padHandler(self):
 
         # Set the width and height of the screen [width,height]
