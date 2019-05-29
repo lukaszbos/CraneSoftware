@@ -106,3 +106,5 @@ GibCrane/venv/
 gps-sim-v2/venv/
 
 simGPS/cmake-build-debug/simGPS
+
+*.log

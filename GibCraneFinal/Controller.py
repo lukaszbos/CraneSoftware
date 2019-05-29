@@ -13,7 +13,7 @@ class Controller:
 
     def update(self, numberOfAxes, voltage):
         # if numberOfAxes == 0:
-        #     voltage = voltage * (-1)  # couse direction was wrong
+        #     voltage = voltage * (-1)  # cause direction was wrong
         #     voltage = self.formatVoltage(voltage)
         #     self.axisHorizontal = voltage
         #     self.valueList[0] = voltage

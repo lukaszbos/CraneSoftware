@@ -6,7 +6,12 @@ import textprint
 from threading import *
 from typing import List
 
+'''
+    PadClient.py: it contains definition of PadClient() class. It is responsible for handling getting information from 
+    game-pads, and adding commands from each pad to pad command queue
 
+    Authors: Lukasz Michowski, Mateusz Jaszek
+'''
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s: %(asctime)s %(threadName)-10s %(message)s',
                     datefmt='%m/%d/%Y  %I:%M:%S %p')
@@ -29,10 +34,8 @@ class PadClient(Thread):
         logging.info('Starting')
         numberOfPads = 4
         self.fillListOfControllers(numberOfPads)
-        print("list of controllers")
-        print(self.myControllers)
         '''
-        Value Matrix scheme:
+        Value Matrix scheme - data from each pad is passed to DataExchangeThread in this form:
              | var0 | var1 | var2 | var3
         pad0 | int  | int  | int  | int
         pad1 | int  | int  | int  | int

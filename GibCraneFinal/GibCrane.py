@@ -126,7 +126,6 @@ class GibCrane:
 
     @staticmethod
     def _createUdpCompatibleSocket():
-
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             print('Socket created')
