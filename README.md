@@ -1,14 +1,17 @@
 # GibCrane 
+## Quick GibCrane Usage guide
 
-## Quick GibCrane Tutorial:
+#### Requirements
 
-**Python version: python3.7**
-    *GibCrane wont work with earlier versions of Python so that is quite necessary thing to have*
+Python version: python3.7 
+> _GibCrane wont work with earlier versions of Python so that is quite necessary thing to have_
 
 Necessary modules:
-    -PyGame
+- pygame
+   
+#### Usage and configuration
 
-Very importat thing for configuration of testbed, is to have correct ip adresses (and ports) both in GibCrane python code, and arduino code. Each arduino has it's ip and port defined in following lines in file [jib.ino](https://github.com/lukaszbos/CraneSoftware/blob/jib/jib/jib.ino) :
+Very importat thing for configuration of testbed, is to have correct ip adresses (and ports) both in GibCrane python code, and arduino code. That's why, each time arduino is uploaded with new code, it is necessary to change ip for each crane. In case 2 or more cranes have same IP, they will be controlled with one controller. Last number of ip address matches number of a crane. Each arduino has it's ip and port hardcoded in following lines in file [jib.ino](https://github.com/lukaszbos/CraneSoftware/blob/jib/jib/jib.ino).
 ```cpp
 
 #include <EthernetUdp.h>
@@ -16,7 +19,7 @@ IPAddress ip_server(192, 168, 0, 102);
 word localPort = 10000; // local port to listen on
 
 ```
-
+Next part of configuration is checking list of ip adresses in [GibCrane.py](https://github.com/lukaszbos/CraneSoftware/blob/MageCodeReadableAgain/GibCraneFinal/GibCrane.py). 
 
 ```python
 
@@ -25,7 +28,10 @@ PORT = 10000
 listOfIpAddresses = ['192.168.0.171', '192.168.0.173', '192.168.0.172', '192.168.0.174']
 
 ```
+When it comes to Game-pad connection, first pad connected to the computer will controll crane with first ip addresses on list. That means that if you want to use only 2 cranes, their ip should be placed on position 0 and 1 in listOfIpAddresses
 
+
+**_______________________________________________________________________________________________________________________**
 
 update on branches
 Hi. I created jib branch.
