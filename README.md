@@ -7,11 +7,14 @@ Python version: python3.6
 > _GibCrane wont work with earlier versions of Python so that is quite necessary thing to have_
 
 Necessary modules:
-- pygame
-   
+- [pygame](https://www.pygame.org/news)
+
+Potentially usefull:
+- [Geographic lib](https://geographiclib.sourceforge.io/1.49/python/code.html) for python. Might be usefull for converting       data from cranes into geographical coordinates. Unfortunately, we did not manage to make this part work on time.
+
 #### Usage and configuration
 
-Very importat thing for configuration of testbed is to have correct ip adresses (and ports) both in GibCrane python code and arduino code. That's why each time arduino is uploaded with new code, it is necessary to either change ip for each crane or use value ***myIP*** as last significant bit of IP (it is saved in each crane arduino EPROM memory). In case 2 or more cranes have same IP, they will be controlled with one controller. Last number of ip address matches number of a crane. Each arduino has it's ip and port hardcoded in following lines in file [jib.ino](https://github.com/lukaszbos/CraneSoftware/blob/jib/jib/jib.ino).
+Very importat thing for configuration of testbed is to have correct ip adresses (and ports) both in GibCrane python code and arduino code. That's why each time arduino is uploaded with new code, it is necessary to either change ip for each crane or use value ***myIP*** as last significant bit of IP (it is saved in each crane arduino EPROM memory). In case 2 or more cranes have same IP, they will be controlled with one controller. Last number of ip address matches number of a crane. Each arduino has it's ip and port hardcoded in following lines in file [functions.ino](https://github.com/lukaszbos/CraneSoftware/blob/jib/jib/functions.ino).
 
 ```cpp
 
