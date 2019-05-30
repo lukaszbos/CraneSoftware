@@ -65,7 +65,10 @@ class PadClient(Thread):
         for i in range(numberOfPads):
             self.myControllers.append(Controller.Controller(i))
 
-    #   Method responsible for handling Pads connected to computer
+    # Method responsible for handling Pads connected to computer
+    # to fully understand padHandler method check: https://www.pygame.org/docs/ref/joystick.html and Controller class
+    # what it simply do is it loops by every button of every connected to computer controller, displays the data
+    # to the screen and also updates myControllers List
     def padHandler(self):
 
         # Set the width and height of the screen [width,height]
@@ -128,7 +131,7 @@ class PadClient(Thread):
                 axis = joystick.get_axis(i)
                 textPrint.print(screen, "Axis {} value: {:>6.3f}".format(i, axis))
                 try:
-                    self.myControllers[joystickInUse].update(i, axis)
+                    self.myControllers[joystickInUse].updateVerticalJoysticks(i, axis)
                     # self.myControllers[joystickInUse].printValues()
                 except Exception as e:
                     print("error when updating controller")
@@ -159,6 +162,8 @@ class PadClient(Thread):
 
             for i in range(hats):
                 hat = joystick.get_hat(i)
+                print("hat")
+                print(hats)
                 self.myControllers[joystickInUse].stopEngines(hat)
                 textPrint.print(screen, "Hat {} value: {}".format(i, str(hat)))
             textPrint.unindent()
