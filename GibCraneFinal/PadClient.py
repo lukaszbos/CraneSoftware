@@ -162,8 +162,6 @@ class PadClient(Thread):
 
             for i in range(hats):
                 hat = joystick.get_hat(i)
-                print("hat")
-                print(hats)
                 self.myControllers[joystickInUse].stopEngines(hat)
                 textPrint.print(screen, "Hat {} value: {}".format(i, str(hat)))
             textPrint.unindent()
