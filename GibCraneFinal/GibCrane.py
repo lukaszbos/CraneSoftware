@@ -17,7 +17,7 @@ from SupportThreads import loggingThreadFunction, communicateThreads
 
 #  Chosen port used for local communication, and list of IP adresses hardcoded in arduino
 PORT = 10000
-listOfIpAddresses = ['192.168.0.171', '192.168.0.173', '192.168.0.172', '192.168.0.174']
+listOfIpAddresses = ['192.168.0.171', '192.168.0.172', '192.168.0.173', '192.168.0.174']
 
 #   Logs at INFO level, are going to be saved into threadLogs.log and deleted after each run of program
 logging.basicConfig(level=logging.INFO,
